@@ -35,79 +35,44 @@ const LoginForm = () => {
             <div className="mx-auto">
               <a href="">
                 <img
-                  src="https://images.shadcnspace.com/assets/logo/logo-icon-black.svg"
+                  src="img/icone.png"
                   alt="shadcnspace"
-                  className="dark:hidden h-10 w-10" />
-                <img
-                  src="https://images.shadcnspace.com/assets/logo/logo-icon-white.svg"
-                  alt="shadcnspace"
-                  className="hidden dark:block h-10 w-10" />
+                  className="dark:hidden h-20 w-20" />
               </a>
             </div>
             <div className="flex flex-col gap-1">
               <CardTitle className="text-2xl font-medium text-card-foreground">
-                Welcome to Shadcn Space
+                Bem-vindo ao <span className="font-bold=">Predict<span className="text-ring">Guard</span></span>
               </CardTitle>
               <CardDescription className="text-sm text-muted-foreground font-normal">
-                Login to your account now
+                Faça login na sua conta agora
               </CardDescription>
             </div>
           </CardHeader>
           <CardContent className="p-0">
             <form>
               <FieldGroup className="gap-6">
-                <Field className="grid md:grid-cols-2 md:gap-6 gap-3">
-                  <Button
-                    variant="outline"
-                    type="button"
-                    className="text-sm text-medium text-card-foreground gap-2 dark:bg-background rounded-lg">
-                    <img
-                      src="https://images.shadcnspace.com/assets/svgs/icon-google.svg"
-                      alt="google icon"
-                      className="h-4 w-4" />
-                    Sign in with Google
-                  </Button>
-                  <Button
-                    variant="outline"
-                    type="button"
-                    className="text-sm text-medium text-card-foreground gap-2 dark:bg-background rounded-lg">
-                    <img
-                      src="https://images.shadcnspace.com/assets/svgs/icon-github.svg"
-                      alt="github icon"
-                      className="dark:hidden  h-4 w-4" />
-                    <img
-                      src="https://images.shadcnspace.com/assets/svgs/icon-github-white.svg"
-                      alt="github icon"
-                      className="hidden dark:block  h-4 w-4" />
-                    Sign in with Github
-                  </Button>
-                </Field>
-                <FieldSeparator
-                  className="*:data-[slot=field-separator-content]:bg-card text-sm text-muted-foreground bg-transparent">
-                  <span className="px-4">or sign in with</span>
-                </FieldSeparator>
-
                 <div className="flex flex-col gap-4">
                   <Field className="gap-1.5">
                     <FieldLabel htmlFor="email" className="text-sm text-muted-foreground font-normal">
-                      Email*
+                      Email corporativo
                     </FieldLabel>
                     <Input
                       id="email"
                       type="email"
-                      placeholder="example@shadcnspace.com"
+                      placeholder="example@predictguard.com"
                       required
                       className="dark:bg-background" />
                   </Field>
                   <Field className="gap-1.5">
                     <FieldLabel htmlFor="password" className="text-sm text-muted-foreground font-normal">
-                      Password*
+                      Senha
                     </FieldLabel>
 
                     <Input
                       id="password"
                       type="password"
-                      placeholder="Enter your password"
+                      placeholder="Digite sua senha"
                       required
                       className="dark:bg-background" />
                   </Field>
@@ -119,24 +84,19 @@ const LoginForm = () => {
                     <FieldLabel
                       htmlFor="terms"
                       className="text-sm text-primary font-normal cursor-pointer">
-                      Remember this device
+                      Lembre-se deste dispositivo
                     </FieldLabel>
                   </div>
                   <a href="#" className="text-sm text-card-foreground font-medium text-end">
-                    Forgot password?
+                    Esqueceu a senha?
                   </a>
                 </Field>
 
                 <Field className="gap-4">
                   <Button type="submit" size={"lg"} className="rounded-lg">
-                    Sign in
+                    Entrar
                   </Button>
-                  <FieldDescription className="text-center text-sm font-normal text-muted-foreground">
-                    Don&apos;t have an account?{" "}
-                    <a href="#" className="font-medium text-card-foreground !no-underline">
-                      Create an account
-                    </a>
-                  </FieldDescription>
+                  
                 </Field>
               </FieldGroup>
             </form>
