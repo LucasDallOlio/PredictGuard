@@ -1,5 +1,6 @@
+import { AppSidebar } from "@/components/app-sidebar";
+import { SidebarProvider, SidebarInset,  } from "@/components/ui/sidebar";
 import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,7 +23,19 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <SidebarProvider
+      style={
+        {
+          "--sidebar-width": "calc(var(--spacing) * 72)",
+          "--header-height": "calc(var(--spacing) * 12)"
+        }
+      }>
+      <AppSidebar variant="inset" />
+      <SidebarInset>
+        
         {children}
+      </SidebarInset>
+    </SidebarProvider>
       </body>
     </html>
   );
