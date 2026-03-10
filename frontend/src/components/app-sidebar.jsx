@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Link from "next/link"
 import {
   IconCamera,
   IconChartBar,
@@ -38,7 +39,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import { Bot, BrainCircuit, ShieldAlert, ShieldUserIcon, Sliders, Toolbox } from "lucide-react"
+import { Bot, BrainCircuit, MessageSquareText, ShieldAlert, ShieldUserIcon, Sliders, Toolbox } from "lucide-react"
 
 const data = {
   user: {
@@ -55,18 +56,23 @@ const data = {
     
     {
       title: "Serviços",
-      url: "#",
+      url: "/services",
       icon: Toolbox,
     },
     {
       title: "Motores",
-      url: "#",
+      url: "/engines",
       icon: BrainCircuit,
     },
     {
       title: "Usuários",
-      url: "#",
+      url: "/users",
       icon: IconUsers,
+    },
+       {
+      title: "Chat",
+      url: "/chat",
+      icon: MessageSquareText,
     },
   ],
   navClouds: [
@@ -162,19 +168,19 @@ export function AppSidebar({
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild className="data-[slot=sidebar-menu-button]:p-1.5!">
-              <a href="#">
+              <Link href="/dashboard">
                 <IconShieldCheckered className="size-5!" />
                 <span className="text-base font-semibold">PredictGuard</span>
-              </a>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-      <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavDocuments items={data.documents} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
-      </SidebarContent>
+    <SidebarContent>
+  <NavMain items={data.navMain} />
+  <NavDocuments items={data.documents} />
+  <NavSecondary items={data.navSecondary} className="mt-auto" />
+</SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />
       </SidebarFooter>
