@@ -14,9 +14,15 @@ import {
   IconInnerShadowTop,
   IconListDetails,
   IconReport,
+  IconRobot,
+  IconRobotFace,
+  IconRobotOff,
   IconSearch,
   IconSettings,
+  IconShieldCheckered,
+  IconShieldCheckFilled,
   IconUsers,
+  IconWashMachine,
 } from "@tabler/icons-react"
 
 import { NavDocuments } from "@/components/nav-documents"
@@ -32,6 +38,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import { Bot, BrainCircuit, ShieldAlert, ShieldUserIcon, Sliders, Toolbox } from "lucide-react"
 
 const data = {
   user: {
@@ -42,26 +49,22 @@ const data = {
   navMain: [
     {
       title: "Dashboard",
-      url: "#",
+      url: "/dashboard",
       icon: IconDashboard,
     },
+    
     {
-      title: "Lifecycle",
+      title: "Serviços",
       url: "#",
-      icon: IconListDetails,
+      icon: Toolbox,
     },
     {
-      title: "Analytics",
+      title: "Motores",
       url: "#",
-      icon: IconChartBar,
+      icon: BrainCircuit,
     },
     {
-      title: "Projects",
-      url: "#",
-      icon: IconFolder,
-    },
-    {
-      title: "Team",
+      title: "Usuários",
       url: "#",
       icon: IconUsers,
     },
@@ -116,17 +119,17 @@ const data = {
   ],
   navSecondary: [
     {
-      title: "Settings",
+      title: "Configurações",
       url: "#",
       icon: IconSettings,
     },
     {
-      title: "Get Help",
+      title: "ChatBot",
       url: "#",
-      icon: IconHelp,
+      icon: Bot,
     },
     {
-      title: "Search",
+      title: "Procurar",
       url: "#",
       icon: IconSearch,
     },
@@ -160,8 +163,8 @@ export function AppSidebar({
           <SidebarMenuItem>
             <SidebarMenuButton asChild className="data-[slot=sidebar-menu-button]:p-1.5!">
               <a href="#">
-                <IconInnerShadowTop className="size-5!" />
-                <span className="text-base font-semibold">Acme Inc.</span>
+                <IconShieldCheckered className="size-5!" />
+                <span className="text-base font-semibold">PredictGuard</span>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>
