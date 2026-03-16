@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { User, Calendar, Cpu, AlertCircle, Edit3 } from "lucide-react"; // ícones
+import { User, Calendar, AlertCircle, Edit3, Cpu } from "lucide-react"; // ícones
 
 export default function ModalSolicitacaoServico({ open, onClose, service }) {
   const [maquina, setMaquina] = useState("");
@@ -26,7 +26,20 @@ export default function ModalSolicitacaoServico({ open, onClose, service }) {
     if (open) buscarTecnicos();
   }, [open]);
 
-  if (!open) return null;
+  
+  function resetForm() {
+    setMaquina("");
+    setDescricao("");
+    setUrgencia("media");
+    setDataRelato("");
+    setTecnico("");
+  }
+
+
+  function handleCancelar() {
+    resetForm();
+    onClose();
+  }
 
   async function enviarSolicitacao(e) {
     e.preventDefault();
@@ -41,11 +54,7 @@ export default function ModalSolicitacaoServico({ open, onClose, service }) {
       });
       if (!resposta.ok) throw new Error("Erro ao enviar solicitação");
 
-      setMaquina("");
-      setDescricao("");
-      setUrgencia("media");
-      setDataRelato("");
-      setTecnico("");
+      resetForm();
       onClose();
     } catch (erro) {
       console.error(erro);
@@ -54,6 +63,8 @@ export default function ModalSolicitacaoServico({ open, onClose, service }) {
       setCarregando(false);
     }
   }
+
+  if (!open) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
@@ -77,7 +88,7 @@ export default function ModalSolicitacaoServico({ open, onClose, service }) {
             />
           </div>
 
-          
+       
           <div className="flex flex-col relative">
             <label className="text-sm font-semibold text-zinc-300 mb-2">Técnico responsável</label>
             <User className="absolute left-3 top-[38px] w-5 h-5 text-zinc-500 pointer-events-none" />
@@ -93,7 +104,7 @@ export default function ModalSolicitacaoServico({ open, onClose, service }) {
             </select>
           </div>
 
-         
+        
           <div className="flex flex-col relative">
             <label className="text-sm font-semibold text-zinc-300 mb-2">Nível de urgência</label>
             <AlertCircle className="absolute left-3 top-[38px] w-5 h-5 text-zinc-500 pointer-events-none" />
@@ -106,12 +117,10 @@ export default function ModalSolicitacaoServico({ open, onClose, service }) {
               <option value="media">Média</option>
               <option value="alta">Alta</option>
               <option value="critica">Crítica</option>
-
-              
             </select>
           </div>
 
-         
+          
           <div className="flex flex-col relative">
             <label className="text-sm font-semibold text-zinc-300 mb-2">Data do reporte</label>
             <Calendar className="absolute left-3 top-[38px] w-5 h-5 text-zinc-500 pointer-events-none" />
@@ -136,11 +145,11 @@ export default function ModalSolicitacaoServico({ open, onClose, service }) {
             />
           </div>
 
-   
+          {/* Botões */}
           <div className="flex justify-end gap-3 pt-4">
             <button
               type="button"
-              onClick={onClose}
+              onClick={handleCancelar}
               className="px-5 py-2 rounded-xl border border-zinc-700 text-zinc-300 hover:text-white transition"
             >
               Cancelar
