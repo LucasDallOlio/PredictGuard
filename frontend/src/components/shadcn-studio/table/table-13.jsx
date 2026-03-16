@@ -55,7 +55,7 @@ export default function UsersTable() {
   }
 
   return (
-    <div className="w-full max-w-6xl mx-auto py-10 space-y-6">
+    <div className="w-full max-w-7xl mx-auto py-10 space-y-6">
 
       {/* Título */}
       <div>
