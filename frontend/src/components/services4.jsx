@@ -58,7 +58,7 @@ const Services4 = ({ className }) => {
   ];
 
   return (
-    <section className={cn("py-10", className)}>
+    <section className={cn("py-10 px-10", className)}>
       <div className="container">
         <div className="mx-auto max-w-6xl space-y-12">
 

@@ -66,7 +66,7 @@ const data = {
     },
     {
       title: "Usuários",
-      url: "/users",
+      url: "/tecnicos",
       icon: IconUsers,
     },
        {
