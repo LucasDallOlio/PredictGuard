@@ -66,7 +66,7 @@ const TableComp = () => {
   ];
 
   return (
-    <div className="w-full px-4 sm:px-6 lg:px-10 py-10">
+    <div className="w-full px-4 sm:px-6 lg:px-10 py-10 ">
 
       {/* container maior */}
       <div className="max-w-7xl mx-auto">
@@ -80,7 +80,7 @@ const TableComp = () => {
             </CardTitle>
 
             <CardDescription>
-              Checkout the statistics of top projects
+              Verifique o andamento das solicitações.
             </CardDescription>
 
           </CardHeader>

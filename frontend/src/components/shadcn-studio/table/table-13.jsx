@@ -15,7 +15,7 @@ const initialUsers = [
     src: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-1.png",
     fallback: "PG",
     email: "philipgeorge20@gmail.com",
-    area: "Manutenção",
+    area: "96245-8445",
     status: "Ativo",
   },
   {
@@ -24,7 +24,7 @@ const initialUsers = [
     src: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-2.png",
     fallback: "TC",
     email: "tiana12@yahoo.com",
-    area: "Suporte",
+    area: "92251-2482",
     status: "Inativo",
   },
   {
@@ -33,7 +33,7 @@ const initialUsers = [
     src: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-3.png",
     fallback: "JD",
     email: "jaylon23d.@outlook.com",
-    area: "Operações",
+    area: "96453-5541",
     status: "Ativo",
   },
 ]
@@ -61,7 +61,7 @@ export default function UsersTable() {
   }
 
   return (
-    <div className="w-full max-w-6xl mx-auto py-10 px-4 md:px-6 space-y-8">
+    <div className="w-full max-w-6xl mx-auto py-10 px-4 md:px-6 space-y-8 bg-white">
       
       <ModalAdicionarTecnico
         open={modalOpen}
@@ -69,58 +69,57 @@ export default function UsersTable() {
         onAddTecnico={addUser}
       />
 
-     
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <Users className="w-6 h-6 text-blue-500" />
-            <h1 className="text-3xl font-extrabold tracking-tight ">Gestão de Tecnicos</h1>
+            <Users className="w-6 h-6 text-sky-500" />
+            <h1 className="text-3xl font-extrabold tracking-tight text-gray-800">Gestão de Tecnicos</h1>
           </div>
-          <p className="text-zinc-400">Visualize e gerencie as permissões dos técnicos do sistema</p>
+          <p className="text-gray-500">Visualize e gerencie as permissões dos técnicos do sistema</p>
         </div>
 
         <Button
           onClick={() => setModalOpen(true)}
-          className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2 h-11 px-6 transition-all"
+          className="bg-sky-500 hover:bg-sky-600 text-white flex items-center gap-2 h-11 px-6 transition-all"
         >
           <UserPlus size={18} />
           <span>Adicionar Técnico</span>
         </Button>
       </div>
 
-      <div className="rounded-xl border border-zinc-800 overflow-hidden">
+      <div className="rounded-xl border border-gray-200 overflow-hidden bg-white">
         <div className="overflow-x-auto"> 
           <Table>
-            <TableHeader className="bg-blue">
-              <TableRow className="hover:bg-transparent border-zinc-800">
-                <TableHead className="text-zinc-300 font-semibold py-4">Usuário</TableHead>
-                <TableHead className="text-zinc-300 font-semibold">Email</TableHead>
-                <TableHead className="text-zinc-300 font-semibold">Área</TableHead>
-                <TableHead className="text-zinc-300 font-semibold">Status</TableHead>
-                <TableHead className="text-zinc-300 font-semibold text-right">Ações</TableHead>
+            <TableHeader className="bg-gray-50">
+              <TableRow className="hover:bg-transparent border-gray-200">
+                <TableHead className="text-gray-600 font-semibold py-4">Usuário</TableHead>
+                <TableHead className="text-gray-600 font-semibold">Email</TableHead>
+                <TableHead className="text-gray-600 font-semibold">Telefone</TableHead>
+                <TableHead className="text-gray-600 font-semibold">Status</TableHead>
+                <TableHead className="text-gray-600 font-semibold text-right">Ações</TableHead>
               </TableRow>
             </TableHeader>
 
             <TableBody>
               {users.map(user => (
-                <TableRow key={user.id} className="border-zinc-800 hover:bg-zinc-800/30 transition-colors">
+                <TableRow key={user.id} className="border-gray-200 hover:bg-sky-50 transition-colors">
                   <TableCell className="py-4">
                     <div className="flex items-center gap-3">
-                      <Avatar className="h-9 w-9 border border-zinc-700">
+                      <Avatar className="h-9 w-9 border border-gray-200">
                         <AvatarImage src={user.src} />
                         <AvatarFallback>{user.fallback}</AvatarFallback>
                       </Avatar>
-                      <span className="font-medium text-zinc-100 whitespace-nowrap">{user.name}</span>
+                      <span className="font-medium text-gray-700 whitespace-nowrap">{user.name}</span>
                     </div>
                   </TableCell>
 
-                  <TableCell className="text-zinc-400 whitespace-nowrap">{user.email}</TableCell>
-                  <TableCell className="text-zinc-400">{user.area}</TableCell>
+                  <TableCell className="text-gray-500 whitespace-nowrap">{user.email}</TableCell>
+                  <TableCell className="text-gray-500">{user.area}</TableCell>
 
                   <TableCell>
                     <Badge 
                       variant={user.status === "Ativo" ? "default" : "secondary"}
-                      className={user.status === "Ativo" ? "bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 border-emerald-500/20" : "bg-zinc-700 text-zinc-300"}
+                      className={user.status === "Ativo" ? "bg-emerald-50 text-emerald-600 hover:bg-emerald-100 border-emerald-200" : "bg-gray-100 text-gray-500 hover:bg-gray-200"}
                     >
                       {user.status}
                     </Badge>
@@ -132,7 +131,7 @@ export default function UsersTable() {
                         variant="outline"
                         size="sm"
                         onClick={() => toggleStatus(user.id)}
-                        className="border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:text-white"
+                        className="border-gray-300 text-gray-700 hover:bg-gray-100 hover:text-gray-900"
                       >
                         {user.status === "Ativo" ? "Desativar" : "Ativar"}
                       </Button>
