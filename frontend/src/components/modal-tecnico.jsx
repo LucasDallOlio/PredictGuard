@@ -123,7 +123,7 @@ export default function ModalAdicionarTecnico({ open, onClose, onAddTecnico }) {
             />
           </div>
 
-          {/* Status */}
+      =
           <div className="flex flex-col relative">
             <label className="text-sm font-semibold text-zinc-300 mb-2">Status</label>
             <select
@@ -136,7 +136,6 @@ export default function ModalAdicionarTecnico({ open, onClose, onAddTecnico }) {
             </select>
           </div>
 
-          {/* Botões */}
           <div className="flex flex-col md:flex-row justify-end gap-3 pt-4">
             <button
               type="button"
