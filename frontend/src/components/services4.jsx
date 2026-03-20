@@ -46,7 +46,7 @@ const Services4 = ({ className }) => {
     },
     {
       icon: <AlertTriangle className="h-6 w-6" />,
-      title: "Alerta de Falha Detectada",
+      title: "Análise de Falha",
       description:
         "Abra uma solicitação imediata quando o sistema detectar problema.",
       items: [
@@ -60,26 +60,32 @@ const Services4 = ({ className }) => {
   return (
     <section className={cn("py-10 px-10", className)}>
       <div className="container">
-        <div className="mx-auto max-w-6xl space-y-12">
+        <div className="mx-auto max-w-7xl space-y-12">
 
-          <div className="space-y-4 text-center">
-            <h2 className="text-3xl font-semibold md:text-4xl">
-              Solicitação de Serviços
-            </h2>
+         <div className="text-center max-w-3xl mx-auto space-y-4">
 
-            <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
-              Nosso sistema monitora vibração e temperatura das máquinas em
-              tempo real. Caso seja detectado algum comportamento anormal,
-              solicite uma análise técnica.
-            </p>
-          </div>
+  <div className="flex items-center justify-center gap-2">
+    <Activity className="h-6 w-6 text-primary" />
+    <h2 className="text-3xl md:text-4xl font-semibold tracking-tight">
+      Solicitação de Serviços
+    </h2>
+  </div>
 
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+  <div className="w-16 h-1 bg-primary mx-auto rounded-full" />
+
+  <p className="text-lg text-muted-foreground leading-relaxed">
+    Nosso sistema monitora vibração e temperatura das máquinas em tempo real.
+    Caso seja detectado algum comportamento anormal, solicite uma análise técnica.
+  </p>
+
+</div>
+
+          <div className="grid grid-cols-1 gap-8  md:grid-cols-2 ">
             {services.map((service, index) => (
-              <div
-                key={index}
-                className="space-y-6 rounded-lg border border-border p-8 hover:shadow-sm"
-              >
+             <div
+  key={index}
+  className="flex flex-col space-y-6 rounded-lg border border-border p-8 hover:shadow-sm h-full"
+>
 
                 <div className="flex items-center gap-4">
                   <div className="rounded-full bg-muted p-3">
@@ -109,7 +115,7 @@ const Services4 = ({ className }) => {
                     setSelectedService(service.title);
                     setOpenModal(true);
                   }}
-                  className="mt-4 w-full rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground"
+                  className="mt-auto w-full rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground"
                 >
                   Solicitar serviço
                 </button>

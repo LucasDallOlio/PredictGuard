@@ -116,7 +116,7 @@ export default function ModalSolicitacaoServico({ open, onClose, service }) {
               <option value="baixa">Baixa</option>
               <option value="media">Média</option>
               <option value="alta">Alta</option>
-              <option value="critica">Crítica</option>
+            
             </select>
           </div>
 
@@ -145,7 +145,7 @@ export default function ModalSolicitacaoServico({ open, onClose, service }) {
             />
           </div>
 
-          {/* Botões */}
+
           <div className="flex justify-end gap-3 pt-4">
             <button
               type="button"
