@@ -62,7 +62,7 @@ export default function ModalAdicionarTecnico({ open, onClose, onAddTecnico }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+   <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 min-h-screen">
       <div className="w-full max-w-lg md:max-w-md rounded-3xl bg-zinc-900 border border-zinc-800 p-6 md:p-8 shadow-2xl relative">
         
         <h2 className="text-2xl md:text-3xl font-bold text-white mb-6 text-center">
