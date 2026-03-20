@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { User, AlertCircle } from "lucide-react";
+import { Phone, PhoneCall } from "lucide-react";
 
 export default function ModalAdicionarTecnico({ open, onClose, onAddTecnico }) {
   const [nome, setNome] = useState("");
@@ -97,13 +98,13 @@ export default function ModalAdicionarTecnico({ open, onClose, onAddTecnico }) {
 
              <div className="flex flex-col relative">
             <label className="text-sm font-semibold text-zinc-300 mb-2">Telefone</label>
-            <User className="absolute left-3 top-[38px] w-5 h-5 text-zinc-500 pointer-events-none mt-1" />
+            <Phone className="absolute left-3 top-[38px] w-5 h-5 text-zinc-500 pointer-events-none mt-1" />
             <input
               value={telefone}
               onChange={(e) => setTelefone(e.target.value)}
               placeholder="Ex: 119709867778"
               className="w-full pl-10 rounded-xl bg-zinc-950 border border-zinc-800 px-4 py-3 text-white placeholder-zinc-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
-              type="number"
+              type="tel"
             />
           </div>
 
