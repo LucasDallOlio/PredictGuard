@@ -106,7 +106,7 @@ export default function ModalSolicitacaoServico({ open, onClose, service }) {
 
         
           <div className="flex flex-col relative">
-            <label className="text-sm font-semibold text-zinc-300 mb-2">Nível de urgência</label>
+            <label className="text-sm font-semibold text-zinc-300 mb-2">Nível de prioridade</label>
             <AlertCircle className="absolute left-3 top-[38px] w-5 h-5 text-zinc-500 pointer-events-none" />
             <select
               value={urgencia}
