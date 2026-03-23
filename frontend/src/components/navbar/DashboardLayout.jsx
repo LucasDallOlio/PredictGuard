@@ -83,7 +83,7 @@ export default function PremiumLayout({ children }) {
             
             {!isCollapsed && (
               <span className="text-xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-sidebar-foreground to-sidebar-foreground/70 transition-opacity duration-300">
-                PredictGuard
+                PredictGuard 
               </span>
             )}
           </div>
@@ -159,7 +159,7 @@ export default function PremiumLayout({ children }) {
             </div>
             {!isCollapsed && (
               <div className="flex flex-col flex-1 overflow-hidden">
-                <span className="text-sm font-semibold text-sidebar-foreground truncate">João Silva</span>
+                <span className="text-sm font-semibold text-sidebar-foreground truncate ">João Silva</span>
                 <span className="text-xs text-sidebar-foreground/60 truncate">Admin</span>
               </div>
             )}
@@ -191,7 +191,7 @@ export default function PremiumLayout({ children }) {
             </div>
             <button 
               onClick={() => setIsMobileOpen(true)}
-              className="p-2 -mr-2 text-foreground/70 hover:text-foreground rounded-lg hover:bg-secondary transition-colors"
+              className="p-2 -mr-2 text-foreground/70 hover:text-foreground rounded-lg hover:bg-secondary hover:text-white transition-colors"
             >
               <Menu className="size-6" />
             </button>
@@ -215,7 +215,7 @@ export default function PremiumLayout({ children }) {
           <div className="relative w-full max-w-3xl max-h-[90vh] bg-background rounded-3xl shadow-2xl border border-border overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-200">
             
             {/* Capa e Foto */}
-            <div className="h-32 w-full bg-gradient-to-r from-primary to-primary/40 relative">
+            <div className="h-32 w-full bg-background from-primary to-primary/40 relative">
               <button 
                 onClick={() => setIsProfileModalOpen(false)}
                 disabled={isSaving}
@@ -327,7 +327,7 @@ export default function PremiumLayout({ children }) {
               <button 
                 onClick={() => setIsProfileModalOpen(false)} 
                 disabled={isSaving}
-                className="w-full sm:w-auto px-6 py-2.5 rounded-xl text-sm font-semibold text-foreground hover:bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full sm:w-auto px-6 py-2.5 rounded-xl text-sm font-semibold text-foreground hover:bg-secondary hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Cancelar
               </button>
