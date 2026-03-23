@@ -83,7 +83,7 @@ export function ChatSidebar() {
       id: "5",
       name: "Jeremiah Minsk",
       avatarSrc: "/placeholder.svg?height=40&width=40",
-      lastMessage: "No problem. G... 😬",
+      lastMessage: "No proble. G... 😬",
       timestamp: "02:59 AM",
       hasUnread: false
     },
