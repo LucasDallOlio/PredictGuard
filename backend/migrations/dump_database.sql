@@ -48,7 +48,15 @@ create table if not exists maquinas(
 
     index idx_maquinas_cod_registro (cod_registro),
     index idx_maquinas_status_setor (status_operacional, status_saude, setor),
-    index idx_maquinas_criticidade (nivel_criticidade)
+    index idx_maquinas_criticidade (nivel_criticidade),
+
+    constraint chk_maquinas_limites_positivos
+    check (temperatura_limite_c > 0 and aceleracao_limite_g > 0),
+
+    constraint chk_maquinas_temp_ambiente_intervalo
+    check (
+        temperatura_ambiente_min_c <= temperatura_ambiente_max_c
+    )
 );
 
 create table if not exists sensores(
@@ -77,6 +85,9 @@ create table if not exists leituras(
     index idx_leituras_sensor_data (sensor_id, data_leitura),
     index idx_leituras_data (data_leitura),
 
+    constraint chk_leituras_valor_positivo
+    check (valor >= 0),
+
     constraint fk_leituras_sensores
     foreign key (sensor_id) references sensores(id)
     on update cascade
@@ -98,6 +109,12 @@ create table if not exists alertas (
     index idx_alertas_maquina_data (maquina_id, data_alerta),
     index idx_alertas_sensor_data (sensor_id, data_alerta),
     index idx_alertas_severidade_data (severidade, data_alerta),
+
+    constraint chk_alertas_valores_nao_negativos
+        check (
+            (valor_detectado is null or valor_detectado >= 0)
+            and (limite_configurado is null or limite_configurado >= 0)
+        ),
 
   constraint fk_alertas_maquinas
     foreign key (maquina_id) references maquinas(id)
@@ -126,6 +143,9 @@ create table if not exists servicos (
     index idx_servicos_maquina_status_data (maquina_id, servico_status, data_criacao),
     index idx_servicos_responsavel (usuario_responsavel_id),
     index idx_servicos_solicitante (usuario_solicitante_id),
+
+    constraint chk_servicos_data_encerramento
+    check (data_encerramento is null or data_encerramento >= data_criacao),
 
     constraint fk_servicos_maquinas
     foreign key (maquina_id) references maquinas(id)
