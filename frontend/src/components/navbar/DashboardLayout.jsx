@@ -93,12 +93,13 @@ export default function PremiumLayout({ children }) {
         </div>
 
         {/* Menu Superior - AGORA COM ISLAS EM ESTADO COLAPSADO */}
-        <nav className={`space-y-3 px-4 py-4 mt-2 ${isCollapsed ? "flex flex-col items-center" : "space-y-1.5"}`}>
+        <nav className={`space-y-3 px-4 py-4 mt-2 overflow-y-auto overflow-x-hidden ${isCollapsed ? "flex flex-col items-center" : "space-y-1.5"}`}>
           {topNavItems.map((item) => {
             const Icon = item.icon;
             const isActive = currentPath === item.href;
             return (
               <Link key={item.name} href={item.href}
+                onClick={() => setIsMobileOpen(false)} // Fecha menu no mobile ao clicar
                 className={`group flex items-center transition-all duration-200 
                   ${isCollapsed ? "size-12 justify-center rounded-xl border border-sidebar-border" : "gap-3 rounded-xl px-3 py-3 w-full"}
                   ${isActive 
@@ -106,8 +107,8 @@ export default function PremiumLayout({ children }) {
                     : `text-sidebar-foreground/70 ${isCollapsed ? "bg-sidebar-accent/50" : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground font-medium"}`
                   }`}
               >
-                <Icon className={`size-5 transition-transform duration-200 ${isActive ? "scale-110" : "group-hover:scale-110"}`} />
-                {!isCollapsed && <span>{item.name}</span>}
+                <Icon className={`size-5 shrink-0 transition-transform duration-200 ${isActive ? "scale-110" : "group-hover:scale-110"}`} />
+                {!isCollapsed && <span className="truncate">{item.name}</span>}
               </Link>
             );
           })}
@@ -122,6 +123,7 @@ export default function PremiumLayout({ children }) {
             const isActive = currentPath === item.href;
             return (
               <Link key={item.name} href={item.href}
+                onClick={() => setIsMobileOpen(false)} // Fecha menu no mobile ao clicar
                 className={`group flex items-center transition-all duration-200
                    ${isCollapsed ? "size-12 justify-center rounded-xl border border-sidebar-border" : "gap-3 rounded-xl px-3 py-3 w-full"}
                   ${isActive 
@@ -129,8 +131,8 @@ export default function PremiumLayout({ children }) {
                     : `text-sidebar-foreground/70 ${isCollapsed ? "bg-sidebar-accent/50" : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground font-medium"}`
                   }`}
               >
-                <Icon className={`size-5 transition-transform duration-200 ${isActive ? "scale-110" : "group-hover:scale-110"}`} />
-                {!isCollapsed && <span>{item.name}</span>}
+                <Icon className={`size-5 shrink-0 transition-transform duration-200 ${isActive ? "scale-110" : "group-hover:scale-110"}`} />
+                {!isCollapsed && <span className="truncate">{item.name}</span>}
               </Link>
             );
           })}
@@ -179,6 +181,22 @@ export default function PremiumLayout({ children }) {
       <main className="flex-1 flex flex-col h-screen p-0 md:py-3 md:pr-3 md:pl-0 w-full min-w-0 transition-all">
         <div className="flex flex-1 flex-col bg-background text-foreground md:rounded-[2rem] shadow-xl overflow-hidden relative border border-border">
           
+          {/* CABEÇALHO MOBILE (Adicionado para abrir o menu) */}
+          <div className="flex items-center justify-between p-4 border-b border-border md:hidden bg-background">
+            <div className="flex items-center gap-2">
+              <div className="flex items-center justify-center shrink-0 size-8 rounded-lg bg-gradient-to-br from-sidebar-primary to-blue-600 text-sidebar-primary-foreground shadow-sm">
+                <ShieldCheck className="size-4" />
+              </div>
+              <span className="text-lg font-bold">PredictGuard</span>
+            </div>
+            <button 
+              onClick={() => setIsMobileOpen(true)}
+              className="p-2 -mr-2 text-foreground/70 hover:text-foreground rounded-lg hover:bg-secondary transition-colors"
+            >
+              <Menu className="size-6" />
+            </button>
+          </div>
+
           <div className="flex-1 overflow-auto p-4 md:p-8">
             {children}
           </div>
@@ -206,12 +224,12 @@ export default function PremiumLayout({ children }) {
                 <X className="size-5" />
               </button>
               
-              <div className="absolute -bottom-12 left-8 flex items-end gap-4">
-                <div className="size-24 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-3xl shadow-xl border-4 border-background">
+              <div className="absolute -bottom-12 left-4 md:left-8 flex items-end gap-4">
+                <div className="size-20 md:size-24 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-2xl md:text-3xl shadow-xl border-4 border-background shrink-0">
                   JS
                 </div>
                 <div className="mb-2">
-                  <h2 className="text-2xl font-bold text-foreground">João Silva</h2>
+                  <h2 className="text-xl md:text-2xl font-bold text-foreground">João Silva</h2>
                   <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-secondary text-secondary-foreground text-xs font-semibold">
                     <Shield className="size-3" /> Administrador 
                   </span>
@@ -221,7 +239,7 @@ export default function PremiumLayout({ children }) {
 
             <div className="h-16 w-full" />
 
-            <div className="p-8 pt-0 overflow-y-auto">
+            <div className="p-4 md:p-8 pt-0 overflow-y-auto">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                 
                 {/* --- COLUNA ESQUERDA (Pode Editar) --- */}
@@ -305,18 +323,18 @@ export default function PremiumLayout({ children }) {
             </div>
 
             {/* Rodapé Animado */}
-            <div className="flex items-center justify-end gap-3 p-6 pt-4 border-t border-border bg-background mt-auto">
+            <div className="flex items-center justify-end gap-3 p-4 md:p-6 pt-4 border-t border-border bg-background mt-auto flex-wrap">
               <button 
                 onClick={() => setIsProfileModalOpen(false)} 
                 disabled={isSaving}
-                className="px-6 py-2.5 rounded-xl text-sm font-semibold text-foreground hover:bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full sm:w-auto px-6 py-2.5 rounded-xl text-sm font-semibold text-foreground hover:bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Cancelar
               </button>
               <button 
                 onClick={handleSaveProfile}
                 disabled={isSaving || isSaved}
-                className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold text-primary-foreground shadow-lg transition-all
+                className={`w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold text-primary-foreground shadow-lg transition-all
                   ${isSaved 
                     ? "bg-green-600 shadow-green-600/25" 
                     : "bg-primary shadow-primary/25 hover:opacity-90 hover:scale-[1.02] active:scale-95"
