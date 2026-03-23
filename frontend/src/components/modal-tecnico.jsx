@@ -114,7 +114,7 @@ export default function ModalAdicionarTecnico({ open, onClose, onAddTecnico }) {
 
           <div className="flex flex-col">
             <label className="text-sm font-semibold text-zinc-300 mb-2">
-              Avatar (upload)
+              Foto de perfil (upload)
             </label>
 
             <label className="flex items-center gap-2 cursor-pointer rounded-xl bg-zinc-950 border border-zinc-800 px-4 py-3 text-zinc-400 hover:border-blue-500 transition">
