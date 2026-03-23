@@ -162,3 +162,26 @@ create table if not exists servicos (
     on update cascade
     on delete restrict
 );
+
+create table if not exists logs (
+    id int primary key auto_increment,
+    usuario_id,
+    rota varchar(255) not null,
+    metodo varchar(10) not null,
+    ip_address varchar(45),
+    user_agent text,
+    status_code int,
+    tempo_resposta_ms int,
+    data_hora datetime default current_timestamp,
+    dados_requisicao JSON,
+    dados_resposta JSON,
+
+    index idx_logs_usuario_id (usuario_id),
+    index idx_logs_data_hora (data_hora),
+    index idx_logs_rota (rota),
+    index idx_logs_metodo (metodo),
+    index idx_logs_status_code (status_code),
+
+    foreign key (usuario_id) references usuarios(id)
+    on delete set null
+)
