@@ -57,8 +57,8 @@ const services = [
 ];
 
   return (
-    <section className={cn("py-10 px-10", className)}>
-      <div className="container">
+    <section className={cn("py-10 ", className)}>
+      <div className="mx-auto max-w-7xl px-4">
         <div className="mx-auto max-w-7xl space-y-12">
 
          <div className="text-center max-w-3xl mx-auto space-y-4">
