@@ -1,6 +1,6 @@
 "use client";
 
-import { Activity, Thermometer, Wrench, AlertTriangle } from "lucide-react";
+import { Activity, Thermometer, Wrench, AlertTriangle, Shield, TrendingUp, AlertCircle, Gauge } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import ServiceRequestModal from "./solicitacao-servico";
@@ -9,53 +9,52 @@ const Services4 = ({ className }) => {
 
   const [openModal, setOpenModal] = useState(false);
   const [selectedService, setSelectedService] = useState("");
-
-  const services = [
-    {
-      icon: <Activity className="h-6 w-6" />,
-      title: "Análise de Vibração",
-      description:
-        "Solicite uma análise detalhada de vibração para identificar desalinhamentos ou desgaste mecânico.",
-      items: [
-        "Diagnóstico de vibração",
-        "Detecção de falhas mecânicas",
-        "Relatório técnico",
-      ],
-    },
-    {
-      icon: <Thermometer className="h-6 w-6" />,
-      title: "Análise de Temperatura",
-      description:
-        "Verificação de anomalias térmicas que podem indicar sobrecarga ou falhas.",
-      items: [
-        "Monitoramento térmico",
-        "Identificação de superaquecimento",
-        "Relatório de temperatura",
-      ],
-    },
-    {
-      icon: <Wrench className="h-6 w-6" />,
-      title: "Manutenção Preventiva",
-      description:
-        "Solicite uma manutenção preventiva para evitar falhas nas máquinas.",
-      items: [
-        "Inspeção geral",
-        "Ajustes e calibração",
-        "Substituição preventiva de peças",
-      ],
-    },
-    {
-      icon: <AlertTriangle className="h-6 w-6" />,
-      title: "Análise de Falha",
-      description:
-        "Abra uma solicitação imediata quando o sistema detectar problema.",
-      items: [
-        "Resposta rápida",
-        "Análise do problema",
-        "Intervenção técnica",
-      ],
-    },
-  ];
+const services = [
+  {
+    icon: <Shield className="h-6 w-6" />,
+    title: "Manutenção Preventiva",
+    description:
+      "Ações programadas para evitar falhas e aumentar a vida útil dos equipamentos.",
+    items: [
+      "Inspeção periódica",
+      "Lubrificação e limpeza",
+      "Troca preventiva de componentes",
+    ],
+  },
+  {
+    icon: <TrendingUp className="h-6 w-6" />,
+    title: "Manutenção Preditiva",
+    description:
+      "Análise baseada em dados para identificar falhas antes que ocorram.",
+    items: [
+      "Monitoramento de vibração",
+      "Análise térmica",
+      "Diagnóstico baseado em tendências",
+    ],
+  },
+  {
+    icon: <Gauge className="h-6 w-6" />,
+    title: "Manutenção Corretiva",
+    description:
+      "Correção de falhas após a ocorrência de problemas no equipamento.",
+    items: [
+      "Identificação da falha",
+      "Reparo técnico especializado",
+      "Testes de funcionamento",
+    ],
+  },
+  {
+    icon: <AlertCircle className="h-6 w-6" />,
+    title: "Análise de Falha",
+    description:
+      "Atendimento imediato para investigação de problemas críticos detectados.",
+    items: [
+      "Resposta emergencial",
+      "Análise de causa raiz",
+      "Intervenção corretiva rápida",
+    ],
+  },
+];
 
   return (
     <section className={cn("py-10 px-10", className)}>
