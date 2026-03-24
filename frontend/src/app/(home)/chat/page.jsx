@@ -1,14 +1,12 @@
-import ChatApp from "@/components/chat/chatApp"; // Ajuste o caminho
+import ChatApp from "@/components/chat/chatApp";
 
 export default function Page() {
   return (
-    // h-screen trava o tamanho na tela inteira, overflow-hidden corta o scroll global
-    <main className="flex flex-col h-screen overflow-hidden">
-      {/* O container que abraça o ChatApp pega o resto do espaço */}
-      <div className="flex-1 min-h-0 w-full">
+    // h-screen trava a página. overflow-hidden impede o scroll "de fora".
+    <main className="flex flex-col h-full overflow-hidden bg-background">
+      <div className="flex-1 min-h-0 w-full flex"> 
         <ChatApp />
       </div>
-
     </main>
   );
 }

@@ -1,5 +1,5 @@
 "use client";
- 
+
 import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
@@ -14,9 +14,9 @@ import {
   Users,
   ChevronLeft,
 } from "lucide-react";
- 
+
 // --- Sub-componentes ---
- 
+
 const MessageBubble = ({ message, isUserMessage, avatarSrc }) => (
   <div className={cn("flex items-start gap-3", isUserMessage ? "justify-end" : "")}>
     {!isUserMessage && (
@@ -37,7 +37,7 @@ const MessageBubble = ({ message, isUserMessage, avatarSrc }) => (
     </div>
   </div>
 );
- 
+
 const ChatContact = ({
   id,
   name,
@@ -59,13 +59,13 @@ const ChatContact = ({
       <AvatarImage src={avatarSrc} alt={name} />
       <AvatarFallback>{name.charAt(0)}</AvatarFallback>
     </Avatar>
- 
+
     <div className="flex-1 min-w-0">
       <div className="flex items-center justify-between">
         <span className="font-medium truncate">{name}</span>
         <span className="text-muted-foreground text-xs whitespace-nowrap ml-2">{timestamp}</span>
       </div>
- 
+
       <div className="text-muted-foreground flex items-center justify-between text-sm mt-1">
         <p className="truncate pr-2">{lastMessage}</p>
         {hasUnread && <div className="h-2 w-2 rounded-full bg-blue-500 shrink-0" />}
@@ -73,9 +73,9 @@ const ChatContact = ({
     </div>
   </div>
 );
- 
+
 // --- Dados Fictícios ---
- 
+
 const chatContacts = [
   { id: "1", name: "Shannon Baker", avatarSrc: "/placeholder.svg?height=40&width=40", lastMessage: "Will do. Appreciate it!", timestamp: "07:39 AM", hasUnread: false },
   { id: "2", name: "Jessica Wells", avatarSrc: "/placeholder.svg?height=40&width=40", lastMessage: "Perfect. I'll pack...", timestamp: "05:39 PM", hasUnread: true },
@@ -84,7 +84,7 @@ const chatContacts = [
   { id: "5", name: "Jeremiah Minsk", avatarSrc: "/placeholder.svg?height=40&width=40", lastMessage: "No problem. G... 😬", timestamp: "02:59 AM", hasUnread: false },
   { id: "6", name: "Camila Simmons", avatarSrc: "/placeholder.svg?height=40&width=40", lastMessage: "True! I'll be more c...", timestamp: "10:19 PM", hasUnread: false },
 ];
- 
+
 const messages = [
   { id: "m1", sender: "other", avatarSrc: "/placeholder.svg?height=32&width=32", content: "I think you should go for it. You're more than capable and it sounds like a great opportunity for growth." },
   { id: "m2", sender: "user", content: "It's a bigger company and a more challenging role. I'm worried it might be too much to handle." },
@@ -97,21 +97,21 @@ const messages = [
   { id: "m9", sender: "user", content: "True. I'll brush up on it this weekend." },
   { id: "m10", sender: "other", avatarSrc: "/placeholder.svg?height=32&width=32", content: "Let's grab a coffee next week to celebrate when you submit it!" },
 ];
- 
+
 // --- Componente Principal ---
- 
+
 export default function ChatApp() {
   const [activeTab, setActiveTab] = useState("personal");
   const [activeChatId, setActiveChatId] = useState(null);
- 
+
   const currentChatUser = activeChatId
     ? chatContacts.find((c) => c.id === activeChatId)
     : chatContacts[0];
- 
+
   return (
     // h-screen + overflow-hidden: trava o layout na viewport, sem scroll global
-    <div className="flex h-screen w-full overflow-hidden bg-background">
- 
+    <div className="flex w-full overflow-hidden bg-background">
+
       {/* --- SIDEBAR --- */}
       <div
         className={cn(
@@ -126,7 +126,7 @@ export default function ChatApp() {
               <Search className="text-muted-foreground h-5 w-5" />
             </Button>
           </div>
- 
+
           <div className="flex rounded-lg border p-1">
             <Button
               variant="ghost"
@@ -141,7 +141,7 @@ export default function ChatApp() {
               <User className="mr-2 h-4 w-4" />
               Personal
             </Button>
- 
+
             <Button
               variant="ghost"
               className={cn(
@@ -157,7 +157,7 @@ export default function ChatApp() {
             </Button>
           </div>
         </div>
- 
+
         {/* Lista de contatos: flex-1 + min-h-0 + overflow-y-auto = scroll isolado aqui */}
         <div className="flex-1 overflow-y-auto px-2 min-h-0 space-y-1">
           {chatContacts.map((contact) => (
@@ -169,12 +169,12 @@ export default function ChatApp() {
             />
           ))}
         </div>
- 
+
         <div className="p-4 border-t shrink-0">
           <Button className="w-full">New chat</Button>
         </div>
       </div>
- 
+
       {/* --- MAIN CHAT AREA --- */}
       <div
         className={cn(
@@ -195,7 +195,7 @@ export default function ChatApp() {
                 >
                   <ChevronLeft className="h-5 w-5" />
                 </Button>
- 
+
                 <Avatar className="h-10 w-10">
                   <AvatarImage src={currentChatUser?.avatarSrc} alt={currentChatUser?.name} />
                   <AvatarFallback>{currentChatUser?.name?.charAt(0)}</AvatarFallback>
@@ -209,7 +209,7 @@ export default function ChatApp() {
                 <MoreVertical className="text-muted-foreground h-5 w-5" />
               </Button>
             </div>
- 
+
             {/* Mensagens: ÚNICO elemento que rola — flex-1 + min-h-0 + overflow-y-auto */}
             <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 min-h-0">
               {messages.map((msg) => (
@@ -221,7 +221,7 @@ export default function ChatApp() {
                 />
               ))}
             </div>
- 
+
             {/* Input fixo no rodapé */}
             <div className="p-4 border-t shrink-0 bg-background">
               <div className="flex items-center gap-3">
@@ -247,7 +247,7 @@ export default function ChatApp() {
           </div>
         )}
       </div>
- 
+
     </div>
   );
 }
