@@ -12,92 +12,110 @@ import {
 
 export function SectionCards() {
   return (
-    <div
-      className="grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4 dark:*:data-[slot=card]:bg-card">
+    <div className="grid grid-cols-1 gap-4 px-4 
+    *:data-[slot=card]:bg-gradient-to-t 
+    *:data-[slot=card]:from-primary/5 
+    *:data-[slot=card]:to-card 
+    *:data-[slot=card]:shadow-xs 
+    lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4 
+    dark:*:data-[slot=card]:bg-card">
+
+      {/* MOTORES ATIVOS */}
       <Card className="@container/card">
         <CardHeader>
-          <CardDescription>Total Revenue</CardDescription>
+          <CardDescription>Motores Ativos</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            $1,250.00
+            120
           </CardTitle>
           <CardAction>
             <Badge variant="outline">
               <IconTrendingUp />
-              +12.5%
+              +8%
             </Badge>
           </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            Trending up this month <IconTrendingUp className="size-4" />
+          <div className="flex gap-2 font-medium">
+            Em funcionamento <IconTrendingUp className="size-4" />
           </div>
           <div className="text-muted-foreground">
-            Visitors for the last 6 months
+            Total de motores ativos no sistema
           </div>
         </CardFooter>
       </Card>
+
+      {/* SOLICITAÇÕES */}
       <Card className="@container/card">
         <CardHeader>
-          <CardDescription>New Customers</CardDescription>
+          <CardDescription>Total de Solicitações</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            1,234
+            342
+          </CardTitle>
+          <CardAction>
+            <Badge variant="outline">
+              <IconTrendingUp />
+              +15%
+            </Badge>
+          </CardAction>
+        </CardHeader>
+        <CardFooter className="flex-col items-start gap-1.5 text-sm">
+          <div className="flex gap-2 font-medium">
+            Aumento de chamados <IconTrendingUp className="size-4" />
+          </div>
+          <div className="text-muted-foreground">
+            Solicitações registradas recentemente
+          </div>
+        </CardFooter>
+      </Card>
+
+      {/* TÉCNICOS */}
+      <Card className="@container/card">
+        <CardHeader>
+          <CardDescription>Total de Técnicos</CardDescription>
+          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+            25
+          </CardTitle>
+          <CardAction>
+            <Badge variant="outline">
+              <IconTrendingUp />
+              +2
+            </Badge>
+          </CardAction>
+        </CardHeader>
+        <CardFooter className="flex-col items-start gap-1.5 text-sm">
+          <div className="flex gap-2 font-medium">
+            Equipe disponível <IconTrendingUp className="size-4" />
+          </div>
+          <div className="text-muted-foreground">
+            Técnicos cadastrados no sistema
+          </div>
+        </CardFooter>
+      </Card>
+
+      {/* MOTORES INATIVOS */}
+      <Card className="@container/card">
+        <CardHeader>
+          <CardDescription>Motores Inativos</CardDescription>
+          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+            18
           </CardTitle>
           <CardAction>
             <Badge variant="outline">
               <IconTrendingDown />
-              -20%
+              -5%
             </Badge>
           </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            Down 20% this period <IconTrendingDown className="size-4" />
+          <div className="flex gap-2 font-medium">
+            Necessitam manutenção <IconTrendingDown className="size-4" />
           </div>
           <div className="text-muted-foreground">
-            Acquisition needs attention
+            Motores fora de operação
           </div>
         </CardFooter>
       </Card>
-      <Card className="@container/card">
-        <CardHeader>
-          <CardDescription>Active Accounts</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            45,678
-          </CardTitle>
-          <CardAction>
-            <Badge variant="outline">
-              <IconTrendingUp />
-              +12.5%
-            </Badge>
-          </CardAction>
-        </CardHeader>
-        <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            Strong user retention <IconTrendingUp className="size-4" />
-          </div>
-          <div className="text-muted-foreground">Engagement exceed targets</div>
-        </CardFooter>
-      </Card>
-      <Card className="@container/card">
-        <CardHeader>
-          <CardDescription>Growth Rate</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            4.5%
-          </CardTitle>
-          <CardAction>
-            <Badge variant="outline">
-              <IconTrendingUp />
-              +4.5%
-            </Badge>
-          </CardAction>
-        </CardHeader>
-        <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            Steady performance increase <IconTrendingUp className="size-4" />
-          </div>
-          <div className="text-muted-foreground">Meets growth projections</div>
-        </CardFooter>
-      </Card>
+
     </div>
   );
 }

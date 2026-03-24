@@ -1,4 +1,5 @@
 import { AppSidebar } from "@/components/app-sidebar";
+import LayoutPremium from "@/components/navbar/DashboardLayout";
 import { SidebarProvider, SidebarInset,  } from "@/components/ui/sidebar";
 import { Geist, Geist_Mono } from "next/font/google";
 
@@ -23,19 +24,12 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <SidebarProvider
-      style={
-        {
-          "--sidebar-width": "calc(var(--spacing) * 72)",
-          "--header-height": "calc(var(--spacing) * 12)"
-        }
-      }>
-      <AppSidebar variant="inset" />
-      <SidebarInset>
-        
+
+        <LayoutPremium>
+          
         {children}
-      </SidebarInset>
-    </SidebarProvider>
+          </LayoutPremium>    
+
       </body>
     </html>
   );

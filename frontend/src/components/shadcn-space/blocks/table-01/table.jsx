@@ -1,241 +1,178 @@
 "use client";
 
-import { AppWindowMac, HandMetal, Megaphone, Contrast, Brush } from "lucide-react";
-import { FolderPlus, FolderPen, FolderMinus, EllipsisVertical } from "lucide-react";
+import { useEffect, useState } from "react";
+import { EllipsisVertical, Loader2 } from "lucide-react";
 
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow
+} from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Progress } from "@/components/ui/progress";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
+import {
+  Card, CardHeader, CardTitle, CardContent, CardDescription
+} from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 const TableComp = () => {
-  const tableActionData = [
-    { icon: FolderPlus, listtitle: "Add" },
-    { icon: FolderPen, listtitle: "Edit" },
-    { icon: FolderMinus, listtitle: "Delete" },
-  ];
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const checkboxTableData = [
-    {
-      project: "Web App Project",
-      date: "04 June 2026",
-      budget: "12,000",
-      icon: AppWindowMac,
-      iconcolor: "text-orange-400",
-      iconbg: "bg-orange-400/20",
-      avatar: "https://images.shadcnspace.com/assets/profiles/user-11.jpg",
-      name: "Olivia Rhye",
-      handle: "olivia@ui.com",
-      progress: 60,
-      progressColor: "**:data-[slot=progress-indicator]:bg-orange-400",
-    },
-    {
-      project: "MaterialM Admin",
-      date: "09 January 2026",
-      budget: "8000",
-      icon: HandMetal,
-      iconcolor: "text-sky-400",
-      iconbg: "bg-sky-400/20",
-      avatar: "https://images.shadcnspace.com/assets/profiles/user-8.jpg",
-      name: "Barbara Steele",
-      handle: "steele@ui.com",
-      progress: 30,
-      progressColor: "**:data-[slot=progress-indicator]:bg-blue-500",
-    },
-    {
-      project: "Digital Marketing",
-      date: "15 April 2026",
-      budget: "15,000",
-      icon: Megaphone,
-      iconcolor: "text-teal-400",
-      iconbg: "bg-teal-400/20",
-      avatar: "https://images.shadcnspace.com/assets/profiles/user-3.jpg",
-      name: "Leonard Gordon",
-      handle: "olivia@ui.com",
-      progress: 45,
-      progressColor: "**:data-[slot=progress-indicator]:bg-amber-300",
-    },
-  ];
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const res = await fetch("http://localhost:3000/solicitacoes");
+        const json = await res.json();
+        setData(json);
+      } catch (error) {
+        console.error("Erro ao buscar dados:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchData();
+  }, []);
 
   return (
-    <div className="w-full px-4 sm:px-6 lg:px-10 py-10 ">
-
-      {/* container maior */}
+    <div className="w-full px-4 sm:px-6 lg:px-10 py-6">
       <div className="max-w-7xl mx-auto">
 
         <Card className="w-full shadow-sm">
-
-          <CardHeader className="flex flex-col gap-2">
-
-            <CardTitle className="text-2xl font-semibold">
+          <CardHeader>
+            <CardTitle className="text-xl sm:text-2xl font-semibold">
               Histórico de Solicitações
             </CardTitle>
-
             <CardDescription>
-              Verifique o andamento das solicitações.
+              Acompanhe os chamados em tempo real
             </CardDescription>
-
           </CardHeader>
 
           <CardContent className="p-0">
-
-            {/* scroll horizontal mobile */}
             <div className="w-full overflow-x-auto">
 
-              <Table className="min-w-[900px]">
+              <Table className="min-w-[700px] sm:min-w-full">
 
                 <TableHeader>
                   <TableRow>
-
-                    <TableHead className="w-[60px] pl-6">
+                    <TableHead className="w-[50px] pl-4">
                       <Checkbox />
                     </TableHead>
-
                     <TableHead>Serviço</TableHead>
-
-                    <TableHead>Budget</TableHead>
-
-                    <TableHead>Técnico</TableHead>
-
-                    <TableHead className="w-[200px]">
-                      Status
-                    </TableHead>
-
-                    <TableHead className="text-right pr-6">
-                      Ações
-                    </TableHead>
-
+                    <TableHead className="hidden sm:table-cell">Motor</TableHead>
+                    <TableHead className="hidden md:table-cell">Setor</TableHead>
+                    <TableHead className="hidden lg:table-cell">Técnico</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Prioridade</TableHead>
+                    <TableHead className="text-right pr-4">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
 
                 <TableBody>
 
-                  {checkboxTableData.map((item, index) => (
+                  {loading && (
+                    <TableRow>
+                      <TableCell colSpan={8} className="text-center py-10">
+                        <Loader2 className="animate-spin mx-auto" />
+                      </TableCell>
+                    </TableRow>
+                  )}
 
-                    <TableRow key={index}>
+                  {!loading && data.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={8} className="text-center py-10">
+                        Nenhuma solicitação encontrada
+                      </TableCell>
+                    </TableRow>
+                  )}
 
-                      {/* checkbox */}
-                      <TableCell className="pl-6">
+                  {!loading && data.map((item) => (
+
+                    <TableRow key={item.id}>
+
+                      <TableCell className="pl-4">
                         <Checkbox />
                       </TableCell>
 
-                      {/* project */}
                       <TableCell>
-
-                        <div className="flex items-center gap-3">
-
-                          <div
-                            className={cn(
-                              "h-10 w-10 rounded-full flex items-center justify-center",
-                              item.iconbg
-                            )}
-                          >
-                            <item.icon
-                              size={18}
-                              className={item.iconcolor}
-                            />
-                          </div>
-
-                          <div>
-
-                            <p className="font-medium">
-                              {item.project}
-                            </p>
-
-                            <p className="text-sm text-muted-foreground">
-                              {item.date}
-                            </p>
-
-                          </div>
-
+                        <div>
+                          <p className="font-medium">{item.servico}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {item.data}
+                          </p>
                         </div>
-
                       </TableCell>
 
-                      {/* budget */}
-                      <TableCell className="font-medium">
-                        ${item.budget}
+                      <TableCell className="hidden sm:table-cell font-medium">
+                        ⚙️ {item.motor}
                       </TableCell>
 
-                      {/* manager */}
-                      <TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        <span className="bg-muted px-2 py-1 rounded-md text-xs">
+                          {item.setor}
+                        </span>
+                      </TableCell>
 
-                        <div className="flex items-center gap-3">
+                      <TableCell className="hidden lg:table-cell">
+                        <div className="flex items-center gap-2">
 
                           <img
-                            src={item.avatar}
-                            alt=""
-                            className="h-10 w-10 rounded-full"
+                            src={item.avatar || "https://i.pravatar.cc/150?img=5"}
+                            alt={item.tecnico}
+                            className="w-8 h-8 rounded-full object-cover border"
                           />
 
-                          <div>
-
-                            <p className="font-medium">
-                              {item.name}
-                            </p>
-
-                            <p className="text-sm text-muted-foreground">
-                              {item.handle}
-                            </p>
-
-                          </div>
+                          <span className="text-sm font-medium">
+                            {item.tecnico}
+                          </span>
 
                         </div>
-
                       </TableCell>
 
-                      {/* progress */}
                       <TableCell>
-
-                        <Progress
-                          value={item.progress}
+                        <span
                           className={cn(
-                            "w-full h-2",
-                            item.progressColor
+                            "px-2 py-1 rounded-md text-xs sm:text-sm",
+                            item.status === "Concluído" && "bg-green-100 text-green-700",
+                            item.status === "Em andamento" && "bg-yellow-100 text-yellow-700",
+                            item.status === "Pendente" && "bg-red-100 text-red-700"
                           )}
-                        />
-
+                        >
+                          {item.status}
+                        </span>
                       </TableCell>
 
-                      {/* actions */}
-                      <TableCell className="text-right pr-6">
+                      <TableCell>
+                        <span
+                          className={cn(
+                            "px-2 py-1 rounded-md text-xs sm:text-sm",
+                            item.prioridade === "Alta" && "bg-red-100 text-red-700",
+                            item.prioridade === "Média" && "bg-yellow-100 text-yellow-700",
+                            item.prioridade === "Baixa" && "bg-green-100 text-green-700"
+                          )}
+                        >
+                          {item.prioridade}
+                        </span>
+                      </TableCell>
 
+                      <TableCell className="text-right pr-4">
                         <DropdownMenu>
-
                           <DropdownMenuTrigger asChild>
-
                             <button className="p-2 rounded-md hover:bg-muted">
                               <EllipsisVertical size={18} />
                             </button>
-
                           </DropdownMenuTrigger>
 
                           <DropdownMenuContent align="end">
-
-                            {tableActionData.map((action, idx) => (
-
-                              <DropdownMenuItem
-                                key={idx}
-                                className="flex gap-2 cursor-pointer"
-                              >
-                                <action.icon size={16} />
-                                {action.listtitle}
-                              </DropdownMenuItem>
-
-                            ))}
-
+                            <DropdownMenuItem>Ver</DropdownMenuItem>
+                            <DropdownMenuItem>Editar</DropdownMenuItem>
+                            <DropdownMenuItem>Excluir</DropdownMenuItem>
                           </DropdownMenuContent>
-
                         </DropdownMenu>
-
                       </TableCell>
 
                     </TableRow>
@@ -247,13 +184,11 @@ const TableComp = () => {
               </Table>
 
             </div>
-
           </CardContent>
 
         </Card>
 
       </div>
-
     </div>
   );
 };
