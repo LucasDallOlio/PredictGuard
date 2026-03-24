@@ -1,4 +1,3 @@
-import { AppSidebar } from "@/components/app-sidebar";
 import LayoutPremium from "@/components/navbar/DashboardLayout";
 import { SidebarProvider, SidebarInset,  } from "@/components/ui/sidebar";
 import { Geist, Geist_Mono } from "next/font/google";

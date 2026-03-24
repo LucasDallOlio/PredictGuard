@@ -26,7 +26,7 @@ export default function PremiumLayout({ children }) {
     { name: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
     { name: "Serviços", icon: Briefcase, href: "/services" },
     { name: "Motores", icon: Cpu, href: "/engines" },
-    { name: "Usuários", icon: Users, href: "/users" },
+    { name: "Usuários", icon: Users, href: "/usuarios" },
     { name: "Chat", icon: MessageSquare, href: "/chat" },
   ];
 

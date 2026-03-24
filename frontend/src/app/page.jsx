@@ -1,4 +1,4 @@
-import LoginForm from "@/components/shadcn-space/blocks/login-01/login";
+import LoginForm from "@/components/login/login";
 import Image from "next/image";
 
 export default function Home() {

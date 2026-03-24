@@ -1,4 +1,4 @@
-import TableWithAvatarDemo from "@/components/shadcn-studio/table/table-13";
+import TableWithAvatarDemo from "@/components/users/table-13";
 
 export default function users() {
   return (

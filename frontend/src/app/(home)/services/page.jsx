@@ -1,5 +1,5 @@
-import { Services4 } from "@/components/services4";
-import Table from "@/components/shadcn-space/blocks/table-01/table";
+import { Services4 } from "@/components/services/services4";
+import Table from "@/components/services/table";
 
 export default function services() {
   return (
