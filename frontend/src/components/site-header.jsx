@@ -17,7 +17,7 @@ export function SiteHeader() {
               rel="noopener noreferrer"
               target="_blank"
               className="dark:text-foreground">
-              GitHu
+              GitHub
             </a>
           </Button>
         </div>
