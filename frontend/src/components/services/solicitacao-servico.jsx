@@ -118,7 +118,7 @@ export default function ModalSolicitacaoServico({ open, onClose, service }) {
             <label className="text-sm font-semibold text-foreground mb-2">Data do reporte</label>
             <Calendar className="absolute left-3 top-[38px] w-5 h-5 text-muted-foreground pointer-events-none mt-1" />
             <input
-              type="text"
+              type="date"
               value={dataRelato}
               onChange={(e) => setDataRelato(e.target.value)}
               placeholder="DD/MM/AAAA"
