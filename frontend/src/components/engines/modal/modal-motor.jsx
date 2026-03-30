@@ -9,6 +9,7 @@ import {
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input"; // <-- Adicione a importação do Input
 import { 
     Thermometer, 
     Activity, 
@@ -18,79 +19,151 @@ import {
     ThermometerSun
 } from "lucide-react";
 
-import { useState } from "react";
-import { ModalExcluirMotor } from "./ModalExcluirMotor"; // Ajuste o caminho do import se precisar
+import { useState, useEffect } from "react";
+import { ModalExcluirMotor } from "./ModalExcluirMotor"; 
 
-// Recebendo a prop onDelete para acionar a exclusão do banco/estado
-export function ModalMotorDetalhes({ open, setOpen, motor, onDelete }) {
-    // Estado para controlar a abertura do modal de exclusão
+// Adicionado onEdit nas props para salvar os dados no componente pai
+export function ModalMotorDetalhes({ open, setOpen, motor, onDelete, onEdit }) {
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+    
+    // Novos estados para a edição
+    const [isEditing, setIsEditing] = useState(false);
+    const [formData, setFormData] = useState({});
 
-    // Função que roda quando o usuário clica "Sim, excluir" lá no ModalExcluirMotor
+    // Sincroniza os dados do motor com o form sempre que o modal abrir ou o motor mudar
+    useEffect(() => {
+        if (motor) {
+            setFormData(motor);
+            setIsEditing(false); // Garante que abra em modo de visualização
+        }
+    }, [motor, open]);
+
     const handleConfirmDelete = (id) => {
-        onDelete(id); // Executa a função que veio do componente pai
-        setIsDeleteDialogOpen(false); // Fecha o modal de alerta
-        setOpen(false); // Fecha este modal gigante de detalhes
+        onDelete(id); 
+        setIsDeleteDialogOpen(false); 
+        setOpen(false); 
+    };
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleSave = () => {
+        if (onEdit) {
+            onEdit(formData); // Envia os dados atualizados para o pai
+        }
+        setIsEditing(false); // Sai do modo de edição
+    };
+
+    const handleCancel = () => {
+        setFormData(motor); // Reseta para os dados originais
+        setIsEditing(false);
     };
 
     if (!motor) return null;
 
+    // Função auxiliar para renderizar Campos vs Inputs de forma limpa (DRY)
+    const renderField = (label, name, spanTwo = false, suffix = "") => (
+        <div className={spanTwo ? "col-span-2" : ""}>
+            <span className="text-[10px] lg:text-xs text-muted-foreground block uppercase tracking-wider mb-1">
+                {label}
+            </span>
+            {isEditing ? (
+                <Input 
+                    name={name} 
+                    value={formData[name] || ""} 
+                    onChange={handleChange} 
+                    className="h-8 text-sm w-full"
+                />
+            ) : (
+                <span className="font-medium text-sm">
+                    {formData[name]}{suffix}
+                </span>
+            )}
+        </div>
+    );
+
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={(val) => {
+            setOpen(val);
+            if (!val) setIsEditing(false); // Reseta edição ao fechar clicando fora
+        }}>
             <DialogContent className="max-w-[95vw] lg:max-w-7xl p-0 overflow-hidden bg-background">
                 
                 <DialogHeader className="sr-only">
-                    <DialogTitle>{motor.nome} - Detalhes</DialogTitle>
+                    <DialogTitle>{formData.nome} - Detalhes</DialogTitle>
                 </DialogHeader>
 
-                {/* Container principal: Rola no mobile, fica fixo no desktop */}
                 <div className="flex flex-col lg:flex-row w-full h-full max-h-[90vh] overflow-y-auto lg:overflow-visible">
                     
                     {/* COLUNA ESQUERDA: Imagem e Info Principal */}
                     <div className="w-full lg:w-[35%] bg-muted/10 border-b lg:border-b-0 lg:border-r flex flex-col shrink-0">
                         <div className="h-56 lg:h-72 bg-white p-4 shrink-0 border-b relative">
                             <img
-                                src={motor.imagem}
-                                alt={motor.nome}
+                                src={formData.imagem}
+                                alt={formData.nome}
                                 className="w-full h-full object-contain"
                             />
                         </div>
 
                         <div className="p-6 lg:p-8 flex flex-col grow">
-                            <h2 className="text-2xl lg:text-3xl font-bold tracking-tight text-primary">
-                                {motor.nome}
-                            </h2>
-                            <p className="text-sm font-medium text-muted-foreground mt-1 mb-6">
-                                CÓDIGO: {motor.cod_registro}
-                            </p>
+                            {isEditing ? (
+                                <Input 
+                                    name="nome" 
+                                    value={formData.nome || ""} 
+                                    onChange={handleChange} 
+                                    className="text-xl lg:text-2xl font-bold mb-2"
+                                />
+                            ) : (
+                                <h2 className="text-2xl lg:text-3xl font-bold tracking-tight text-primary">
+                                    {formData.nome}
+                                </h2>
+                            )}
+
+                            {isEditing ? (
+                                <div className="flex items-center gap-2 mt-1 mb-6">
+                                    <span className="text-sm font-medium text-muted-foreground">CÓDIGO:</span>
+                                    <Input 
+                                        name="cod_registro" 
+                                        value={formData.cod_registro || ""} 
+                                        onChange={handleChange} 
+                                        className="h-8 w-32 text-sm"
+                                    />
+                                </div>
+                            ) : (
+                                <p className="text-sm font-medium text-muted-foreground mt-1 mb-6">
+                                    CÓDIGO: {formData.cod_registro}
+                                </p>
+                            )}
 
                             <div className="flex flex-wrap lg:flex-col gap-2 lg:gap-3">
                                 <Badge variant="secondary" className="w-fit px-3 py-1 text-sm">
-                                    {motor.status_operacional}
+                                    {formData.status_operacional}
                                 </Badge>
                                 <Badge variant="outline" className="w-fit px-3 py-1 text-sm">
-                                    Criticidade: {motor.nivel_criticidade}
+                                    Criticidade: {formData.nivel_criticidade}
                                 </Badge>
                                 <Badge
                                     className={`w-fit px-3 py-1 text-sm ${
-                                        motor.status_saude === "Ok"
+                                        formData.status_saude === "Ok"
                                             ? "bg-emerald-100 text-emerald-800 border-emerald-300"
                                             : "bg-amber-100 text-amber-800 border-amber-300"
                                     }`}
                                 >
-                                    Saúde: {motor.status_saude}
+                                    Saúde: {formData.status_saude}
                                 </Badge>
                             </div>
 
-                            {/* Status de Tempo Real */}
+                            {/* Status de Tempo Real (Geralmente não é editável, vem do sensor) */}
                             <div className="mt-8 grid grid-cols-2 gap-4">
                                 <div className="bg-background p-4 rounded-xl border flex flex-col items-center justify-center text-center shadow-sm">
                                     <Thermometer className="w-6 h-6 text-orange-500 mb-1" />
-                                    <span className="text-xl lg:text-2xl font-bold">{motor.temperatura}°C</span>
+                                    <span className="text-xl lg:text-2xl font-bold">{formData.temperatura}°C</span>
                                 </div>
                                 <div className="bg-background p-4 rounded-xl border flex flex-col items-center justify-center text-center shadow-sm">
                                     <Activity className="w-6 h-6 text-blue-500 mb-1" />
-                                    <span className="text-xl lg:text-2xl font-bold">{motor.vibracao}</span>
+                                    <span className="text-xl lg:text-2xl font-bold">{formData.vibracao}</span>
                                 </div>
                             </div>
                         </div>
@@ -99,7 +172,6 @@ export function ModalMotorDetalhes({ open, setOpen, motor, onDelete }) {
                     {/* COLUNA DIREITA: Dados Técnicos */}
                     <div className="w-full lg:w-[65%] p-6 lg:p-8 flex flex-col bg-background">
                         
-                        {/* Grid de Cards Técnicos */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 grow">
                             
                             {/* INFORMAÇÕES GERAIS */}
@@ -108,11 +180,11 @@ export function ModalMotorDetalhes({ open, setOpen, motor, onDelete }) {
                                     <Info className="w-5 h-5 text-primary" />
                                     Informações Gerais
                                 </h3>
-                                <div className="grid grid-cols-2 gap-y-4">
-                                    <div><span className="text-[10px] lg:text-xs text-muted-foreground block uppercase tracking-wider mb-1">Modelo</span><span className="font-medium text-sm">{motor.modelo}</span></div>
-                                    <div><span className="text-[10px] lg:text-xs text-muted-foreground block uppercase tracking-wider mb-1">Série</span><span className="font-medium text-sm">{motor.serie}</span></div>
-                                    <div><span className="text-[10px] lg:text-xs text-muted-foreground block uppercase tracking-wider mb-1">Tipo</span><span className="font-medium text-sm">{motor.tipo}</span></div>
-                                    <div><span className="text-[10px] lg:text-xs text-muted-foreground block uppercase tracking-wider mb-1">Setor</span><span className="font-medium text-sm">{motor.setor}</span></div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    {renderField("Modelo", "modelo")}
+                                    {renderField("Série", "serie")}
+                                    {renderField("Tipo", "tipo")}
+                                    {renderField("Setor", "setor")}
                                 </div>
                             </div>
 
@@ -122,12 +194,12 @@ export function ModalMotorDetalhes({ open, setOpen, motor, onDelete }) {
                                     <Zap className="w-5 h-5 text-yellow-500" />
                                     Elétrico / Performance
                                 </h3>
-                                <div className="grid grid-cols-2 gap-y-4">
-                                    <div><span className="text-[10px] lg:text-xs text-muted-foreground block uppercase tracking-wider mb-1">Potência</span><span className="font-medium text-sm">{motor.potencia_kw} kW</span></div>
-                                    <div><span className="text-[10px] lg:text-xs text-muted-foreground block uppercase tracking-wider mb-1">Tensão</span><span className="font-medium text-sm">{motor.tensao_faixa}</span></div>
-                                    <div><span className="text-[10px] lg:text-xs text-muted-foreground block uppercase tracking-wider mb-1">Corrente</span><span className="font-medium text-sm">{motor.corrente_nominal_a} A</span></div>
-                                    <div><span className="text-[10px] lg:text-xs text-muted-foreground block uppercase tracking-wider mb-1">Frequência</span><span className="font-medium text-sm">{motor.frequencia_hz} Hz</span></div>
-                                    <div className="col-span-2"><span className="text-[10px] lg:text-xs text-muted-foreground block uppercase tracking-wider mb-1">Rotação</span><span className="font-medium text-sm">{motor.rotacao_rpm} RPM</span></div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    {renderField("Potência (kW)", "potencia_kw")}
+                                    {renderField("Tensão", "tensao_faixa")}
+                                    {renderField("Corrente (A)", "corrente_nominal_a")}
+                                    {renderField("Frequência (Hz)", "frequencia_hz")}
+                                    {renderField("Rotação (RPM)", "rotacao_rpm", true)}
                                 </div>
                             </div>
 
@@ -137,12 +209,12 @@ export function ModalMotorDetalhes({ open, setOpen, motor, onDelete }) {
                                     <Settings className="w-5 h-5 text-slate-500" />
                                     Especificações Técnicas
                                 </h3>
-                                <div className="grid grid-cols-2 gap-y-4">
-                                    <div><span className="text-[10px] lg:text-xs text-muted-foreground block uppercase tracking-wider mb-1">Proteção</span><span className="font-medium text-sm">{motor.grau_protecao_ip}</span></div>
-                                    <div><span className="text-[10px] lg:text-xs text-muted-foreground block uppercase tracking-wider mb-1">Isolamento</span><span className="font-medium text-sm">{motor.classe_isolamento}</span></div>
-                                    <div><span className="text-[10px] lg:text-xs text-muted-foreground block uppercase tracking-wider mb-1">Fator Serviço</span><span className="font-medium text-sm">{motor.fator_servico}</span></div>
-                                    <div><span className="text-[10px] lg:text-xs text-muted-foreground block uppercase tracking-wider mb-1">Rendimento</span><span className="font-medium text-sm">{motor.rendimento_percentual}%</span></div>
-                                    <div className="col-span-2"><span className="text-[10px] lg:text-xs text-muted-foreground block uppercase tracking-wider mb-1">Fator Potência</span><span className="font-medium text-sm">{motor.fator_potencia}</span></div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    {renderField("Proteção", "grau_protecao_ip")}
+                                    {renderField("Isolamento", "classe_isolamento")}
+                                    {renderField("Fator Serviço", "fator_servico")}
+                                    {renderField("Rendimento", "rendimento_percentual", false, "%")}
+                                    {renderField("Fator Potência", "fator_potencia", true)}
                                 </div>
                             </div>
 
@@ -152,32 +224,45 @@ export function ModalMotorDetalhes({ open, setOpen, motor, onDelete }) {
                                     <ThermometerSun className="w-5 h-5 text-orange-400" />
                                     Ambiente & Normas
                                 </h3>
-                                <div className="grid grid-cols-2 gap-y-4">
-                                    <div><span className="text-[10px] lg:text-xs text-muted-foreground block uppercase tracking-wider mb-1">Operação (Mín)</span><span className="font-medium text-sm">{motor.temperatura_ambiente_min_c}°C</span></div>
-                                    <div><span className="text-[10px] lg:text-xs text-muted-foreground block uppercase tracking-wider mb-1">Operação (Máx)</span><span className="font-medium text-sm">{motor.temperatura_ambiente_max_c}°C</span></div>
-                                    <div className="col-span-2"><span className="text-[10px] lg:text-xs text-muted-foreground block uppercase tracking-wider mb-1">Certificação</span><span className="font-medium text-sm">{motor.certificacao_norma}</span></div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    {renderField("Operação (Mín)", "temperatura_ambiente_min_c", false, "°C")}
+                                    {renderField("Operação (Máx)", "temperatura_ambiente_max_c", false, "°C")}
+                                    {renderField("Certificação", "certificacao_norma", true)}
                                 </div>
                             </div>
 
                         </div>
 
-                        {/* AÇÕES FIXAS APENAS EDITAR E EXCLUIR */}
+                        {/* AÇÕES FIXAS */}
                         <div className="flex justify-end gap-3 mt-8 pt-6 border-t shrink-0">
-                            <Button variant="secondary">Editar</Button>
-                            {/* Botão agora abre o modal de exclusão */}
-                            <Button 
-                                variant="destructive" 
-                                onClick={() => setIsDeleteDialogOpen(true)}
-                            >
-                                Excluir
-                            </Button>
+                            {isEditing ? (
+                                <>
+                                    <Button variant="outline" onClick={handleCancel}>
+                                        Cancelar
+                                    </Button>
+                                    <Button variant="default" onClick={handleSave}>
+                                        Salvar Alterações
+                                    </Button>
+                                </>
+                            ) : (
+                                <>
+                                    <Button variant="secondary" onClick={() => setIsEditing(true)}>
+                                        Editar
+                                    </Button>
+                                    <Button 
+                                        variant="destructive" 
+                                        onClick={() => setIsDeleteDialogOpen(true)}
+                                    >
+                                        Excluir
+                                    </Button>
+                                </>
+                            )}
                         </div>
                     </div>
 
                 </div>
             </DialogContent>
 
-            {/* Injetando o componente ModalExcluirMotor aqui */}
             <ModalExcluirMotor
                 open={isDeleteDialogOpen} 
                 setOpen={setIsDeleteDialogOpen} 
