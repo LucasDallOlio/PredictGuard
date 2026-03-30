@@ -86,7 +86,7 @@ const TableComp = () => {
     setOpenModal(true);
   };
 
-  // 🗑️ deletar
+ 
   const handleDelete = (id) => {
     setData(prev => prev.filter(item => item.id !== id));
   };
