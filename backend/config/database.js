@@ -61,9 +61,51 @@ async function read(table, where = null){
     }
 }
 
+async function update(table, data, where, whereParams = []){
+    const connection = await getConnection();
+
+    try{
+        if(!data || typeof data !== 'object' || Object.keys(data).length === 0){
+            throw new Error('Dados invalidos para atualizacao');
+        }
+        if(!where.trim() || typeof where !== 'string'){
+            throw new Error('Where obrigatório para atualização');
+        }
+        const columns = Object.keys(data);
+        const values = Object.values(data);
+        const placeholders = `set ${columns.map(column => `${column} = ?`).join(', ')}`
+        const sql = `update ${table} ${placeholders} where ${where}`;
+        const [result] = await connection.execute(sql, [...values, ...whereParams]);
+        return result.affectedRows
+        
+    }
+    finally{
+        connection.release();
+    }
+}
+
+async function deleteRecord(table, where, whereParams = []){
+    const connection = await getConnection();
+
+    try{
+
+        if(!where.trim() || typeof where !== 'string'){
+            throw new Error('Where obrigatório para exclusão');
+        }
+
+        const sql = `delete from ${table} where ${where}`;
+        const [result] = await connection.execute(sql, whereParams);
+        return result.affectedRows
+    }
+    finally{
+        connection.release();
+    }
+}
 
 export { 
     getConnection,
     create, 
-    read
+    read,
+    update,
+    deleteRecord
 };
