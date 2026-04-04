@@ -68,7 +68,7 @@ async function update(table, data, where, whereParams = []){
         if(!data || typeof data !== 'object' || Object.keys(data).length === 0){
             throw new Error('Dados invalidos para atualizacao');
         }
-        if(!where.trim() || typeof where !== 'string'){
+        if(typeof where !== 'string' || !where.trim()){
             throw new Error('Where obrigatório para atualização');
         }
         const columns = Object.keys(data);
@@ -89,7 +89,7 @@ async function deleteRecord(table, where, whereParams = []){
 
     try{
 
-        if(!where.trim() || typeof where !== 'string'){
+        if(typeof where !== 'string' || !where.trim()){
             throw new Error('Where obrigatório para exclusão');
         }
 
