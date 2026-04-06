@@ -1,4 +1,4 @@
-import { create, read, update, deleteRecord } from '../config/database.js';
+import { create, read, update, deleteRecord, readWithPagination } from '../config/database.js';
 import { hashPassword } from '../utils/bcrypt.js';
 
 class UsuarioModel {
@@ -45,6 +45,20 @@ class UsuarioModel {
         }
         catch (error) {
             throw new Error(`Erro ao excluir usuario: ${error.message}`);
+        }
+    }
+
+    static async listarTodos(page, limit) {
+        try {
+               
+            return await readWithPagination({
+                table: 'usuarios',
+                page,
+                limit
+            })
+        }
+        catch (error) {
+            throw new Error(`Erro ao buscar usuarios: ${error.message}`);
         }
     }
 }
