@@ -102,10 +102,36 @@ async function deleteRecord(table, where, whereParams = []){
     }
 }
 
+async function readWithPagination({
+    table,
+    where = null,
+    whereParams = [],
+    page = 1,
+    limit
+})  {
+    const connection = await getConnection();
+    
+    try{
+        const offset = (page - 1) * limit;
+        let sql = `select * from ${table}`;
+
+        if(typeof where === 'string' && where.trim()){
+            sql += ` where ${where}`;
+        }
+        sql += ' order by id asc limit ? offset ?'
+        const [rows] = await connection.execute(sql, [...whereParams, limit, offset]);
+        return rows;
+    }
+    finally{
+        connection.release();
+    }
+}
+
 export { 
     getConnection,
     create, 
     read,
     update,
-    deleteRecord
+    deleteRecord,
+    readWithPagination
 };
