@@ -50,12 +50,18 @@ class UsuarioModel {
 
     static async listarTodos(page, limit) {
         try {
-               
-            return await readWithPagination({
+            
+            const usuarios = await readWithPagination({
                 table: 'usuarios',
                 page,
                 limit
             })
+            
+            return {
+                usuarios,
+                page,
+                limit
+            }
         }
         catch (error) {
             throw new Error(`Erro ao buscar usuarios: ${error.message}`);
