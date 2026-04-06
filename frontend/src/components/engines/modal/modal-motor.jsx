@@ -9,7 +9,8 @@ import {
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input"; // <-- Adicione a importação do Input
+import { Input } from "@/components/ui/input";
+
 import { 
     Thermometer, 
     Activity, 
@@ -20,28 +21,34 @@ import {
 } from "lucide-react";
 
 import { useState, useEffect } from "react";
-import { ModalExcluirMotor } from "./ModalExcluirMotor"; 
+import { ModalExcluirMotor } from "./ModalExcluirMotor";
+import { useMotors } from "@/hooks/useMotors"; 
+export function ModalMotorDetalhes({ open, setOpen, motor }) {
 
-// Adicionado onEdit nas props para salvar os dados no componente pai
-export function ModalMotorDetalhes({ open, setOpen, motor, onDelete, onEdit }) {
+    const { updateMotor, deletarMotor } = useMotors(open); 
+
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-    
-    // Novos estados para a edição
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState({});
+    const [loading, setLoading] = useState(false);
 
-    // Sincroniza os dados do motor com o form sempre que o modal abrir ou o motor mudar
     useEffect(() => {
         if (motor) {
             setFormData(motor);
-            setIsEditing(false); // Garante que abra em modo de visualização
+            setIsEditing(false);
         }
     }, [motor, open]);
 
-    const handleConfirmDelete = (id) => {
-        onDelete(id); 
-        setIsDeleteDialogOpen(false); 
-        setOpen(false); 
+   
+    const handleConfirmDelete = async () => {
+        try {
+            await deletarMotor(motor.id);
+            setIsDeleteDialogOpen(false);
+            setOpen(false);
+        } catch (err) {
+            console.error(err);
+            alert("Erro ao excluir motor");
+        }
     };
 
     const handleChange = (e) => {
@@ -49,32 +56,39 @@ export function ModalMotorDetalhes({ open, setOpen, motor, onDelete, onEdit }) {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleSave = () => {
-        if (onEdit) {
-            onEdit(formData); // Envia os dados atualizados para o pai
+    
+    const handleSave = async () => {
+        setLoading(true);
+        try {
+            await updateMotor(formData.id, formData);
+            setIsEditing(false);
+        } catch (err) {
+            console.error(err);
+            alert("Erro ao atualizar motor");
+        } finally {
+            setLoading(false);
         }
-        setIsEditing(false); // Sai do modo de edição
     };
 
     const handleCancel = () => {
-        setFormData(motor); // Reseta para os dados originais
+        setFormData(motor);
         setIsEditing(false);
     };
 
     if (!motor) return null;
 
-    // Função auxiliar para renderizar Campos vs Inputs de forma limpa (DRY)
     const renderField = (label, name, spanTwo = false, suffix = "") => (
         <div className={spanTwo ? "col-span-2" : ""}>
             <span className="text-[10px] lg:text-xs text-muted-foreground block uppercase tracking-wider mb-1">
                 {label}
             </span>
+
             {isEditing ? (
                 <Input 
                     name={name} 
                     value={formData[name] || ""} 
                     onChange={handleChange} 
-                    className="h-8 text-sm w-full"
+                    className="h-8 text-sm w-full bg-white text-black"
                 />
             ) : (
                 <span className="font-medium text-sm">
@@ -87,7 +101,7 @@ export function ModalMotorDetalhes({ open, setOpen, motor, onDelete, onEdit }) {
     return (
         <Dialog open={open} onOpenChange={(val) => {
             setOpen(val);
-            if (!val) setIsEditing(false); // Reseta edição ao fechar clicando fora
+            if (!val) setIsEditing(false);
         }}>
             <DialogContent className="max-w-[95vw] lg:max-w-7xl p-0 overflow-hidden bg-background">
                 
@@ -97,7 +111,7 @@ export function ModalMotorDetalhes({ open, setOpen, motor, onDelete, onEdit }) {
 
                 <div className="flex flex-col lg:flex-row w-full h-full max-h-[90vh] overflow-y-auto lg:overflow-visible">
                     
-                    {/* COLUNA ESQUERDA: Imagem e Info Principal */}
+                    {/* ESQUERDA */}
                     <div className="w-full lg:w-[35%] bg-muted/10 border-b lg:border-b-0 lg:border-r flex flex-col shrink-0">
                         <div className="h-56 lg:h-72 bg-white p-4 shrink-0 border-b relative">
                             <img
@@ -108,12 +122,13 @@ export function ModalMotorDetalhes({ open, setOpen, motor, onDelete, onEdit }) {
                         </div>
 
                         <div className="p-6 lg:p-8 flex flex-col grow">
+                            
                             {isEditing ? (
                                 <Input 
                                     name="nome" 
                                     value={formData.nome || ""} 
                                     onChange={handleChange} 
-                                    className="text-xl lg:text-2xl font-bold mb-2"
+                                    className="text-xl lg:text-2xl font-bold mb-2 bg-white text-black"
                                 />
                             ) : (
                                 <h2 className="text-2xl lg:text-3xl font-bold tracking-tight text-primary">
@@ -128,7 +143,7 @@ export function ModalMotorDetalhes({ open, setOpen, motor, onDelete, onEdit }) {
                                         name="cod_registro" 
                                         value={formData.cod_registro || ""} 
                                         onChange={handleChange} 
-                                        className="h-8 w-32 text-sm"
+                                        className="h-8 w-32 text-sm bg-white text-black"
                                     />
                                 </div>
                             ) : (
@@ -155,7 +170,6 @@ export function ModalMotorDetalhes({ open, setOpen, motor, onDelete, onEdit }) {
                                 </Badge>
                             </div>
 
-                            {/* Status de Tempo Real (Geralmente não é editável, vem do sensor) */}
                             <div className="mt-8 grid grid-cols-2 gap-4">
                                 <div className="bg-background p-4 rounded-xl border flex flex-col items-center justify-center text-center shadow-sm">
                                     <Thermometer className="w-6 h-6 text-orange-500 mb-1" />
@@ -169,12 +183,11 @@ export function ModalMotorDetalhes({ open, setOpen, motor, onDelete, onEdit }) {
                         </div>
                     </div>
 
-                    {/* COLUNA DIREITA: Dados Técnicos */}
+                   
                     <div className="w-full lg:w-[65%] p-6 lg:p-8 flex flex-col bg-background">
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 grow">
                             
-                            {/* INFORMAÇÕES GERAIS */}
                             <div className="p-5 lg:p-6 rounded-xl border bg-card/50">
                                 <h3 className="font-semibold text-base lg:text-lg mb-4 flex items-center gap-2 border-b pb-3">
                                     <Info className="w-5 h-5 text-primary" />
@@ -188,7 +201,6 @@ export function ModalMotorDetalhes({ open, setOpen, motor, onDelete, onEdit }) {
                                 </div>
                             </div>
 
-                            {/* ELÉTRICO */}
                             <div className="p-5 lg:p-6 rounded-xl border bg-card/50">
                                 <h3 className="font-semibold text-base lg:text-lg mb-4 flex items-center gap-2 border-b pb-3">
                                     <Zap className="w-5 h-5 text-yellow-500" />
@@ -203,7 +215,6 @@ export function ModalMotorDetalhes({ open, setOpen, motor, onDelete, onEdit }) {
                                 </div>
                             </div>
 
-                            {/* ESPECIFICAÇÕES */}
                             <div className="p-5 lg:p-6 rounded-xl border bg-card/50">
                                 <h3 className="font-semibold text-base lg:text-lg mb-4 flex items-center gap-2 border-b pb-3">
                                     <Settings className="w-5 h-5 text-slate-500" />
@@ -218,7 +229,6 @@ export function ModalMotorDetalhes({ open, setOpen, motor, onDelete, onEdit }) {
                                 </div>
                             </div>
 
-                            {/* AMBIENTE */}
                             <div className="p-5 lg:p-6 rounded-xl border bg-card/50">
                                 <h3 className="font-semibold text-base lg:text-lg mb-4 flex items-center gap-2 border-b pb-3">
                                     <ThermometerSun className="w-5 h-5 text-orange-400" />
@@ -233,15 +243,14 @@ export function ModalMotorDetalhes({ open, setOpen, motor, onDelete, onEdit }) {
 
                         </div>
 
-                        {/* AÇÕES FIXAS */}
                         <div className="flex justify-end gap-3 mt-8 pt-6 border-t shrink-0">
                             {isEditing ? (
                                 <>
                                     <Button variant="outline" onClick={handleCancel}>
                                         Cancelar
                                     </Button>
-                                    <Button variant="default" onClick={handleSave}>
-                                        Salvar Alterações
+                                    <Button onClick={handleSave} disabled={loading}>
+                                        {loading ? "Salvando..." : "Salvar Alterações"}
                                     </Button>
                                 </>
                             ) : (

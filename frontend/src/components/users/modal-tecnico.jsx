@@ -2,8 +2,11 @@
 
 import { useState } from "react";
 import { User, ChevronDown, Upload, Phone } from "lucide-react";
+import { useTechnicians } from "@/hooks/useTechnicians";
 
-export default function ModalAdicionarTecnico({ open, onClose, onAddTecnico }) {
+export default function ModalAdicionarTecnico({ open, onClose }) {
+  const { addTecnico } = useTechnicians(open);
+
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [telefone, setTelefone] = useState("");
@@ -17,13 +20,16 @@ export default function ModalAdicionarTecnico({ open, onClose, onAddTecnico }) {
     setNome("");
     setEmail("");
     setTelefone("");
-    setAvatar("");
+    setAvatar(null);
     setStatus("Ativo");
   }
 
   async function handleAdicionar(e) {
     e.preventDefault();
-    if (!nome || !email || !telefone) return alert("Preencha todos os campos obrigatórios!");
+
+    if (!nome || !email || !telefone) {
+      return alert("Preencha todos os campos obrigatórios!");
+    }
 
     setCarregando(true);
 
@@ -31,24 +37,20 @@ export default function ModalAdicionarTecnico({ open, onClose, onAddTecnico }) {
       nome,
       email,
       telefone,
-      src: avatar || `https://ui-avatars.com/api/?name=${nome.replace(" ", "+")}`,
-      fallback: nome.split(" ").map(n => n[0]).join("").toUpperCase(),
+      src:
+        avatar ||
+        `https://ui-avatars.com/api/?name=${nome.replace(" ", "+")}`,
+      fallback: nome
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase(),
       status,
     };
 
     try {
-      // Envia para a API
-      const resposta = await fetch("/api/technicians", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(novoTecnico),
-      });
-
-      if (!resposta.ok) throw new Error("Erro ao adicionar técnico");
-
-      const tecnicoCriado = await resposta.json();
-
-      if (onAddTecnico) onAddTecnico(tecnicoCriado);
+   
+      await addTecnico(novoTecnico);
 
       limparCampos();
       onClose();
@@ -70,47 +72,50 @@ export default function ModalAdicionarTecnico({ open, onClose, onAddTecnico }) {
 
         <form onSubmit={handleAdicionar} className="space-y-5">
 
+          
           <div className="flex flex-col relative">
-            <label className="text-sm font-semibold text-foreground mb-2">Nome</label>
-            <User className="absolute left-3 top-[38px] w-5 h-5 text-muted-foreground pointer-events-none mt-1" />
+            <label className="text-sm font-semibold mb-2">Nome</label>
+            <User className="absolute left-3 top-[38px] w-5 h-5 text-muted-foreground" />
             <input
               value={nome}
               onChange={(e) => setNome(e.target.value)}
               placeholder="Ex: João Silva"
-              className="w-full pl-10 rounded-[calc(var(--radius)-4px)] bg-background border border-input px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-ring focus:ring-1 focus:ring-ring transition"
+              className="w-full pl-10 border px-4 py-3 rounded"
             />
           </div>
 
+          
           <div className="flex flex-col relative">
-            <label className="text-sm font-semibold text-foreground mb-2">Email</label>
-            <User className="absolute left-3 top-[38px] w-5 h-5 text-muted-foreground pointer-events-none mt-1" />
+            <label className="text-sm font-semibold mb-2">Email</label>
+            <User className="absolute left-3 top-[38px] w-5 h-5 text-muted-foreground" />
             <input
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="Ex: joao@gmail.com"
-              className="w-full pl-10 rounded-[calc(var(--radius)-4px)] bg-background border border-input px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-ring focus:ring-1 focus:ring-ring transition"
               type="email"
+              placeholder="Ex: joao@gmail.com"
+              className="w-full pl-10 border px-4 py-3 rounded"
             />
           </div>
 
           <div className="flex flex-col relative">
-            <label className="text-sm font-semibold text-foreground mb-2">Telefone</label>
-            <Phone className="absolute left-3 top-[38px] w-5 h-5 text-muted-foreground pointer-events-none mt-1" />
+            <label className="text-sm font-semibold mb-2">Telefone</label>
+            <Phone className="absolute left-3 top-[38px] w-5 h-5 text-muted-foreground" />
             <input
               value={telefone}
               onChange={(e) => setTelefone(e.target.value)}
-              placeholder="Ex: 119709867778"
-              className="w-full pl-10 rounded-[calc(var(--radius)-4px)] bg-background border border-input px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-ring focus:ring-1 focus:ring-ring transition"
               type="tel"
+              placeholder="Ex: 11999999999"
+              className="w-full pl-10 border px-4 py-3 rounded"
             />
           </div>
 
+        
           <div className="flex flex-col">
-            <label className="text-sm font-semibold text-foreground mb-2">
-              Foto de perfil (upload)
+            <label className="text-sm font-semibold mb-2">
+              Foto de perfil
             </label>
 
-            <label className="flex items-center gap-2 cursor-pointer rounded-[calc(var(--radius)-4px)] bg-background border border-input px-4 py-3 text-muted-foreground hover:border-ring hover:text-foreground transition">
+            <label className="flex items-center gap-2 cursor-pointer border px-4 py-3 rounded">
               <Upload className="w-5 h-5" />
               <span>Selecionar imagem</span>
 
@@ -123,41 +128,43 @@ export default function ModalAdicionarTecnico({ open, onClose, onAddTecnico }) {
             </label>
           </div>
 
+        
           <div className="flex flex-col relative">
-            <label className="text-sm font-semibold text-foreground mb-2">
-              Status
-            </label>
+            <label className="text-sm font-semibold mb-2">Status</label>
 
             <div className="relative">
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
-                className="w-full appearance-none pr-10 rounded-[calc(var(--radius)-4px)] bg-background border border-input px-4 py-3 text-foreground focus:outline-none focus:border-ring focus:ring-1 focus:ring-ring transition"
+                className="w-full border px-4 py-3 rounded appearance-none"
               >
                 <option value="Ativo">Ativo</option>
                 <option value="Inativo">Inativo</option>
               </select>
 
-              <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-muted-foreground">
-                <ChevronDown className="h-4 w-4" />
-              </div>
+              <ChevronDown className="absolute right-3 top-4 w-4 h-4 text-muted-foreground" />
             </div>
           </div>
 
-          <div className="flex flex-col md:flex-row justify-end gap-3 pt-4">
+         
+          <div className="flex justify-end gap-3 pt-4">
             <button
               type="button"
-              onClick={() => { limparCampos(); onClose(); }}
-              className="px-5 py-2 rounded-[calc(var(--radius)-4px)] border border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground transition"
+              onClick={() => {
+                limparCampos();
+                onClose();
+              }}
+              className="px-5 py-2 border rounded"
             >
               Cancelar
             </button>
+
             <button
               type="submit"
               disabled={carregando}
-              className="px-5 py-2 rounded-[calc(var(--radius)-4px)] bg-primary text-primary-foreground hover:bg-primary/90 font-semibold transition disabled:opacity-50"
+              className="px-5 py-2 bg-primary text-white rounded disabled:opacity-50"
             >
-              {carregando ? "Adicionando..." : "Adicionar Técnico"}
+              {carregando ? "Adicionando..." : "Adicionar"}
             </button>
           </div>
 

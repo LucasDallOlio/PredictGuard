@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { User, Calendar, AlertCircle, Edit3, Cpu } from "lucide-react"; // ícones
+import { User, Calendar, AlertCircle, Edit3, Cpu } from "lucide-react";
+import { useService } from "@/hooks/useServiceRequest"; 
 
 export default function ModalSolicitacaoServico({ open, onClose, service }) {
   const [maquina, setMaquina] = useState("");
@@ -10,7 +11,8 @@ export default function ModalSolicitacaoServico({ open, onClose, service }) {
   const [dataRelato, setDataRelato] = useState("");
   const [tecnico, setTecnico] = useState("");
   const [tecnicos, setTecnicos] = useState([]);
-  const [carregando, setCarregando] = useState(false);
+
+  const { enviarSolicitacao, loading } = useService(); 
 
   useEffect(() => {
     async function buscarTecnicos() {
@@ -23,6 +25,7 @@ export default function ModalSolicitacaoServico({ open, onClose, service }) {
         console.error(erro);
       }
     }
+
     if (open) buscarTecnicos();
   }, [open]);
 
@@ -39,26 +42,17 @@ export default function ModalSolicitacaoServico({ open, onClose, service }) {
     onClose();
   }
 
-  async function enviarSolicitacao(e) {
+  async function handleEnviarSolicitacao(e) {
     e.preventDefault();
-    setCarregando(true);
     const dados = { service, maquina, descricao, urgencia, dataRelato, tecnico };
 
     try {
-      const resposta = await fetch("/api/service-request", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(dados),
-      });
-      if (!resposta.ok) throw new Error("Erro ao enviar solicitação");
-
+      await enviarSolicitacao(dados); 
       resetForm();
       onClose();
     } catch (erro) {
       console.error(erro);
       alert("Erro ao enviar solicitação");
-    } finally {
-      setCarregando(false);
     }
   }
 
@@ -67,13 +61,12 @@ export default function ModalSolicitacaoServico({ open, onClose, service }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 min-h-screen">
       <div className="w-full max-w-lg rounded-[var(--radius)] bg-card border border-border p-8 shadow-2xl relative">
-
         <h2 className="text-2xl md:text-3xl font-bold text-card-foreground mb-6 text-center">
           Solicitar {service}
         </h2>
 
-        <form onSubmit={enviarSolicitacao} className="space-y-5">
-
+        <form onSubmit={handleEnviarSolicitacao} className="space-y-5">
+         
           <div className="flex flex-col relative">
             <label className="text-sm font-semibold text-foreground mb-2">Máquina</label>
             <Cpu className="absolute left-3 top-[38px] w-5 h-5 text-muted-foreground pointer-events-none mt-1" />
@@ -85,6 +78,7 @@ export default function ModalSolicitacaoServico({ open, onClose, service }) {
             />
           </div>
 
+          {/* Técnico */}
           <div className="flex flex-col relative">
             <label className="text-sm font-semibold text-foreground mb-2">Técnico responsável</label>
             <User className="absolute left-3 top-[38px] w-5 h-5 text-muted-foreground pointer-events-none mt-1" />
@@ -100,6 +94,7 @@ export default function ModalSolicitacaoServico({ open, onClose, service }) {
             </select>
           </div>
 
+        
           <div className="flex flex-col relative">
             <label className="text-sm font-semibold text-foreground mb-2">Nível de prioridade</label>
             <AlertCircle className="absolute left-3 top-[38px] w-5 h-5 text-muted-foreground pointer-events-none mt-1" />
@@ -114,6 +109,7 @@ export default function ModalSolicitacaoServico({ open, onClose, service }) {
             </select>
           </div>
 
+        
           <div className="flex flex-col relative">
             <label className="text-sm font-semibold text-foreground mb-2">Data do reporte</label>
             <Calendar className="absolute left-3 top-[38px] w-5 h-5 text-muted-foreground pointer-events-none mt-1" />
@@ -121,11 +117,11 @@ export default function ModalSolicitacaoServico({ open, onClose, service }) {
               type="date"
               value={dataRelato}
               onChange={(e) => setDataRelato(e.target.value)}
-              placeholder="DD/MM/AAAA"
               className="w-full pl-10 rounded-[calc(var(--radius)-4px)] bg-background border border-input px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-ring focus:ring-1 focus:ring-ring transition"
             />
           </div>
 
+         
           <div className="flex flex-col relative">
             <label className="text-sm font-semibold text-foreground mb-2">Descrição do problema</label>
             <Edit3 className="absolute left-3 top-3 w-5 h-5 text-muted-foreground pointer-events-none mt-7" />
@@ -137,6 +133,7 @@ export default function ModalSolicitacaoServico({ open, onClose, service }) {
             />
           </div>
 
+          
           <div className="flex justify-end gap-3 pt-4">
             <button
               type="button"
@@ -147,13 +144,12 @@ export default function ModalSolicitacaoServico({ open, onClose, service }) {
             </button>
             <button
               type="submit"
-              disabled={carregando}
+              disabled={loading}
               className="px-5 py-2 rounded-[calc(var(--radius)-4px)] bg-primary text-primary-foreground hover:bg-primary/90 font-semibold transition disabled:opacity-50"
             >
-              {carregando ? "Enviando..." : "Enviar solicitação"}
+              {loading ? "Enviando..." : "Enviar solicitação"}
             </button>
           </div>
-
         </form>
       </div>
     </div>
