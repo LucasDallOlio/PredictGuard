@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { User, Calendar, AlertCircle, Edit3, Cpu } from "lucide-react";
 import { useService } from "@/hooks/useServiceRequest"; 
+import { useTechnicians } from "@/hooks/useTechnicians"; 
 
 export default function ModalSolicitacaoServico({ open, onClose, service }) {
   const [maquina, setMaquina] = useState("");
@@ -10,24 +11,11 @@ export default function ModalSolicitacaoServico({ open, onClose, service }) {
   const [urgencia, setUrgencia] = useState("media");
   const [dataRelato, setDataRelato] = useState("");
   const [tecnico, setTecnico] = useState("");
-  const [tecnicos, setTecnicos] = useState([]);
 
   const { enviarSolicitacao, loading } = useService(); 
 
-  useEffect(() => {
-    async function buscarTecnicos() {
-      try {
-        const resposta = await fetch("/api/technicians");
-        if (!resposta.ok) throw new Error("Erro ao buscar técnicos");
-        const dados = await resposta.json();
-        setTecnicos(dados);
-      } catch (erro) {
-        console.error(erro);
-      }
-    }
-
-    if (open) buscarTecnicos();
-  }, [open]);
+  
+  const { tecnicos, loading: loadingTecnicos } = useTechnicians(open);
 
   function resetForm() {
     setMaquina("");
@@ -66,7 +54,7 @@ export default function ModalSolicitacaoServico({ open, onClose, service }) {
         </h2>
 
         <form onSubmit={handleEnviarSolicitacao} className="space-y-5">
-         
+          
           <div className="flex flex-col relative">
             <label className="text-sm font-semibold text-foreground mb-2">Máquina</label>
             <Cpu className="absolute left-3 top-[38px] w-5 h-5 text-muted-foreground pointer-events-none mt-1" />
@@ -78,7 +66,7 @@ export default function ModalSolicitacaoServico({ open, onClose, service }) {
             />
           </div>
 
-          {/* Técnico */}
+        
           <div className="flex flex-col relative">
             <label className="text-sm font-semibold text-foreground mb-2">Técnico responsável</label>
             <User className="absolute left-3 top-[38px] w-5 h-5 text-muted-foreground pointer-events-none mt-1" />
@@ -86,6 +74,7 @@ export default function ModalSolicitacaoServico({ open, onClose, service }) {
               value={tecnico}
               onChange={(e) => setTecnico(e.target.value)}
               className="w-full pl-10 appearance-none rounded-[calc(var(--radius)-4px)] bg-background border border-input px-4 py-3 text-foreground focus:outline-none focus:border-ring focus:ring-1 focus:ring-ring transition"
+              disabled={loadingTecnicos}
             >
               <option value="">Selecione um técnico</option>
               {tecnicos.map((tec) => (
@@ -94,7 +83,7 @@ export default function ModalSolicitacaoServico({ open, onClose, service }) {
             </select>
           </div>
 
-        
+       
           <div className="flex flex-col relative">
             <label className="text-sm font-semibold text-foreground mb-2">Nível de prioridade</label>
             <AlertCircle className="absolute left-3 top-[38px] w-5 h-5 text-muted-foreground pointer-events-none mt-1" />
@@ -109,7 +98,6 @@ export default function ModalSolicitacaoServico({ open, onClose, service }) {
             </select>
           </div>
 
-        
           <div className="flex flex-col relative">
             <label className="text-sm font-semibold text-foreground mb-2">Data do reporte</label>
             <Calendar className="absolute left-3 top-[38px] w-5 h-5 text-muted-foreground pointer-events-none mt-1" />
@@ -121,7 +109,7 @@ export default function ModalSolicitacaoServico({ open, onClose, service }) {
             />
           </div>
 
-         
+          
           <div className="flex flex-col relative">
             <label className="text-sm font-semibold text-foreground mb-2">Descrição do problema</label>
             <Edit3 className="absolute left-3 top-3 w-5 h-5 text-muted-foreground pointer-events-none mt-7" />
@@ -133,7 +121,7 @@ export default function ModalSolicitacaoServico({ open, onClose, service }) {
             />
           </div>
 
-          
+   
           <div className="flex justify-end gap-3 pt-4">
             <button
               type="button"
