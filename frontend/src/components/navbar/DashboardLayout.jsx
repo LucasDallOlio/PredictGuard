@@ -77,12 +77,12 @@ export default function PremiumLayout({ children }) {
         <div className={`flex h-20 items-center justify-between px-6 ${isCollapsed ? "justify-center px-0" : ""}`}>
           <div className="flex items-center gap-3">
             {/* Ícone Premium */}
-            <div className="flex items-center justify-center shrink-0 size-10 rounded-xl bg-gradient-to-br from-sidebar-primary to-blue-600 text-sidebar-primary-foreground shadow-lg shadow-sidebar-primary/30 ring-1 ring-white/10">
+            <div className="flex items-center justify-center shrink-0 size-10 rounded-xl bg-linear-to-br from-sidebar-primary to-blue-600 text-sidebar-primary-foreground shadow-lg shadow-sidebar-primary/30 ring-1 ring-white/10">
               <ShieldCheck className="size-5" strokeWidth={2.5} />
             </div>
             
             {!isCollapsed && (
-              <span className="text-xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-sidebar-foreground to-sidebar-foreground/70 transition-opacity duration-300">
+              <span className="text-xl font-extrabold tracking-tight bg-clip-text text-transparent bg-linear-to-r from-sidebar-foreground to-sidebar-foreground/70 transition-opacity duration-300">
                 PredictGuard 
               </span>
             )}
@@ -184,14 +184,14 @@ export default function PremiumLayout({ children }) {
           {/* CABEÇALHO MOBILE (Adicionado para abrir o menu) */}
           <div className="flex items-center justify-between p-4 border-b border-border md:hidden bg-background">
             <div className="flex items-center gap-2">
-              <div className="flex items-center justify-center shrink-0 size-8 rounded-lg bg-gradient-to-br from-sidebar-primary to-blue-600 text-sidebar-primary-foreground shadow-sm">
+              <div className="flex items-center justify-center shrink-0 size-8 rounded-lg bg-linear-to-br from-sidebar-primary to-blue-600 text-sidebar-primary-foreground shadow-sm">
                 <ShieldCheck className="size-4" />
               </div>
               <span className="text-lg font-bold">PredictGuard</span>
             </div>
             <button 
               onClick={() => setIsMobileOpen(true)}
-              className="p-2 -mr-2 text-foreground/70 hover:text-foreground rounded-lg hover:bg-secondary hover:text-white transition-colors"
+              className="p-2 -mr-2 text-foreground/70 hover:text-foreground rounded-lg hover:bg-secondary transition-colors"
             >
               <Menu className="size-6" />
             </button>
@@ -206,7 +206,7 @@ export default function PremiumLayout({ children }) {
 
       {/* MODAL DE PERFIL */}
       {isProfileModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+        <div className="fixed inset-0 z-100 flex items-center justify-center p-4 sm:p-6">
           <div 
             className="absolute inset-0 bg-black/80 backdrop-blur-md transition-opacity"
             onClick={() => !isSaving && setIsProfileModalOpen(false)}

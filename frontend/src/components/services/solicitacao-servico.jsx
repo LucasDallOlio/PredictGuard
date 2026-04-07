@@ -48,7 +48,7 @@ export default function ModalSolicitacaoServico({ open, onClose, service }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 min-h-screen">
-      <div className="w-full max-w-lg rounded-[var(--radius)] bg-card border border-border p-8 shadow-2xl relative">
+      <div className="w-full max-w-lg rounded-(--radius) bg-card border border-border p-8 shadow-2xl relative">
         <h2 className="text-2xl md:text-3xl font-bold text-card-foreground mb-6 text-center">
           Solicitar {service}
         </h2>
