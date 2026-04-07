@@ -7,7 +7,7 @@ class UsuarioController {
             let limite = parseInt(req.query.limite) || 10;
 
             const resultado = await UsuarioModel.listarTodos(pagina, limite);
-            
+
             res.status(200).json({
                 sucesso: true,
                 dados: resultado.usuarios,
@@ -26,6 +26,134 @@ class UsuarioController {
             });
         }
     }
+
+    static async buscarPorID(req, res) {
+        try {
+            const { id } = req.params
+
+            const usuario = await UsuarioModel.buscarPorID(id);
+
+            if (!usuario) {
+                return res.status(404).json({
+                    sucesso: false,
+                    erro: 'Usuario não encontrado',
+                    mensagem: `Usuario com ID ${id} não foi encontrado`
+                });
+            }
+            res.status(200).json({
+                sucesso: true,
+                dados: usuario
+            });
+        }
+        catch (error) {
+            console.error('Erro ao buscar usuario:', error)
+            res.status(500).json({
+                sucesso: false,
+                erro: 'Erro interno do servidor',
+                mensagem: 'Não foi possível buscar o usuario'
+            });
+        }
+    }
+
+    static async criar(req, res) {
+        try {
+            const usuario = req.body
+
+            const resultado = await UsuarioModel.criar(usuario);
+
+            res.status(201).json({
+                sucesso: true,
+                mensagem: 'Usuario criado com sucesso',
+                dados: {
+                    id: resultado.insertId,
+                }
+            });
+        }
+        catch (error) {
+            console.error('Erro ao criar usuario:', error);
+            res.status(500).json({
+                sucesso: false,
+                erro: 'Erro interno do servidor',
+                mensagem: 'Não foi possível criar o usuario'
+            });
+        }
+    }
+
+    static async atualizar(req, res) {
+        try {
+            const { id } = req.params;
+            const dadosUsuario = req.body;
+
+            const affectedRows = await UsuarioModel.atualizar(id, dadosUsuario)
+
+            if (affectedRows === 0) {
+                return res.status(404).json({
+                    sucesso: false,
+                    erro: 'Usuario não encontrado',
+                    mensagem: `Usuario com ID ${id} não foi encontrado`
+                });
+            }
+
+            res.status(200).json({
+                sucesso: true,
+                mensagem: 'Usuario atualizado com sucesso',
+                dados: {
+                    linhasAfetadas: affectedRows
+                }
+            });
+        }
+        catch (error) {
+            console.error('Erro ao atualziar usuario:', error);
+            res.status(500).json({
+                sucesso: false,
+                erro: 'Erro interno do servidor',
+                mensagem: 'Não foi possivel atualizar o usuario'
+            });
+        }
+    }
+
+    static async excluir(req, res) {
+        try {
+            const { id } = req.params;
+
+            const usuarioExistente = await UsuarioModel.buscarPorID(id);
+
+            if (!usuarioExistente) {
+                return res.status(404).json({
+                    sucesso: false,
+                    erro: 'Usuario não encontrado',
+                    mensagem: `Usuario com ID ${id} não foi encontrado`
+                });
+            }
+
+            const affectedRows = await UsuarioModel.excluir(id);
+
+            if (affectedRows === 0) {
+                return res.status(404).json({
+                    sucesso: false,
+                    erro: 'Usuario não encontrado',
+                    mensagem: `Usuario com ID ${id} não foi encontrado`
+                });
+            }
+
+            res.status(200).json({
+                sucesso: true,
+                mensagem: 'Usuario excluido com sucesso',
+                dados: {
+                    linhasAfetadas: affectedRows
+                }
+            });
+        }
+        catch (error) {
+            console.error('Erro ao excluir usuario:', error);
+            res.status(500).json({
+                sucesso: false,
+                erro: 'Erro interno do servidor',
+                mensagem: 'Não foi possível excluir o usuario'
+            });
+        }
+    }
+
 }
 
 export default UsuarioController;
