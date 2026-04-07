@@ -66,7 +66,7 @@ export default function ModalAdicionarTecnico({ open, onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 min-h-screen">
-      <div className="w-full max-w-lg md:max-w-md rounded-(--radius) bg-card border border-border p-6 md:p-8 shadow-2xl relative">
+      <div className="w-full max-w-lg md:max-w-md rounded-lg bg-card border border-border p-6 md:p-8 shadow-2xl relative">
 
         <h2 className="text-2xl md:text-3xl font-bold text-card-foreground mb-6 text-center">
           Adicionar Técnico

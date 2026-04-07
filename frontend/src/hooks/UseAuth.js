@@ -21,7 +21,6 @@ export function useAuth() {
     try {
       setCarregando(true);
 
-    
       const usuarios = JSON.parse(localStorage.getItem("tecnicos")) || [];
 
       const usuarioEncontrado = usuarios.find(
@@ -43,13 +42,36 @@ export function useAuth() {
     }
   }
 
- 
+  function updateUser(dadosAtualizados) {
+    if (!user) return;
+
+    const usuarioAtualizado = {
+      ...user,
+      ...dadosAtualizados,
+    };
+
+  
+    localStorage.setItem("user", JSON.stringify(usuarioAtualizado));
+
+    
+    const tecnicos = JSON.parse(localStorage.getItem("tecnicos")) || [];
+
+    const novaLista = tecnicos.map((t) =>
+      t.email === user.email ? usuarioAtualizado : t
+    );
+
+    localStorage.setItem("tecnicos", JSON.stringify(novaLista));
+
+   
+    setUser(usuarioAtualizado);
+  }
+
+  
   function logout() {
     localStorage.removeItem("user");
     setUser(null);
   }
 
-  
   const isAuthenticated = !!user;
 
   return {
@@ -57,6 +79,7 @@ export function useAuth() {
     carregando,
     login,
     logout,
+    updateUser,
     isAuthenticated,
   };
 }
