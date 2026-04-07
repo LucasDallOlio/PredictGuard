@@ -4,6 +4,9 @@ import helmet from 'helmet';
 import swaggerUi from 'swagger-ui-express';
 import swaggerSpec from './config/swagger.js';
 
+// Importar rotas
+import usuarioRotas from './routes/usuarioRotas.js'
+
 dotenv.config();
 
 const app = express();
@@ -12,6 +15,9 @@ const PORT = process.env.PORT || 3001;
 
 app.use(helmet());
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+// Rotas da API
+app.use('/usuarios', usuarioRotas);
 
 app.get('/', (req, res) => {
     res.json({
