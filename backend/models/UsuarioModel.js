@@ -50,15 +50,16 @@ class UsuarioModel {
 
     static async listarTodos(page, limit) {
         try {
-            
             const usuarios = await readWithPagination({
                 table: 'usuarios',
                 page,
                 limit
             })
+
+            const usuariosSemSenha = usuarios.map(({ senha, ...usuario }) => usuario);
             
             return {
-                usuarios,
+                usuarios: usuariosSemSenha,
                 page,
                 limit
             }
