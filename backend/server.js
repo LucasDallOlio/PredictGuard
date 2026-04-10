@@ -14,6 +14,11 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 app.use(helmet());
+
+// Body parsers (necessários para req.body em JSON e forms)
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Rotas da API
