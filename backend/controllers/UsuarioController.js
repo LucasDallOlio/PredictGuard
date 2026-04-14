@@ -5,8 +5,37 @@ class UsuarioController {
         try {
             let pagina = parseInt(req.query.pagina) || 1;
             let limite = parseInt(req.query.limite) || 10;
+            const filtroBruto = {
+                tipo: req.query.tipo
+            };
 
-            const resultado = await UsuarioModel.listarTodos(pagina, limite);
+            const filtro = Object.fromEntries(
+                Object.entries(filtroBruto).filter(([_, valor]) => {
+                    return valor !== undefined && valor !== null && String(valor).trim() !== '';
+                })
+            );
+
+            if (filtro.tipo) {
+                const tipoNormalizado = String(filtro.tipo).trim().toLowerCase();
+                const mapaTipos = {
+                    admin: 'admin',
+                    tecnico: 'técnico',
+                    'técnico': 'técnico'
+                };
+
+                if (!mapaTipos[tipoNormalizado]) {
+                    return res.status(400).json({
+                        sucesso: false,
+                        erro: 'Filtro inválido',
+                        mensagem: "O filtro 'tipo' deve ser 'admin' ou 'técnico'"
+                    });
+                }
+
+                filtro.tipo = mapaTipos[tipoNormalizado];
+            }
+
+
+            const resultado = await UsuarioModel.listarTodos(pagina, limite, filtro);
 
             res.status(200).json({
                 sucesso: true,

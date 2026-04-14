@@ -48,16 +48,27 @@ class UsuarioModel {
         }
     }
 
-    static async listarTodos(page, limit) {
+    static async listarTodos(page, limit, filtro = null) {
         try {
+            let where = '';
+            let whereParams = [];
+            
+            if (filtro) {
+                const columns = Object.keys(filtro);
+                whereParams = Object.values(filtro);
+
+                where = `${columns.map(column => `${column} = ?`).join(', ')}`
+            }
             const usuarios = await readWithPagination({
                 table: 'usuarios',
                 page,
-                limit
+                limit,
+                where,
+                whereParams
             })
 
             const usuariosSemSenha = usuarios.map(({ senha, ...usuario }) => usuario);
-            
+
             return {
                 usuarios: usuariosSemSenha,
                 page,
