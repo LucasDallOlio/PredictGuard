@@ -48,11 +48,11 @@ class UsuarioModel {
         }
     }
 
-    static async listarTodos(page, limit, filtro = null) {
+    static async listarTodos(page = 1, limit = 10, filtro = null) {
         try {
             let where = '';
             let whereParams = [];
-            
+
             if (filtro) {
                 const columns = Object.keys(filtro);
                 whereParams = Object.values(filtro);
