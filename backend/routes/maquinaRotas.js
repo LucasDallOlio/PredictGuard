@@ -1,9 +1,13 @@
 import express from 'express';
-import MaquinaController from '../controllers/MaquinaController';
+import MaquinaController from '../controllers/MaquinaController.js'
 
 const router = express.Router();
 
+router.get('/', MaquinaController.listarTodos);
 router.get('/:id', MaquinaController.buscarPorID);
+router.post('/', MaquinaController.criar);
+router.put('/:id', MaquinaController.atualizar);
+router.delete('/:id',MaquinaController.excluir);
 
 // Rotas OPTIONS para CORS (preflight requests)
 router.options('/', (req, res) => {

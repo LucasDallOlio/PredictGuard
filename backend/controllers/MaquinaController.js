@@ -1,37 +1,158 @@
-import MaquinaModel from '../models/MaquinaModel';
+import MaquinaModel from '../models/MaquinaModel.js';
 
 class MaquinaController {
 
+    static async listarTodos(req, res) {
+        try {
+            let pagina = parseInt(req.query.pagina) || 1;
+            let limite = parseInt(req.query.limite) || 10;
+            
+            const resultado = await MaquinaModel.listarTodos(pagina, limite);
+
+            res.status(200).json({
+                sucesso: true,
+                dados: resultado.maquinas,
+                paginacao: {
+                    pagina: resultado.page,
+                    limite: resultado.limit
+                }
+            });
+        }
+        catch (error) {
+            console.error('Erro ao listar maquinas:', error)
+            res.status(500).json({
+                sucesso: false,
+                erro: 'Erro interno do servidor',
+                mensagem: 'Não foi possível listar os maquinas'
+            });
+        }
+    }
 
     static async buscarPorID(req, res) {
         try {
             const { id } = req.params
 
-            const usuario = await MaquinaModel.buscarPorID(id);
+            const maquina = await MaquinaModel.buscarPorID(id);
 
-            if (!usuario) {
+            if (!maquina) {
                 return res.status(404).json({
                     sucesso: false,
-                    erro: 'Usuario não encontrado',
-                    mensagem: `Usuario com ID ${id} não foi encontrado`
+                    erro: 'Maquina não encontrado',
+                    mensagem: `Maquina com ID ${id} não foi encontrado`
                 });
             }
             res.status(200).json({
                 sucesso: true,
-                dados: usuario
+                dados: maquina
             });
         }
         catch (error) {
-            console.error('Erro ao buscar usuario:', error)
+            console.error('Erro ao buscar maquina:', error)
             res.status(500).json({
                 sucesso: false,
                 erro: 'Erro interno do servidor',
-                mensagem: 'Não foi possível buscar o usuario'
+                mensagem: 'Não foi possível buscar o maquina'
             });
         }
     }
 
+    static async criar(req, res) {
+        try {
+            const maquina = req.body
+            const resultado = await MaquinaModel.criar(maquina);
+
+            res.status(201).json({
+                sucesso: true,
+                mensagem: 'Maquina criado com sucesso',
+                dados: {
+                    id: resultado.insertId,
+                }
+            });
+        }
+        catch (error) {
+            console.error('Erro ao criar maquina:', error);
+            res.status(500).json({
+                sucesso: false,
+                erro: 'Erro interno do servidor',
+                mensagem: 'Não foi possível criar o maquina'
+            });
+        }
+    }
     
+    static async atualizar(req, res) {
+        try {
+            const { id } = req.params;
+            const dadosMaquina = req.body;
+
+            const affectedRows = await MaquinaModel.atualizar(id, dadosMaquina)
+
+            if (affectedRows === 0) {
+                return res.status(404).json({
+                    sucesso: false,
+                    erro: 'Maquina não encontrado',
+                    mensagem: `Maquina com ID ${id} não foi encontrado`
+                });
+            }
+
+            res.status(200).json({
+                sucesso: true,
+                mensagem: 'Maquina atualizado com sucesso',
+                dados: {
+                    linhasAfetadas: affectedRows
+                }
+            });
+        }
+        catch (error) {
+            console.error('Erro ao atualziar maquina:', error);
+            res.status(500).json({
+                sucesso: false,
+                erro: 'Erro interno do servidor',
+                mensagem: 'Não foi possivel atualizar o maquina'
+            });
+        }
+    }
+
+    static async excluir(req, res) {
+        try {
+            const { id } = req.params;
+
+            const maquinaExistente = await MaquinaModel.buscarPorID(id);
+
+            if (!maquinaExistente) {
+                return res.status(404).json({
+                    sucesso: false,
+                    erro: 'Maquina não encontrado',
+                    mensagem: `Maquina com ID ${id} não foi encontrado`
+                });
+            }
+
+            const affectedRows = await MaquinaModel.excluir(id);
+
+            if (affectedRows === 0) {
+                return res.status(404).json({
+                    sucesso: false,
+                    erro: 'Maquina não encontrado',
+                    mensagem: `Maquina com ID ${id} não foi encontrado`
+                });
+            }
+
+            res.status(200).json({
+                sucesso: true,
+                mensagem: 'Maquina excluido com sucesso',
+                dados: {
+                    linhasAfetadas: affectedRows
+                }
+            });
+        }
+        catch (error) {
+            console.error('Erro ao excluir maquina:', error);
+            res.status(500).json({
+                sucesso: false,
+                erro: 'Erro interno do servidor',
+                mensagem: 'Não foi possível excluir o maquina'
+            });
+        }
+    }
 
 }
 

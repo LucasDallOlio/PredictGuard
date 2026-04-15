@@ -6,6 +6,7 @@ import swaggerSpec from './config/swagger.js';
 
 // Importar rotas
 import usuarioRotas from './routes/usuarioRotas.js'
+import maquinaRotas from './routes/maquinaRotas.js'
 
 dotenv.config();
 
@@ -23,6 +24,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Rotas da API
 app.use('/usuarios', usuarioRotas);
+app.use('/maquinas', maquinaRotas);
 
 app.get('/', (req, res) => {
     res.json({
