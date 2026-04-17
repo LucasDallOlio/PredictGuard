@@ -17,6 +17,20 @@ class UsuarioModel {
         }
     }
 
+    static async buscarPorEmail(email) {
+        try {
+            const rows = await read('usuarios', `email = '${email}'`);
+
+            if (!rows[0]) return null;
+
+            const { senha, ...usuario } = rows[0];
+            return usuario;
+        }
+        catch (error) {
+            throw new Error(`Erro ao buscar usuario por email: ${error.message}`);
+        }
+    }
+
     static async criar(usuario) {
         usuario.senha = await hashPassword(usuario.senha)
         try {
