@@ -51,7 +51,7 @@ class MaquinaModel {
                 const columns = Object.keys(filtro);
                 whereParams = Object.values(filtro);
 
-                where = `${columns.map(column => `${column} = ?`).join(', ')}`
+                where = `${columns.map(column => `${column} = ?`).join(' AND ')}`
             }
             const maquinas = await readWithPagination({
                 table: 'maquinas',
