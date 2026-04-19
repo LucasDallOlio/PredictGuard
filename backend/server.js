@@ -1,5 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
+import cors from 'cors';
 import helmet from 'helmet';
 import swaggerUi from 'swagger-ui-express';
 import swaggerSpec from './config/swagger.js';
@@ -15,6 +16,14 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 app.use(helmet());
+
+app.use(cors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    preflightContinue: false, // Deixa as rotas OPTIONS específicas serem processadas
+    optionsSuccessStatus: 200 // Retorna 200 para OPTIONS em vez de 204
+}));
 
 // Body parsers (necessários para req.body em JSON e forms)
 app.use(express.json());
