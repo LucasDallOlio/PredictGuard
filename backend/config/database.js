@@ -107,7 +107,7 @@ async function readWithPagination({
     where = null,
     whereParams = [],
     page = 1,
-    limit
+    limit = 10
 })  {
     const connection = await getConnection();
     
@@ -118,8 +118,8 @@ async function readWithPagination({
         if(typeof where === 'string' && where.trim()){
             sql += ` where ${where}`;
         }
-        sql += ' order by id asc limit ? offset ?'
-        const [rows] = await connection.execute(sql, [...whereParams, limit, offset]);
+        sql += ` order by id asc limit ${limit} offset ${offset}`
+        const [rows] = await connection.execute(sql, whereParams);
         return rows;
     }
     finally{
