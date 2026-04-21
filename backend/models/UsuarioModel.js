@@ -1,5 +1,5 @@
 import { create, read, update, deleteRecord, readWithPagination } from '../config/database.js';
-import { hashPassword } from '../utils/bcrypt.js';
+import { hashPassword, comparePassword } from '../utils/bcrypt.js';
 
 class UsuarioModel {
 
@@ -21,10 +21,7 @@ class UsuarioModel {
         try {
             const rows = await read('usuarios', `email = '${email}'`);
 
-            if (!rows[0]) return null;
-
-            const { senha, ...usuario } = rows[0];
-            return usuario;
+            return rows[0] || null;
         }
         catch (error) {
             throw new Error(`Erro ao buscar usuario por email: ${error.message}`);
@@ -91,6 +88,27 @@ class UsuarioModel {
         }
         catch (error) {
             throw new Error(`Erro ao buscar usuarios: ${error.message}`);
+        }
+    }
+
+    static async verificarCredenciais(email, senhaInformada) {
+        try {
+            const usuario = await this.buscarPorEmail(email);
+            if (!usuario) {
+                return null;
+            }
+
+            const senhaValida = await comparePassword(senhaInformada, usuario.senha);
+
+            if (!senhaValida) {
+                return null;
+            }
+
+            const { senha, ...usuarioSemSenha } = usuario;
+            return usuarioSemSenha;
+        }
+        catch (error) {
+            throw new Error(`Erro ao verificar credenciais: ${error.message}`);
         }
     }
 }
