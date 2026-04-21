@@ -193,10 +193,10 @@ create table if not exists logs (
 -- =========================
 
 insert into usuarios (id, nome, email, senha, telefone, tipo, foto) values
-    (1, 'Ana Souza', 'ana.souza@predictguard.com', '$2b$10$hash_admin_ana', '(11) 99999-1001', 'admin', 'ana.jpg'),
-    (2, 'Bruno Lima', 'bruno.lima@predictguard.com', '$2b$10$hash_tecnico_bruno', '(11) 99999-1002', 'técnico', 'bruno.jpg'),
-    (3, 'Carla Mendes', 'carla.mendes@predictguard.com', '$2b$10$hash_tecnico_carla', '(11) 99999-1003', 'técnico', 'carla.jpg'),
-    (4, 'Diego Ramos', 'diego.ramos@predictguard.com', '$2b$10$hash_admin_diego', '(11) 99999-1004', 'admin', 'diego.jpg');
+    (1, 'Ana Souza', 'ana.souza@predictguard.com', '$2b$10$BXX0.935RtQgW8I6NM0CRer8RZS5drRODGIAfmFs6GTLe/DkEUQj2', '(11) 99999-1001', 'admin', 'ana.jpg'),
+    (2, 'Bruno Lima', 'bruno.lima@predictguard.com', '$2b$10$ijRQlhhvmVZmSfT5xcPhMeVB61M24PICwpjc9R2/UCPiPGaMM1akO', '(11) 99999-1002', 'técnico', 'bruno.jpg'),
+    (3, 'Carla Mendes', 'carla.mendes@predictguard.com', '$2b$10$Zyi8QFjqDI4/GD8F2QCk1.FXOGaujsHB3llx0eG0p/s0XZc.Qdtuu', '(11) 99999-1003', 'técnico', 'carla.jpg'),
+    (4, 'Diego Ramos', 'diego.ramos@predictguard.com', '$2b$10$x8/sTEVdHjAnesrhSK.BBOlBa23DqLnHZrRgGD3s6A/R6PSt/i3Ku', '(11) 99999-1004', 'admin', 'diego.jpg');
 
 insert into maquinas (
     id, nome, cod_registro, modelo, serie, tipo, potencia_kw, tensao_faixa,
