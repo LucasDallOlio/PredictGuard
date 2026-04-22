@@ -1,13 +1,14 @@
 import express from 'express';
 import MaquinaController from '../controllers/MaquinaController.js'
+import { authMiddleware, adminMiddleware } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
-router.get('/', MaquinaController.listarTodos);
-router.get('/:id', MaquinaController.buscarPorID);
-router.post('/', MaquinaController.criar);
-router.put('/:id', MaquinaController.atualizar);
-router.delete('/:id',MaquinaController.excluir);
+router.get('/', authMiddleware, MaquinaController.listarTodos);
+router.get('/:id', authMiddleware, MaquinaController.buscarPorID);
+router.post('/', authMiddleware, adminMiddleware, MaquinaController.criar);
+router.put('/:id', authMiddleware, adminMiddleware, MaquinaController.atualizar);
+router.delete('/:id', authMiddleware, adminMiddleware, MaquinaController.excluir);
 
 // Rotas OPTIONS para CORS (preflight requests)
 router.options('/', (req, res) => {

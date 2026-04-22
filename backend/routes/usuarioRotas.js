@@ -1,16 +1,16 @@
 import express from 'express';
 import UsuarioController from '../controllers/UsuarioController.js';
-import { authMiddleware } from '../middlewares/authMiddleware.js';
+import { authMiddleware, adminMiddleware } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
 router.post('/login', UsuarioController.login);
 
-router.get('/', UsuarioController.listarTodos);
-router.get('/:id', UsuarioController.buscarPorID);
-router.post('/', UsuarioController.criar);
-router.put('/:id', UsuarioController.atualizar);
-router.delete('/:id', UsuarioController.excluir);
+router.get('/', authMiddleware, UsuarioController.listarTodos);
+router.get('/:id', authMiddleware, UsuarioController.buscarPorID);
+router.post('/', authMiddleware, adminMiddleware, UsuarioController.criar);
+router.put('/:id', authMiddleware, adminMiddleware, UsuarioController.atualizar);
+router.delete('/:id', authMiddleware, adminMiddleware, UsuarioController.excluir);
 
 // Rotas OPTIONS para CORS (preflight requests)
 router.options('/', (req, res) => {
