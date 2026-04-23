@@ -1,4 +1,4 @@
-import { create, read, update, deleteRecord, readWithPagination } from '../config/database.js';
+import { create, read, update, deleteRecord, readWithPagination, count } from '../config/database.js';
 
 class MaquinaModel {
 
@@ -60,11 +60,17 @@ class MaquinaModel {
                 where,
                 whereParams
             })
+            
+            const [total] = await count({
+                table: 'maquinas'
+            });
 
             return {
                 maquinas,
+                total: total.count,
                 page,
-                limit
+                limit,
+                totalPages: Math.ceil(total.count / limit)
             }
         }
         catch (error) {

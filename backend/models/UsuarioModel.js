@@ -1,4 +1,4 @@
-import { create, read, update, deleteRecord, readWithPagination } from '../config/database.js';
+import { create, read, update, deleteRecord, readWithPagination, count } from '../config/database.js';
 import { hashPassword, comparePassword } from '../utils/bcrypt.js';
 
 class UsuarioModel {
@@ -80,10 +80,16 @@ class UsuarioModel {
 
             const usuariosSemSenha = usuarios.map(({ senha, ...usuario }) => usuario);
 
+            const [total] = await count({
+                table: 'usuarios'
+            });
+
             return {
                 usuarios: usuariosSemSenha,
+                total: total.count,
                 page,
-                limit
+                limit,
+                totalPages: Math.ceil(total.count / limit)
             }
         }
         catch (error) {
