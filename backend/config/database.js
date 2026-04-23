@@ -14,16 +14,16 @@ const pool = mysql.createPool({
     queueLimit: 0
 });
 
-async function getConnection(){
+async function getConnection() {
     return pool.getConnection();
 }
 
 
-async function create(table, data){
+async function create(table, data) {
     const connection = await getConnection();
-    
-    try{
-        if(!data || typeof data !== 'object' || Object.keys(data).length === 0){
+
+    try {
+        if (!data || typeof data !== 'object' || Object.keys(data).length === 0) {
             throw new Error('Dados invalidos para insercao');
         }
 
@@ -39,36 +39,36 @@ async function create(table, data){
             affectedRows: result.affectedRows
         };
     }
-    finally{
+    finally {
         connection.release();
     }
 }
 
-async function read(table, where = null){
+async function read(table, where = null) {
     const connection = await getConnection();
 
-    try{
+    try {
         let sql = `select * from ${table}`;
-        if(where){
+        if (where) {
             sql += ` where ${where}`;
         }
 
         const [rows] = await connection.execute(sql);
         return rows;
     }
-    finally{
+    finally {
         connection.release();
     }
 }
 
-async function update(table, data, where, whereParams = []){
+async function update(table, data, where, whereParams = []) {
     const connection = await getConnection();
 
-    try{
-        if(!data || typeof data !== 'object' || Object.keys(data).length === 0){
+    try {
+        if (!data || typeof data !== 'object' || Object.keys(data).length === 0) {
             throw new Error('Dados invalidos para atualizacao');
         }
-        if(typeof where !== 'string' || !where.trim()){
+        if (typeof where !== 'string' || !where.trim()) {
             throw new Error('Where obrigatório para atualização');
         }
         const columns = Object.keys(data);
@@ -77,19 +77,19 @@ async function update(table, data, where, whereParams = []){
         const sql = `update ${table} ${placeholders} where ${where}`;
         const [result] = await connection.execute(sql, [...values, ...whereParams]);
         return result.affectedRows
-        
+
     }
-    finally{
+    finally {
         connection.release();
     }
 }
 
-async function deleteRecord(table, where, whereParams = []){
+async function deleteRecord(table, where, whereParams = []) {
     const connection = await getConnection();
 
-    try{
+    try {
 
-        if(typeof where !== 'string' || !where.trim()){
+        if (typeof where !== 'string' || !where.trim()) {
             throw new Error('Where obrigatório para exclusão');
         }
 
@@ -97,7 +97,7 @@ async function deleteRecord(table, where, whereParams = []){
         const [result] = await connection.execute(sql, whereParams);
         return result.affectedRows
     }
-    finally{
+    finally {
         connection.release();
     }
 }
@@ -108,30 +108,61 @@ async function readWithPagination({
     whereParams = [],
     page = 1,
     limit = 10
-})  {
+}) {
     const connection = await getConnection();
-    
-    try{
+
+    try {
         const offset = (page - 1) * limit;
         let sql = `select * from ${table}`;
 
-        if(typeof where === 'string' && where.trim()){
+        if (typeof where === 'string' && where.trim()) {
             sql += ` where ${where}`;
         }
         sql += ` order by id asc limit ${limit} offset ${offset}`
         const [rows] = await connection.execute(sql, whereParams);
         return rows;
     }
-    finally{
+    finally {
         connection.release();
     }
 }
 
-export { 
+async function count({
+    table,
+    where = null,
+    whereParams = [],
+    groupBy = null
+}) {
+    const connection = await getConnection();
+
+    try {
+
+        let selectSQL = `select count(*) as count from ${table}`;
+        let whereSQL = '';
+        let groupBySQL = '';
+
+        if (typeof where === 'string' && where.trim()) {
+            whereSQL = ` where ${where}`;
+        }
+         if (typeof groupBy === 'string' && groupBy.trim()) {
+            groupBySQL = ` group by ${groupBy}`;
+            selectSQL = `select ${groupBy}, count(*) as count from ${table}`;
+        }
+        const sql = selectSQL + whereSQL + groupBySQL;
+        const [rows] = await connection.execute(sql, whereParams);
+        return rows;
+    }
+    finally {
+        connection.release();
+    }
+}
+
+export {
     getConnection,
-    create, 
+    create,
     read,
     update,
     deleteRecord,
-    readWithPagination
+    readWithPagination,
+    count
 };
