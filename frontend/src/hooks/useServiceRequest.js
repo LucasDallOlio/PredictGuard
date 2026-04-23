@@ -45,5 +45,7 @@ export function useService() {
     }
   }
 
+
+
   return { listarServicos, enviarSolicitacao, deletarServico, loading };
 }

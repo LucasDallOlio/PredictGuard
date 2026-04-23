@@ -1,31 +1,42 @@
 import { useState, useEffect } from "react";
 
-export function useTechnicians(open) {
+const API_URL = "http://localhost:3001/usuarios";
+
+export function useTechnicians() {
   const [tecnicos, setTecnicos] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [erro, setErro] = useState(null);
 
-  
   useEffect(() => {
+    let ativo = true;
+
     async function buscarTecnicos() {
       setLoading(true);
+      setErro(null);
+
       try {
-        const res = await fetch("http://localhost:3001/usuarios");
+        const res = await fetch(`${API_URL}?tipo=técnico`);
         if (!res.ok) throw new Error("Erro ao buscar técnicos");
+
         const data = await res.json();
-        setTecnicos(data);
+
+        if (ativo) setTecnicos(data.dados);
       } catch (err) {
-        console.error(err);
+        if (ativo) setErro(err.message);
       } finally {
-        setLoading(false);
+        if (ativo) setLoading(false);
       }
     }
 
-    if (open) buscarTecnicos();
-  }, [open]);
+    buscarTecnicos();
 
- 
+    return () => {
+      ativo = false;
+    };
+  }, []);
+
   async function adicionarTecnico(novoTecnico) {
-    const res = await fetch("http://localhost:3001/usuarios", {
+    const res = await fetch(API_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -33,27 +44,28 @@ export function useTechnicians(open) {
       body: JSON.stringify(novoTecnico),
     });
 
-    if (!res.ok) throw new Error("Erro ao adicionar técnico");
-
     const data = await res.json();
-    setTecnicos((prev) => [...prev, data]);
-    return data;
+
+    if (!res.ok) throw new Error(data.mensagem || "Erro ao adicionar técnico");
+
+    setTecnicos((prev) => [...prev, data.dados]);
+    return data.dados;
   }
 
- 
   async function removerTecnico(id) {
-    const res = await fetch(`http://localhost:3001/usuarios/${id}`, {
+    const res = await fetch(`${API_URL}/${id}`, {
       method: "DELETE",
     });
 
-    if (!res.ok) throw new Error("Erro ao remover técnico");
+    const data = await res.json();
+
+    if (!res.ok) throw new Error(data.mensagem || "Erro ao remover técnico");
 
     setTecnicos((prev) => prev.filter((tec) => tec.id !== id));
   }
 
-  // 
   async function atualizarTecnico(id, atualizacoes) {
-    const res = await fetch(`http://localhost:3001/usuarios/${id}`, {
+    const res = await fetch(`${API_URL}/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -61,22 +73,23 @@ export function useTechnicians(open) {
       body: JSON.stringify(atualizacoes),
     });
 
-    if (!res.ok) throw new Error("Erro ao atualizar técnico");
+    const data = await res.json();
 
-    const atualizado = await res.json();
+    if (!res.ok) throw new Error(data.mensagem || "Erro ao atualizar técnico");
+
     setTecnicos((prev) =>
-      prev.map((tec) => (tec.id === id ? atualizado : tec))
+      prev.map((tec) => (tec.id === id ? data.dados : tec))
     );
 
-    return atualizado;
+    return data.dados;
   }
 
-  return { 
-    tecnicos, 
-    loading, 
-    adicionarTecnico, 
-    removerTecnico, 
-    atualizarTecnico, 
-    setTecnicos 
+  return {
+    tecnicos,
+    loading,
+    erro,
+    adicionarTecnico,
+    removerTecnico,
+    atualizarTecnico,
   };
 }

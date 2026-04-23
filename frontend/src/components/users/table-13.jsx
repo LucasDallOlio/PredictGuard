@@ -7,26 +7,17 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Trash2, UserPlus, Users } from "lucide-react";
 import ModalAdicionarTecnico from "@/components/users/modal-tecnico";
-import { useTechnicians } from "@/hooks/useTechnicians"; 
+import { useTechnicians } from "@/hooks/useTechnicians";
 
 export default function UsersTable() {
   const [modalOpen, setModalOpen] = useState(false);
 
-  
-  const { tecnicos, loading, adicionarTecnico, removerTecnico, atualizarTecnico } = useTechnicians(modalOpen);
 
+  const [modalRemoverOpen, setModalRemoverOpen] = useState(false);
+  const [tecnicoSelecionado, setTecnicoSelecionado] = useState(null);
 
-  const toggleStatus = async (id, statusAtual) => {
-    try {
-      const novoStatus = statusAtual === "Ativo" ? "Inativo" : "Ativo";
-      await atualizarTecnico(id, { status: novoStatus });
-    } catch (err) {
-      console.error("Erro ao atualizar status:", err);
-      alert("Não foi possível atualizar o status");
-    }
-  };
+  const { tecnicos, loading, adicionarTecnico, removerTecnico } = useTechnicians();
 
-  
   const handleAddTecnico = async (novoTecnico) => {
     try {
       await adicionarTecnico(novoTecnico);
@@ -38,13 +29,20 @@ export default function UsersTable() {
   };
 
   
-  const handleRemoveTecnico = async (id) => {
-    if (!confirm("Tem certeza que deseja remover este técnico?")) return;
+  const handleRemoveTecnico = (tec) => {
+    setTecnicoSelecionado(tec);
+    setModalRemoverOpen(true);
+  };
+
+ 
+  const confirmarRemocao = async () => {
     try {
-      await removerTecnico(id);
+      await removerTecnico(tecnicoSelecionado.id);
+      setModalRemoverOpen(false);
+      setTecnicoSelecionado(null);
     } catch (err) {
-      console.error("Erro ao remover técnico:", err);
-      alert("Não foi possível remover o técnico");
+      console.error(err);
+      alert("Erro ao remover técnico");
     }
   };
 
@@ -59,92 +57,130 @@ export default function UsersTable() {
       />
 
       
+      {modalRemoverOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 space-y-4">
+
+            <h2 className="text-xl font-bold text-gray-800">
+              Remover Técnico
+            </h2>
+
+            <p className="text-gray-600">
+              Tem certeza que deseja remover{" "}
+              <span className="font-semibold text-gray-800">
+                {tecnicoSelecionado?.nome}
+              </span>
+              ?
+            </p>
+
+            <div className="flex justify-end gap-3 pt-4">
+              <Button
+                variant="outline"
+                onClick={() => setModalRemoverOpen(false)}
+              >
+                Cancelar
+              </Button>
+
+              <Button
+                variant="destructive"
+                onClick={confirmarRemocao}
+              >
+                Remover
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
             <Users className="w-6 h-6 text-sky-500" />
-            <h1 className="text-3xl font-extrabold tracking-tight text-gray-800">Gestão de Técnicos</h1>
+            <h1 className="text-3xl font-extrabold tracking-tight text-gray-800">
+              Gestão de Técnicos
+            </h1>
           </div>
-          <p className="text-gray-500">Visualize e gerencie as permissões dos técnicos do sistema</p>
+          <p className="text-gray-500">
+            Visualize e gerencie os técnicos do sistema
+          </p>
         </div>
 
         <Button
           onClick={() => setModalOpen(true)}
-          className="bg-sky-500 hover:bg-sky-600 text-white flex items-center gap-2 h-11 px-6 transition-all"
+          className="bg-sky-500 hover:bg-sky-600 text-white flex items-center gap-2 h-11 px-6"
         >
           <UserPlus size={18} />
           <span>Adicionar Técnico</span>
         </Button>
       </div>
 
-   
+    
       <div className="rounded-xl border border-gray-200 overflow-hidden bg-white">
         <div className="overflow-x-auto">
           {loading ? (
-            <div className="p-6 text-center text-muted-foreground">Carregando técnicos...</div>
+            <div className="p-6 text-center text-muted-foreground">
+              Carregando técnicos...
+            </div>
           ) : (
             <Table>
               <TableHeader className="bg-gray-50">
-                <TableRow className="hover:bg-transparent border-gray-200">
-                  <TableHead className="text-gray-600 font-semibold py-4">Usuário</TableHead>
-                  <TableHead className="text-gray-600 font-semibold">Email</TableHead>
-                  <TableHead className="text-gray-600 font-semibold">Telefone</TableHead>
-                  <TableHead className="text-gray-600 font-semibold">Status</TableHead>
-                  <TableHead className="text-gray-600 font-semibold text-right">Ações</TableHead>
+                <TableRow className="border-gray-200">
+                  <TableHead>Usuário</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Telefone</TableHead>
+                  <TableHead>Tipo</TableHead>
+                  <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
 
               <TableBody>
                 {tecnicos.map((tec) => (
-                  <TableRow key={tec.id} className="border-gray-200 hover:bg-sky-50 transition-colors">
-                    <TableCell className="py-4">
+                  <TableRow key={tec.id} className="border-gray-200 hover:bg-sky-50">
+                    <TableCell>
                       <div className="flex items-center gap-3">
-                        <Avatar className="h-9 w-9 border border-gray-200">
-                          <AvatarImage src={tec.src} />
-                          <AvatarFallback>{tec.fallback}</AvatarFallback>
+                        <Avatar className="h-9 w-9 border">
+                          <AvatarImage src={`/images/${tec.foto}`} />
+                          <AvatarFallback>
+                            {tec.nome?.charAt(0)}
+                          </AvatarFallback>
                         </Avatar>
-                        <span className="font-medium text-gray-700 whitespace-nowrap">{tec.name}</span>
+
+                        <span className="font-medium text-gray-700">
+                          {tec.nome}
+                        </span>
                       </div>
                     </TableCell>
 
-                    <TableCell className="text-gray-500 whitespace-nowrap">{tec.email}</TableCell>
-                    <TableCell className="text-gray-500">{tec.area}</TableCell>
+                    <TableCell className="text-gray-500">
+                      {tec.email}
+                    </TableCell>
+
+                    <TableCell className="text-gray-500">
+                      {tec.telefone}
+                    </TableCell>
 
                     <TableCell>
-                      <Badge
-                        variant={tec.status === "Ativo" ? "default" : "secondary"}
-                        className={tec.status === "Ativo"
-                          ? "bg-emerald-50 text-emerald-600 hover:bg-emerald-100 border-emerald-200"
-                          : "bg-gray-100 text-gray-500 hover:bg-gray-200"}
-                      >
-                        {tec.status}
+                      <Badge className="bg-gray-100 text-gray-700">
+                        {tec.tipo}
                       </Badge>
                     </TableCell>
 
                     <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => toggleStatus(tec.id, tec.status)}
-                          className="border-gray-300 text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-                        >
-                          {tec.status === "Ativo" ? "Desativar" : "Ativar"}
-                        </Button>
-
-                        <Button
-                          variant="destructive"
-                          size="icon"
-                          onClick={() => handleRemoveTecnico(tec.id)}
-                          className="h-8 w-8"
-                        >
-                          <Trash2 size={14} />
-                        </Button>
-                      </div>
+                      <Button
+                        variant="destructive"
+                        size="icon"
+                        onClick={() => handleRemoveTecnico(tec)}
+                        className="h-8 w-8"
+                      >
+                        <Trash2 size={14} />
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
+
             </Table>
           )}
         </div>
