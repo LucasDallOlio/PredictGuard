@@ -155,12 +155,12 @@ create table if not exists servicos (
     constraint fk_servicos_usuario_responsavel
     foreign key (usuario_responsavel_id) references usuarios(id)
     on update cascade
-    on delete restrict,
+    on delete cascade,
 
     constraint fk_servicos_usuario_solicitante
     foreign key (usuario_solicitante_id) references usuarios(id)
     on update cascade
-    on delete restrict
+    on delete cascade
 );
 
 create table if not exists logs (

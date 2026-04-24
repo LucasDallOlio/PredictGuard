@@ -1,17 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { User, ChevronDown, Upload, Phone, Mail } from "lucide-react";
-import { useTechnicians } from "@/hooks/useTechnicians";
+import { User, ChevronDown, Phone, Mail } from "lucide-react";
 
 export default function ModalAdicionarTecnico({ open, onClose, onAddTecnico }) {
-
-
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [telefone, setTelefone] = useState("");
   const [senha, setSenha] = useState("");
   const [tipo, setTipo] = useState("técnico");
+  const [foto, setFoto] = useState(null);
   const [carregando, setCarregando] = useState(false);
 
   if (!open) return null;
@@ -22,6 +20,7 @@ export default function ModalAdicionarTecnico({ open, onClose, onAddTecnico }) {
     setTelefone("");
     setSenha("");
     setTipo("técnico");
+    setFoto(null);
   }
 
   async function handleAdicionar(e) {
@@ -33,17 +32,16 @@ export default function ModalAdicionarTecnico({ open, onClose, onAddTecnico }) {
 
     setCarregando(true);
 
-    const novoTecnico = {
-      nome,
-      email,
-      telefone,
-      senha,
-      tipo,
-      foto: "default.jpg", // 🔥 simples por enquanto
-    };
-
     try {
-      await onAddTecnico(novoTecnico);
+      const formData = new FormData();
+      formData.append("nome", nome);
+      formData.append("email", email);
+      formData.append("telefone", telefone);
+      formData.append("senha", senha);
+      formData.append("tipo", tipo);
+      if (foto) formData.append("foto", foto);
+
+      await onAddTecnico(formData);
 
       limparCampos();
       onClose();
@@ -58,14 +56,13 @@ export default function ModalAdicionarTecnico({ open, onClose, onAddTecnico }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
       <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-2xl">
-
         <h2 className="text-2xl font-bold mb-6 text-center">
           Adicionar Técnico
         </h2>
 
-        <form onSubmit={handleAdicionar} className="space-y-5">
-
-          {/* NOME */}
+        <form onSubmit={handleAdicionar} className="space-y-5" autoComplete="off">
+          
+          {/* Nome */}
           <div className="relative">
             <label className="text-sm font-semibold mb-1 block">Nome</label>
             <User className="absolute left-3 top-[38px] w-5 h-5 text-gray-400" />
@@ -73,10 +70,11 @@ export default function ModalAdicionarTecnico({ open, onClose, onAddTecnico }) {
               value={nome}
               onChange={(e) => setNome(e.target.value)}
               className="w-full pl-10 border px-4 py-3 rounded"
+              autoComplete="off"
             />
           </div>
 
-          {/* EMAIL */}
+          {/* Email */}
           <div className="relative">
             <label className="text-sm font-semibold mb-1 block">Email</label>
             <Mail className="absolute left-3 top-[38px] w-5 h-5 text-gray-400" />
@@ -84,22 +82,24 @@ export default function ModalAdicionarTecnico({ open, onClose, onAddTecnico }) {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               type="email"
+              autoComplete="off"
               className="w-full pl-10 border px-4 py-3 rounded"
             />
           </div>
 
-          {/* SENHA */}
+          {/* Senha */}
           <div>
             <label className="text-sm font-semibold mb-1 block">Senha</label>
             <input
               value={senha}
               onChange={(e) => setSenha(e.target.value)}
               type="password"
+              autoComplete="new-password"
               className="w-full border px-4 py-3 rounded"
             />
           </div>
 
-          {/* TELEFONE */}
+          {/* Telefone */}
           <div className="relative">
             <label className="text-sm font-semibold mb-1 block">Telefone</label>
             <Phone className="absolute left-3 top-[38px] w-5 h-5 text-gray-400" />
@@ -107,13 +107,13 @@ export default function ModalAdicionarTecnico({ open, onClose, onAddTecnico }) {
               value={telefone}
               onChange={(e) => setTelefone(e.target.value)}
               className="w-full pl-10 border px-4 py-3 rounded"
+              autoComplete="off"
             />
           </div>
 
-          {/* TIPO */}
+          {/* Tipo */}
           <div className="relative">
             <label className="text-sm font-semibold mb-1 block">Tipo</label>
-
             <select
               value={tipo}
               onChange={(e) => setTipo(e.target.value)}
@@ -122,11 +122,21 @@ export default function ModalAdicionarTecnico({ open, onClose, onAddTecnico }) {
               <option value="técnico">Técnico</option>
               <option value="admin">Admin</option>
             </select>
-
             <ChevronDown className="absolute right-3 top-10 w-4 h-4 text-gray-400" />
           </div>
 
-          {/* BOTÕES */}
+          {/* Foto */}
+          <div>
+            <label className="text-sm font-semibold mb-1 block">Foto</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => setFoto(e.target.files[0])}
+              className="w-full border px-4 py-3 rounded"
+            />
+          </div>
+
+          {/* Botões */}
           <div className="flex justify-end gap-3 pt-4">
             <button
               type="button"

@@ -62,20 +62,23 @@ export function useTechnicians() {
     return data.dados;
   }
 
-  async function removerTecnico(id) {
-    const res = await fetch(`${API_URL}/${id}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${getToken()}`,
-      },
-    });
+async function removerTecnico(id) {
+  const res = await fetch(`${API_URL}/${id}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${getToken()}`,
+    },
+  });
 
-    const data = await res.json();
+  const text = await res.text(); 
 
-    if (!res.ok) throw new Error(data.mensagem || "Erro ao remover técnico");
+  console.log("STATUS:", res.status);
+  console.log("RESPOSTA:", text);
 
-    setTecnicos((prev) => prev.filter((tec) => tec.id !== id));
-  }
+  if (!res.ok) throw new Error("Erro ao remover técnico");
+
+  setTecnicos((prev) => prev.filter((tec) => tec.id !== id));
+}
 
   async function atualizarTecnico(id, atualizacoes) {
     const res = await fetch(`${API_URL}/${id}`, {
