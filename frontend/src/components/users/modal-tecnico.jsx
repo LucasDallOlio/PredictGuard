@@ -4,14 +4,14 @@ import { useState } from "react";
 import { User, ChevronDown, Upload, Phone, Mail } from "lucide-react";
 import { useTechnicians } from "@/hooks/useTechnicians";
 
-export default function ModalAdicionarTecnico({ open, onClose }) {
-  const { adicionarTecnico } = useTechnicians();
+export default function ModalAdicionarTecnico({ open, onClose, onAddTecnico }) {
+
 
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [telefone, setTelefone] = useState("");
   const [senha, setSenha] = useState("");
-  const [tipo, setTipo] = useState("técnico"); // 🔥 alinhado com backend
+  const [tipo, setTipo] = useState("técnico");
   const [carregando, setCarregando] = useState(false);
 
   if (!open) return null;
@@ -43,7 +43,7 @@ export default function ModalAdicionarTecnico({ open, onClose }) {
     };
 
     try {
-      await adicionarTecnico(novoTecnico);
+      await onAddTecnico(novoTecnico);
 
       limparCampos();
       onClose();

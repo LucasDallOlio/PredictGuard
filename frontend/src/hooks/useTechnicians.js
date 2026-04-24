@@ -7,6 +7,10 @@ export function useTechnicians() {
   const [loading, setLoading] = useState(false);
   const [erro, setErro] = useState(null);
 
+  function getToken() {
+    return localStorage.getItem("token");
+  }
+
   useEffect(() => {
     let ativo = true;
 
@@ -15,7 +19,12 @@ export function useTechnicians() {
       setErro(null);
 
       try {
-        const res = await fetch(`${API_URL}?tipo=técnico`);
+        const res = await fetch(`${API_URL}?tipo=técnico`, {
+          headers: {
+            Authorization: `Bearer ${getToken()}`,
+          },
+        });
+
         if (!res.ok) throw new Error("Erro ao buscar técnicos");
 
         const data = await res.json();
@@ -40,6 +49,7 @@ export function useTechnicians() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${getToken()}`,
       },
       body: JSON.stringify(novoTecnico),
     });
@@ -55,6 +65,9 @@ export function useTechnicians() {
   async function removerTecnico(id) {
     const res = await fetch(`${API_URL}/${id}`, {
       method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+      },
     });
 
     const data = await res.json();
@@ -69,6 +82,7 @@ export function useTechnicians() {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${getToken()}`,
       },
       body: JSON.stringify(atualizacoes),
     });
