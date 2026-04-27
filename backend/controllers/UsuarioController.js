@@ -187,8 +187,8 @@ class UsuarioController {
 
     static async login(req, res) {
         try {
-            const { email, senha } = req.body
-
+            const { email, senha, canal } = req.body
+            
             const usuario = await UsuarioModel.verificarCredenciais(email, senha);
 
             if (!usuario) {
@@ -196,6 +196,30 @@ class UsuarioController {
                     sucesso: false,
                     erro: 'Credenciais inválidas',
                     mensagem: 'Email ou senha incorretos'
+                });
+            }
+
+            if (!['web', 'mobile'].includes(canal)) {
+                return res.status(400).json({
+                    sucesso: false,
+                    erro: 'Canal inválido',
+                    mensagem: 'O canal deve ser web ou mobile'
+                });
+            }
+
+            if (canal === 'web' && usuario.tipo !== 'admin') {
+                return res.status(403).json({
+                    sucesso: false,
+                    erro: 'Acesso negado',
+                    mensagem: 'Apenas administradores podem acessar esta funcionalidade'
+                });
+            }
+
+            if (canal === 'mobile' && usuario.tipo !== 'técnico') {
+                return res.status(403).json({
+                    sucesso: false,
+                    erro: 'Acesso negado',
+                    mensagem: 'Apenas técnicos podem acessar esta funcionalidade'
                 });
             }
 
