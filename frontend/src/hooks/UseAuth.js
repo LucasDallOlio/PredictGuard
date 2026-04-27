@@ -1,85 +1,78 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
-export function useAuth() {
-  const [user, setUser] = useState(null);
+const AuthContext = createContext(null);
+
+export function AuthProvider({ children }) {
+  const [usuario, setUsuario] = useState(null);
   const [carregando, setCarregando] = useState(true);
+  const router = useRouter();
 
+  // Ao iniciar, verifica se já tem token salvo
   useEffect(() => {
-    const usuarioSalvo = localStorage.getItem("user");
+    const token = localStorage.getItem("token");
+    const usuarioSalvo = localStorage.getItem("usuario");
 
-    if (usuarioSalvo) {
-      setUser(JSON.parse(usuarioSalvo));
+    if (token && usuarioSalvo) {
+      try {
+        setUsuario(JSON.parse(usuarioSalvo));
+      } catch {
+        localStorage.removeItem("token");
+        localStorage.removeItem("usuario");
+      }
     }
 
     setCarregando(false);
   }, []);
 
-
   async function login(email, senha) {
-    try {
-      setCarregando(true);
+    const resposta = await fetch("http://localhost:3001/usuarios/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, senha, canal: "web" }),
+    });
 
-      const usuarios = JSON.parse(localStorage.getItem("tecnicos")) || [];
+    const dados = await resposta.json();
 
-      const usuarioEncontrado = usuarios.find(
-        (u) => u.email === email && u.senha === senha
-      );
-
-      if (!usuarioEncontrado) {
-        throw new Error("Email ou senha inválidos");
-      }
-
-      localStorage.setItem("user", JSON.stringify(usuarioEncontrado));
-      setUser(usuarioEncontrado);
-
-      return usuarioEncontrado;
-    } catch (erro) {
-      throw erro;
-    } finally {
-      setCarregando(false);
+    if (!resposta.ok || !dados.sucesso) {
+      throw new Error(dados.mensagem || "Email ou senha incorretos");
     }
+
+    const { token, usuario } = dados.dados;
+
+    localStorage.setItem("token", token);
+    localStorage.setItem("usuario", JSON.stringify(usuario));
+    setUsuario(usuario);
+
+    router.push("/dashboard");
   }
 
-  function updateUser(dadosAtualizados) {
-    if (!user) return;
-
-    const usuarioAtualizado = {
-      ...user,
-      ...dadosAtualizados,
-    };
-
-  
-    localStorage.setItem("user", JSON.stringify(usuarioAtualizado));
-
-    
-    const tecnicos = JSON.parse(localStorage.getItem("tecnicos")) || [];
-
-    const novaLista = tecnicos.map((t) =>
-      t.email === user.email ? usuarioAtualizado : t
-    );
-
-    localStorage.setItem("tecnicos", JSON.stringify(novaLista));
-
-   
-    setUser(usuarioAtualizado);
-  }
-
-  
   function logout() {
-    localStorage.removeItem("user");
-    setUser(null);
+    localStorage.removeItem("token");
+    localStorage.removeItem("usuario");
+    setUsuario(null);
+    router.push("/");
   }
 
-  const isAuthenticated = !!user;
+  // Retorna o token salvo para usar nas requisições
+  function getToken() {
+    return localStorage.getItem("token");
+  }
 
-  return {
-    user,
-    carregando,
-    login,
-    logout,
-    updateUser,
-    isAuthenticated,
-  };
+  return (
+    <AuthContext.Provider value={{ usuario, login, logout, getToken, carregando }}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+// Hook para usar em qualquer componente
+export function useAuth() {
+  const contexto = useContext(AuthContext);
+  if (!contexto) {
+    throw new Error("useAuth deve ser usado dentro do AuthProvider");
+  }
+  return contexto;
 }

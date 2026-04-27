@@ -6,9 +6,9 @@ const router = express.Router();
 
 router.post('/login', UsuarioController.login);
 
-router.get('/', UsuarioController.listarTodos);
+router.get('/', authMiddleware, UsuarioController.listarTodos);
 router.get('/:id', authMiddleware, UsuarioController.buscarPorID);
-router.post('/',  UsuarioController.criar);
+router.post('/', authMiddleware, adminMiddleware, UsuarioController.criar);
 router.put('/:id', authMiddleware, adminMiddleware, UsuarioController.atualizar);
 router.delete('/:id', authMiddleware, adminMiddleware, UsuarioController.excluir);
 

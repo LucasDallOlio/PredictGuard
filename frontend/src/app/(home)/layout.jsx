@@ -1,35 +1,24 @@
-import LayoutPremium from "@/components/navbar/DashboardLayout";
-import { SidebarProvider, SidebarInset,  } from "@/components/ui/sidebar";
-import { Geist, Geist_Mono } from "next/font/google";
+"use client";
+import PremiumLayout from "@/components/navbar/DashboardLayout";
+import { useAuth } from "@/hooks/UseAuth.js";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+export default function DashboardLayout({ children }) {
+  const { usuario, carregando } = useAuth();
+  const router = useRouter();
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+  useEffect(() => {
+    if (!carregando && !usuario) {
+      router.push("/"); 
+    }
+  }, [usuario, carregando]);
 
-export const metadata = {
-  title: "PredictGuard",
-  description: "Sua empresa de favorita",
-};
+  if (carregando || !usuario) return null;
 
-export default function RootLayout({ children }) {
-  return (
-    <html lang="pt-br">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-
-        <LayoutPremium>
-          
-        {children}
-          </LayoutPremium>    
-
-      </body>
-    </html>
-  );
+  return <>
+  <PremiumLayout>    
+  {children}
+  </PremiumLayout>
+  </>;
 }
