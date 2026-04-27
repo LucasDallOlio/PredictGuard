@@ -44,7 +44,10 @@ export function useTechnicians() {
     };
   }, []);
 
-  async function adicionarTecnico(novoTecnico) {
+async function adicionarTecnico(novoTecnico) {
+  try {
+    console.log("📤 Enviando técnico (JSON)...", novoTecnico);
+
     const res = await fetch(API_URL, {
       method: "POST",
       headers: {
@@ -56,11 +59,29 @@ export function useTechnicians() {
 
     const data = await res.json();
 
-    if (!res.ok) throw new Error(data.mensagem || "Erro ao adicionar técnico");
+    console.log("📥 STATUS:", res.status);
+    console.log("📥 RESPOSTA:", data);
 
-    setTecnicos((prev) => [...prev, data.dados]);
-    return data.dados;
+    if (!res.ok) {
+      throw new Error(data.mensagem || "Erro ao adicionar técnico");
+    }
+
+    
+    const novo = {
+      id: data.dados.id,
+      ...novoTecnico,
+      foto: null
+    };
+
+    setTecnicos((prev) => [...prev, novo]);
+
+    return novo;
+
+  } catch (err) {
+    console.error("🚨 ERRO:", err);
+    throw err;
   }
+}
 
 async function removerTecnico(id) {
   const res = await fetch(`${API_URL}/${id}`, {

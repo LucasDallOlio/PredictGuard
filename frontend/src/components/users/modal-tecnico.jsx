@@ -22,39 +22,70 @@ export default function ModalAdicionarTecnico({ open, onClose, onAddTecnico }) {
     setTipo("técnico");
     setFoto(null);
   }
+    function formatarTelefone(valor) {
+    let numeros = valor.replace(/\D/g, "");
 
-  async function handleAdicionar(e) {
-    e.preventDefault();
-
-    if (!nome || !email || !telefone || !senha) {
-      return alert("Preencha todos os campos obrigatórios!");
+    if (numeros.length > 11) {
+      numeros = numeros.slice(0, 11);
     }
 
-    setCarregando(true);
-
-    try {
-      const formData = new FormData();
-      formData.append("nome", nome);
-      formData.append("email", email);
-      formData.append("telefone", telefone);
-      formData.append("senha", senha);
-      formData.append("tipo", tipo);
-      if (foto) formData.append("foto", foto);
-
-      await onAddTecnico(formData);
-
-      limparCampos();
-      onClose();
-    } catch (erro) {
-      console.error(erro);
-      alert("Erro ao adicionar técnico");
-    } finally {
-      setCarregando(false);
+    if (numeros.length <= 2) {
+      return numeros;
     }
+
+    if (numeros.length <= 6) {
+      return `(${numeros.slice(0, 2)}) ${numeros.slice(2)}`;
+    }
+
+    if (numeros.length <= 10) {
+      return `(${numeros.slice(0, 2)}) ${numeros.slice(2, 6)}-${numeros.slice(6)}`;
+    }
+
+    return `(${numeros.slice(0, 2)}) ${numeros.slice(2, 7)}-${numeros.slice(7)}`;
   }
 
+    function handleTelefoneChange(e) {
+    const valorFormatado = formatarTelefone(e.target.value);
+    setTelefone(valorFormatado);
+  }
+
+
+
+  async function handleAdicionar(e) {
+  e.preventDefault();
+
+  if (!nome || !email || !telefone || !senha) {
+    return alert("Preencha todos os campos obrigatórios!");
+  }
+
+  setCarregando(true);
+
+  try {
+    const novoTecnico = {
+      nome,
+      email,
+      telefone,
+      senha,
+      tipo,
+      
+    };
+
+    await onAddTecnico(novoTecnico);
+
+    limparCampos();
+    onClose();
+  } catch (erro) {
+    console.error(erro);
+    alert("Erro ao adicionar técnico");
+  } finally {
+    setCarregando(false);
+  }
+}
+
+
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-md p-4 min-h-screen">
       <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-2xl">
         <h2 className="text-2xl font-bold mb-6 text-center">
           Adicionar Técnico
@@ -62,7 +93,7 @@ export default function ModalAdicionarTecnico({ open, onClose, onAddTecnico }) {
 
         <form onSubmit={handleAdicionar} className="space-y-5" autoComplete="off">
           
-          {/* Nome */}
+         
           <div className="relative">
             <label className="text-sm font-semibold mb-1 block">Nome</label>
             <User className="absolute left-3 top-[38px] w-5 h-5 text-gray-400" />
@@ -74,7 +105,6 @@ export default function ModalAdicionarTecnico({ open, onClose, onAddTecnico }) {
             />
           </div>
 
-          {/* Email */}
           <div className="relative">
             <label className="text-sm font-semibold mb-1 block">Email</label>
             <Mail className="absolute left-3 top-[38px] w-5 h-5 text-gray-400" />
@@ -87,7 +117,7 @@ export default function ModalAdicionarTecnico({ open, onClose, onAddTecnico }) {
             />
           </div>
 
-          {/* Senha */}
+          
           <div>
             <label className="text-sm font-semibold mb-1 block">Senha</label>
             <input
@@ -99,19 +129,20 @@ export default function ModalAdicionarTecnico({ open, onClose, onAddTecnico }) {
             />
           </div>
 
-          {/* Telefone */}
-          <div className="relative">
+          
+           <div className="relative">
             <label className="text-sm font-semibold mb-1 block">Telefone</label>
             <Phone className="absolute left-3 top-[38px] w-5 h-5 text-gray-400" />
             <input
               value={telefone}
-              onChange={(e) => setTelefone(e.target.value)}
+              onChange={handleTelefoneChange}
+              placeholder="(11) 97099-5655"
               className="w-full pl-10 border px-4 py-3 rounded"
-              autoComplete="off"
             />
           </div>
 
-          {/* Tipo */}
+
+        
           <div className="relative">
             <label className="text-sm font-semibold mb-1 block">Tipo</label>
             <select
@@ -125,7 +156,6 @@ export default function ModalAdicionarTecnico({ open, onClose, onAddTecnico }) {
             <ChevronDown className="absolute right-3 top-10 w-4 h-4 text-gray-400" />
           </div>
 
-          {/* Foto */}
           <div>
             <label className="text-sm font-semibold mb-1 block">Foto</label>
             <input
@@ -136,7 +166,7 @@ export default function ModalAdicionarTecnico({ open, onClose, onAddTecnico }) {
             />
           </div>
 
-          {/* Botões */}
+    
           <div className="flex justify-end gap-3 pt-4">
             <button
               type="button"
@@ -162,4 +192,4 @@ export default function ModalAdicionarTecnico({ open, onClose, onAddTecnico }) {
       </div>
     </div>
   );
-}
+} 

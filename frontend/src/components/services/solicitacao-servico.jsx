@@ -47,7 +47,7 @@ export default function ModalSolicitacaoServico({ open, onClose, service }) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 min-h-screen">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-md p-4 min-h-screen">
       <div className="w-full max-w-lg rounded-lg bg-card border border-border p-8 shadow-2xl relative">
         <h2 className="text-2xl md:text-3xl font-bold text-card-foreground mb-6 text-center">
           Solicitar {service}

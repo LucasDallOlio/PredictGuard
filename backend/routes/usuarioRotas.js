@@ -8,7 +8,7 @@ router.post('/login', UsuarioController.login);
 
 router.get('/', UsuarioController.listarTodos);
 router.get('/:id', authMiddleware, UsuarioController.buscarPorID);
-router.post('/', authMiddleware, adminMiddleware, UsuarioController.criar);
+router.post('/',  UsuarioController.criar);
 router.put('/:id', authMiddleware, adminMiddleware, UsuarioController.atualizar);
 router.delete('/:id', authMiddleware, adminMiddleware, UsuarioController.excluir);
 

@@ -23,9 +23,10 @@ import {
 import { useState, useEffect } from "react";
 import { ModalExcluirMotor } from "./ModalExcluirMotor";
 import { useMotors } from "@/hooks/useMotors"; 
+
 export function ModalMotorDetalhes({ open, setOpen, motor }) {
 
-    const { updateMotor, deletarMotor } = useMotors(open); 
+    const { updateMotor, deletarMotor } = useMotors(); 
 
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
@@ -39,7 +40,6 @@ export function ModalMotorDetalhes({ open, setOpen, motor }) {
         }
     }, [motor, open]);
 
-   
     const handleConfirmDelete = async () => {
         try {
             await deletarMotor(motor.id);
@@ -56,7 +56,6 @@ export function ModalMotorDetalhes({ open, setOpen, motor }) {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    
     const handleSave = async () => {
         setLoading(true);
         try {
@@ -183,7 +182,6 @@ export function ModalMotorDetalhes({ open, setOpen, motor }) {
                         </div>
                     </div>
 
-                   
                     <div className="w-full lg:w-[65%] p-6 lg:p-8 flex flex-col bg-background">
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 grow">
