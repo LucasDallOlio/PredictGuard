@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import {
-  Menu, X, LayoutDashboard, Briefcase, Cpu, Users,
+  Moon, Sun, Menu, X, LayoutDashboard, Briefcase, Cpu, Users,
   MessageSquare, Bot, Settings, Bell, Search,
   ChevronRight, ChevronLeft, LogOut, ShieldCheck, User, Mail, Phone, Shield,
   Loader2, Check
@@ -74,6 +74,27 @@ export default function PremiumLayout({ children }) {
       window.location.href = "/";
     }, 1000);
   };
+
+  
+  const [isDark, setIsDark] = useState(false);
+
+  // Verifica o tema inicial assim que o componente é montado
+  useEffect(() => {
+    const isDarkMode = document.documentElement.classList.contains("dark");
+    setIsDark(isDarkMode);
+  }, []);
+
+  const toggleTheme = () => {
+    const root = document.documentElement;
+    root.classList.toggle("dark");
+    
+    const isNowDark = root.classList.contains("dark");
+    setIsDark(isNowDark);
+    
+    // Opcional: Salva a preferência do usuário no navegador
+    localStorage.setItem("theme", isNowDark ? "dark" : "light");
+  };
+
   return (
     <div className="flex h-screen w-full bg-sidebar overflow-hidden font-sans">
 
@@ -109,6 +130,17 @@ export default function PremiumLayout({ children }) {
           <button className="md:hidden p-2 text-sidebar-foreground/70 hover:text-sidebar-foreground" onClick={() => setIsMobileOpen(false)}>
             <X className="size-6" />
           </button>
+          <button
+      onClick={toggleTheme}
+      className="inline-flex items-center justify-center rounded-md w-10 h-10 border border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring transition-colors"
+      aria-label="Alternar tema"
+    >
+      {isDark ? (
+        <Sun className="h-5 w-5" />
+      ) : (
+        <Moon className="h-5 w-5" />
+      )}
+    </button>
         </div>
 
         {/* Menu Superior - AGORA COM ISLAS EM ESTADO COLAPSADO */}
