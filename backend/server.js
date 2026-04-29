@@ -15,7 +15,9 @@ const app = express();
 
 const PORT = process.env.PORT || 3001;
 
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
 
 app.use(cors({
     origin: '*',
@@ -28,6 +30,8 @@ app.use(cors({
 // Body parsers (necessários para req.body em JSON e forms)
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use('/uploads', express.static('uploads'));
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 

@@ -3,6 +3,8 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
+const API_URL = "http://localhost:3001/usuarios";
+
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
@@ -10,7 +12,6 @@ export function AuthProvider({ children }) {
   const [carregando, setCarregando] = useState(true);
   const router = useRouter();
 
-  // Ao iniciar, verifica se já tem token salvo
   useEffect(() => {
     const token = localStorage.getItem("token");
     const usuarioSalvo = localStorage.getItem("usuario");
@@ -28,7 +29,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   async function login(email, senha) {
-    const resposta = await fetch("http://localhost:3001/usuarios/login", {
+    const resposta = await fetch(`${API_URL}/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, senha, canal: "web" }),
@@ -56,19 +57,57 @@ export function AuthProvider({ children }) {
     router.push("/");
   }
 
-  // Retorna o token salvo para usar nas requisições
   function getToken() {
     return localStorage.getItem("token");
   }
 
+  // Atualiza nome e telefone do usuário logado no banco e no estado
+  async function updateUser(dados) {
+    const resposta = await fetch(`${API_URL}/${usuario.id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${getToken()}`,
+      },
+      body: JSON.stringify(dados),
+    });
+
+    const result = await resposta.json();
+
+    if (!resposta.ok || !result.sucesso) {
+      throw new Error(result.mensagem || "Erro ao atualizar perfil");
+    }
+
+    const usuarioAtualizado = { ...usuario, ...dados };
+    setUsuario(usuarioAtualizado);
+    localStorage.setItem("usuario", JSON.stringify(usuarioAtualizado));
+
+    return usuarioAtualizado;
+  }
+
+  // Monta a URL completa da foto do usuário
+  function getFotoUrl(foto) {
+    if (!foto) return null;
+    if (foto.startsWith("http")) return foto;
+    return `http://localhost:3001/uploads/${foto}`;
+  }
+
   return (
-    <AuthContext.Provider value={{ usuario, login, logout, getToken, carregando }}>
+    <AuthContext.Provider value={{
+      usuario,
+      user: usuario,       
+      login,
+      logout,
+      getToken,
+      updateUser,
+      getFotoUrl,
+      carregando,
+    }}>
       {children}
     </AuthContext.Provider>
   );
 }
 
-// Hook para usar em qualquer componente
 export function useAuth() {
   const contexto = useContext(AuthContext);
   if (!contexto) {
