@@ -9,7 +9,7 @@ import { ModalCriarMotor } from "@/components/engines/modal/ModalCriarMotor";
 import { useMotors } from "@/hooks/useMotors";
 
 export default function MotoresPage() {
-  const { motores, deletarMotor, addMotor, loading } = useMotors();
+  const { motores, deletarMotor, addMotor, updateMotor, loading } = useMotors();
 
   const [open, setOpen] = useState(false);
   const [motorSelecionado, setMotorSelecionado] = useState(null);
@@ -75,6 +75,7 @@ export default function MotoresPage() {
         setOpen={setOpen}
         motor={motorSelecionado}
         onDelete={handleDelete}
+        onUpdate={updateMotor}
       />
 
       <ModalCriarMotor

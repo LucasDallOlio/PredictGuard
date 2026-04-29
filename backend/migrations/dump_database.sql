@@ -150,7 +150,7 @@ create table if not exists servicos (
     constraint fk_servicos_maquinas
     foreign key (maquina_id) references maquinas(id)
     on update cascade
-    on delete restrict,
+    on delete cascade,
 
     constraint fk_servicos_usuario_responsavel
     foreign key (usuario_responsavel_id) references usuarios(id)
