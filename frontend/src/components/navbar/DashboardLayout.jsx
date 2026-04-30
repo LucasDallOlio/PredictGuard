@@ -3,17 +3,19 @@ import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import {
-  Menu, X, LayoutDashboard, Briefcase, Cpu, Users,
+  Moon, Sun, Menu, X, LayoutDashboard, Briefcase, Cpu, Users,
   MessageSquare, Bot, Settings, Bell, Search,
   ChevronRight, ChevronLeft, LogOut, ShieldCheck, User, Mail, Phone, Shield,
   Loader2, Check
 } from "lucide-react";
 import { useAuth } from "@/hooks/UseAuth";
 
+
+
 export default function PremiumLayout({ children }) {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
-const { user, updateUser, logout } = useAuth();
+  const { user, updateUser, logout, getFotoUrl } = useAuth();
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
   const [isSaving, setIsSaving] = useState(false);
@@ -72,6 +74,27 @@ const { user, updateUser, logout } = useAuth();
       window.location.href = "/";
     }, 1000);
   };
+
+  
+  const [isDark, setIsDark] = useState(false);
+
+  // Verifica o tema inicial assim que o componente é montado
+  useEffect(() => {
+    const isDarkMode = document.documentElement.classList.contains("dark");
+    setIsDark(isDarkMode);
+  }, []);
+
+  const toggleTheme = () => {
+    const root = document.documentElement;
+    root.classList.toggle("dark");
+    
+    const isNowDark = root.classList.contains("dark");
+    setIsDark(isNowDark);
+    
+    // Opcional: Salva a preferência do usuário no navegador
+    localStorage.setItem("theme", isNowDark ? "dark" : "light");
+  };
+
   return (
     <div className="flex h-screen w-full bg-sidebar overflow-hidden font-sans">
 
@@ -107,6 +130,17 @@ const { user, updateUser, logout } = useAuth();
           <button className="md:hidden p-2 text-sidebar-foreground/70 hover:text-sidebar-foreground" onClick={() => setIsMobileOpen(false)}>
             <X className="size-6" />
           </button>
+          <button
+      onClick={toggleTheme}
+      className="inline-flex items-center justify-center rounded-md w-10 h-10 border border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring transition-colors"
+      aria-label="Alternar tema"
+    >
+      {isDark ? (
+        <Sun className="h-5 w-5" />
+      ) : (
+        <Moon className="h-5 w-5" />
+      )}
+    </button>
         </div>
 
         {/* Menu Superior - AGORA COM ISLAS EM ESTADO COLAPSADO */}
@@ -171,15 +205,32 @@ const { user, updateUser, logout } = useAuth();
             className={`flex items-center transition-all cursor-pointer shadow-sm ${isCollapsed ? "justify-center size-12" : "gap-3 p-3 bg-sidebar-accent/50 border border-sidebar-border rounded-xl hover:bg-sidebar-accent"}`}
             title="Ver Perfil"
           >
-            <div className={`flex items-center justify-center rounded-full shrink-0 ${isCollapsed ? "size-12 bg-sidebar-primary text-sidebar-primary-foreground font-bold text-lg" : "size-9 bg-sidebar-primary border-2 border-background text-sidebar-primary-foreground font-bold text-xs"}`}>
-              JS
+            {/* FOTO OU INICIAL */}
+            <div className={`flex items-center justify-center rounded-full shrink-0 overflow-hidden ${isCollapsed ? "size-12 bg-sidebar-primary text-sidebar-primary-foreground font-bold text-lg" : "size-9 bg-sidebar-primary border-2 border-background text-sidebar-primary-foreground font-bold text-xs"}`}>
+              {getFotoUrl(user?.foto) ? (
+                <img
+                  src={getFotoUrl(user?.foto)}
+                  alt={user?.nome}
+                  className="size-full object-cover"
+                />
+              ) : (
+                <span>{user?.nome?.charAt(0).toUpperCase() ?? "?"}</span>
+              )}
             </div>
+
+            {/* NOME E CARGO */}
             {!isCollapsed && (
               <div className="flex flex-col flex-1 overflow-hidden">
-                <span className="text-sm font-semibold text-sidebar-foreground truncate ">João Silva</span>
-                <span className="text-xs text-sidebar-foreground/60 truncate">Admin</span>
+                <span className="text-sm font-semibold text-sidebar-foreground truncate">
+                  {user?.nome ?? "—"}
+                </span>
+                <span className="text-xs text-sidebar-foreground/60 truncate capitalize">
+                  {user?.tipo === "admin" ? "Administrador" : user?.tipo ?? "—"}
+                </span>
               </div>
             )}
+
+            {/* BOTÃO DE LOGOUT */}
             {!isCollapsed && (
               <button
                 onClick={handleLogout}
@@ -232,7 +283,7 @@ const { user, updateUser, logout } = useAuth();
           <div className="relative w-full max-w-3xl max-h-[90vh] bg-background rounded-3xl shadow-2xl border border-border overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-200">
 
             {/* Capa e Foto */}
-            <div className="h-32 w-full bg-background from-primary to-primary/40 relative">
+            <div className="h-32 w-full bg-gradient-to-br from-primary/30 to-primary/5 relative">
               <button
                 onClick={() => setIsProfileModalOpen(false)}
                 disabled={isSaving}
@@ -242,13 +293,27 @@ const { user, updateUser, logout } = useAuth();
               </button>
 
               <div className="absolute -bottom-12 left-4 md:left-8 flex items-end gap-4">
-                <div className="size-20 md:size-24 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-2xl md:text-3xl shadow-xl border-4 border-background shrink-0">
-                  JS
+                {/* FOTO DO USUÁRIO */}
+                <div className="size-20 md:size-24 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-2xl md:text-3xl shadow-xl border-4 border-background shrink-0 overflow-hidden">
+                  {getFotoUrl(user?.foto) ? (
+                    <img
+                      src={getFotoUrl(user?.foto)}
+                      alt={user?.nome}
+                      className="size-full object-cover"
+                    />
+                  ) : (
+                    <span>{user?.nome?.charAt(0).toUpperCase() ?? "?"}</span>
+                  )}
                 </div>
+
                 <div className="mb-2">
-                  <h2 className="text-xl md:text-2xl font-bold text-foreground">João Silva</h2>
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-secondary text-secondary-foreground text-xs font-semibold">
-                    <Shield className="size-3" /> Administrador
+                  {/* NOME DO BANCO */}
+                  <h2 className="text-xl md:text-2xl font-bold text-foreground">
+                    {user?.nome ?? "—"}
+                  </h2>
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-secondary text-secondary-foreground text-xs font-semibold capitalize">
+                    <Shield className="size-3" />
+                    {user?.tipo === "admin" ? "Administrador" : user?.tipo ?? "—"}
                   </span>
                 </div>
               </div>
@@ -262,7 +327,9 @@ const { user, updateUser, logout } = useAuth();
                 {/* --- COLUNA ESQUERDA (Pode Editar) --- */}
                 <div className="space-y-6">
                   <div>
-                    <h3 className="text-lg font-semibold text-foreground mb-4 border-b border-border pb-2">Informações Pessoais</h3>
+                    <h3 className="text-lg font-semibold text-foreground mb-4 border-b border-border pb-2">
+                      Informações Pessoais
+                    </h3>
                     <div className="space-y-4">
 
                       {/* NOME EDITÁVEL */}
@@ -272,6 +339,8 @@ const { user, updateUser, logout } = useAuth();
                         </label>
                         <input
                           type="text"
+                          value={nomeEdit}
+                          onChange={(e) => setNomeEdit(e.target.value)}
                           disabled={isSaving}
                           className="w-full bg-transparent border border-input rounded-xl px-4 py-3 text-sm text-foreground focus:ring-2 focus:ring-ring focus:border-ring outline-none transition-all disabled:opacity-50"
                         />
@@ -284,11 +353,13 @@ const { user, updateUser, logout } = useAuth();
                         </label>
                         <input
                           type="text"
-                          defaultValue="(11) 98765-4321"
+                          value={telefoneEdit}
+                          onChange={(e) => setTelefoneEdit(e.target.value)}
                           disabled={isSaving}
                           className="w-full bg-transparent border border-input rounded-xl px-4 py-3 text-sm text-foreground focus:ring-2 focus:ring-ring focus:border-ring outline-none transition-all disabled:opacity-50"
                         />
                       </div>
+
                     </div>
                   </div>
                 </div>
@@ -296,7 +367,9 @@ const { user, updateUser, logout } = useAuth();
                 {/* --- COLUNA DIREITA (Bloqueado) --- */}
                 <div className="space-y-6">
                   <div>
-                    <h3 className="text-lg font-semibold text-foreground mb-4 border-b border-border pb-2">Credenciais do Sistema</h3>
+                    <h3 className="text-lg font-semibold text-foreground mb-4 border-b border-border pb-2">
+                      Credenciais do Sistema
+                    </h3>
                     <div className="space-y-4">
 
                       {/* E-MAIL BLOQUEADO */}
@@ -305,12 +378,15 @@ const { user, updateUser, logout } = useAuth();
                           <span className="flex items-center gap-2">
                             <Mail className="size-4 text-muted-foreground" /> E-mail de Trabalho
                           </span>
-                          <span className="text-[10px] uppercase tracking-wider bg-secondary text-secondary-foreground px-2 py-0.5 rounded-md font-bold">Bloqueado</span>
+                          <span className="text-[10px] uppercase tracking-wider bg-secondary text-secondary-foreground px-2 py-0.5 rounded-md font-bold">
+                            Bloqueado
+                          </span>
                         </label>
                         <input
                           type="email"
-                          defaultValue={user?.email}
+                          value={user?.email ?? ""}
                           disabled
+                          readOnly
                           className="w-full bg-secondary/30 border border-border rounded-xl px-4 py-3 text-sm text-muted-foreground cursor-not-allowed opacity-80"
                         />
                       </div>
@@ -321,12 +397,15 @@ const { user, updateUser, logout } = useAuth();
                           <span className="flex items-center gap-2">
                             <Shield className="size-4 text-muted-foreground" /> Privilégio / Cargo
                           </span>
-                          <span className="text-[10px] uppercase tracking-wider bg-secondary text-secondary-foreground px-2 py-0.5 rounded-md font-bold">Bloqueado</span>
+                          <span className="text-[10px] uppercase tracking-wider bg-secondary text-secondary-foreground px-2 py-0.5 rounded-md font-bold">
+                            Bloqueado
+                          </span>
                         </label>
                         <input
                           type="text"
-                          defaultValue="Administrador"
+                          value={user?.tipo === "admin" ? "Administrador" : user?.tipo ?? "—"}
                           disabled
+                          readOnly
                           className="w-full bg-secondary/30 border border-border rounded-xl px-4 py-3 text-sm text-muted-foreground cursor-not-allowed opacity-80"
                         />
                       </div>
@@ -354,7 +433,7 @@ const { user, updateUser, logout } = useAuth();
                   ${isSaved
                     ? "bg-green-600 shadow-green-600/25"
                     : "bg-primary shadow-primary/25 hover:opacity-90 hover:scale-[1.02] active:scale-95"
-                  } 
+                  }
                   disabled:opacity-80 disabled:scale-100 disabled:cursor-not-allowed
                 `}
               >
@@ -379,5 +458,6 @@ const { user, updateUser, logout } = useAuth();
       )}
 
     </div>
+
   );
 }
