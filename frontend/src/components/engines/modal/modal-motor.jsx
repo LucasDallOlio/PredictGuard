@@ -24,9 +24,15 @@ import { useState, useEffect } from "react";
 import { ModalExcluirMotor } from "./ModalExcluirMotor";
 import { useMotors } from "@/hooks/useMotors"; 
 
-export function ModalMotorDetalhes({ open, setOpen, motor }) {
+export function ModalMotorDetalhes({
+  open,
+  setOpen,
+  motor,
+  onUpdate,
+  onDelete
+}) {
 
-    const { updateMotor, deletarMotor } = useMotors(); 
+   
 
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
@@ -42,7 +48,7 @@ export function ModalMotorDetalhes({ open, setOpen, motor }) {
 
     const handleConfirmDelete = async () => {
         try {
-            await deletarMotor(motor.id);
+         await onDelete(motor.id);
             setIsDeleteDialogOpen(false);
             setOpen(false);
         } catch (err) {
@@ -59,7 +65,7 @@ export function ModalMotorDetalhes({ open, setOpen, motor }) {
     const handleSave = async () => {
         setLoading(true);
         try {
-            await updateMotor(formData.id, formData);
+     await onUpdate(formData.id, formData);
             setIsEditing(false);
         } catch (err) {
             console.error(err);
