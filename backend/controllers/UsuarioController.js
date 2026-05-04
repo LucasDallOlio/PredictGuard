@@ -39,9 +39,13 @@ class UsuarioController {
 
             const resultado = await UsuarioModel.listarTodos(pagina, limite, filtro);
 
+            const usuariosComFotoURL = resultado.usuarios.map(usuario =>
+                usuario.foto = `${process.env.BASE_URL}${process.env.UPLOAD_PATH.replace(/^\.\//, '/')}/${usuario.foto}`
+            );
+
             res.status(200).json({
                 sucesso: true,
-                dados: resultado.usuarios,
+                dados: usuariosComFotoURL,
                 paginacao: {
                     pagina: resultado.page,
                     limite: resultado.limit
@@ -71,6 +75,9 @@ class UsuarioController {
                     mensagem: `Usuario com ID ${id} não foi encontrado`
                 });
             }
+
+            usuario.foto = `${process.env.BASE_URL}${process.env.UPLOAD_PATH.replace(/^\.\//, '/')}/${usuario.foto}`;
+
             res.status(200).json({
                 sucesso: true,
                 dados: usuario
@@ -240,6 +247,9 @@ class UsuarioController {
                 JWT_CONFIG.secret,
                 { expiresIn: JWT_CONFIG.expiresIn }
             );
+
+            usuario.foto = `${process.env.BASE_URL}${process.env.UPLOAD_PATH.replace(/^\.\//, '/')}/${usuario.foto}`;
+
             res.status(200).json({
                 sucesso: true,
                 mensagem: 'Login realizado com sucesso',
