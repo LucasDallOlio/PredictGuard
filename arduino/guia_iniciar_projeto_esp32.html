@@ -1,0 +1,83 @@
+
+<h2 class="sr-only">Guia passo a passo para iniciar o projeto de monitoramento de motor com ESP32</h2>
+<div style="padding: 1rem 0; font-family: var(--font-mono);">
+
+<div style="margin-bottom: 1.5rem;">
+  <span style="font-size: 11px; color: var(--color-text-tertiary); letter-spacing: 0.08em; text-transform: uppercase;">Monitor de motor trifásico — ESP32</span>
+  <h2 style="font-size: 18px; font-weight: 500; margin: 4px 0 0; color: var(--color-text-primary);">Guia de inicialização</h2>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 10px;">
+
+  <div style="background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; display: flex; gap: 16px; align-items: flex-start;">
+    <div style="min-width: 32px; height: 32px; border-radius: 50%; background: #E6F1FB; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 500; color: #0C447C; flex-shrink: 0;">1</div>
+    <div style="flex: 1;">
+      <p style="font-weight: 500; font-size: 14px; margin: 0 0 6px; color: var(--color-text-primary);">Definir IP estático no notebook</p>
+      <p style="font-size: 12px; color: var(--color-text-secondary); margin: 0 0 8px;">Abra o CMD como Administrador e rode:</p>
+      <div style="background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 8px 12px; font-family: var(--font-mono); font-size: 12px; color: var(--color-text-primary); border: 0.5px solid var(--color-border-tertiary);">netsh interface ip set address "Wi-Fi 2" static 192.168.4.2 255.255.255.0 192.168.4.1</div>
+    </div>
+  </div>
+
+  <div style="background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; display: flex; gap: 16px; align-items: flex-start;">
+    <div style="min-width: 32px; height: 32px; border-radius: 50%; background: #E6F1FB; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 500; color: #0C447C; flex-shrink: 0;">2</div>
+    <div style="flex: 1;">
+      <p style="font-weight: 500; font-size: 14px; margin: 0 0 6px; color: var(--color-text-primary);">Iniciar o broker Mosquitto</p>
+      <p style="font-size: 12px; color: var(--color-text-secondary); margin: 0 0 8px;">No mesmo CMD como Administrador, rode:</p>
+      <div style="background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 8px 12px; font-family: var(--font-mono); font-size: 12px; color: var(--color-text-primary); border: 0.5px solid var(--color-border-tertiary);">cd "C:\Program Files\mosquitto"<br>mosquitto -c mosquitto.conf -v</div>
+      <p style="font-size: 12px; color: var(--color-text-tertiary); margin: 6px 0 0;">Deixe essa janela aberta durante todo o uso.</p>
+    </div>
+  </div>
+
+  <div style="background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; display: flex; gap: 16px; align-items: flex-start;">
+    <div style="min-width: 32px; height: 32px; border-radius: 50%; background: #E6F1FB; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 500; color: #0C447C; flex-shrink: 0;">3</div>
+    <div style="flex: 1;">
+      <p style="font-weight: 500; font-size: 14px; margin: 0 0 6px; color: var(--color-text-primary);">Ligar o ESP32</p>
+      <p style="font-size: 12px; color: var(--color-text-secondary); margin: 0 0 8px;">Conecte o ESP32 via USB. No Monitor Serial (115200 baud) aguarde aparecer:</p>
+      <div style="background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 8px 12px; font-family: var(--font-mono); font-size: 12px; color: var(--color-text-primary); border: 0.5px solid var(--color-border-tertiary);">MPU-6050 OK!<br>MLX90614 OK!<br>Calibrando... Motor DESLIGADO.</div>
+      <p style="font-size: 12px; color: var(--color-text-tertiary); margin: 6px 0 0;">Não mexa nos sensores durante a calibração (~3 segundos).</p>
+    </div>
+  </div>
+
+  <div style="background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; display: flex; gap: 16px; align-items: flex-start;">
+    <div style="min-width: 32px; height: 32px; border-radius: 50%; background: #E6F1FB; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 500; color: #0C447C; flex-shrink: 0;">4</div>
+    <div style="flex: 1;">
+      <p style="font-weight: 500; font-size: 14px; margin: 0 0 6px; color: var(--color-text-primary);">Conectar notebook na rede do ESP32</p>
+      <p style="font-size: 12px; color: var(--color-text-secondary); margin: 0 0 4px;">Vá no WiFi do Windows e conecte em:</p>
+      <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px;">
+        <div style="background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 6px 10px; font-size: 12px; border: 0.5px solid var(--color-border-tertiary);">
+          <span style="color: var(--color-text-tertiary);">rede: </span><span style="color: var(--color-text-primary); font-weight: 500;">ESP32_MotorMonitor</span>
+        </div>
+        <div style="background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 6px 10px; font-size: 12px; border: 0.5px solid var(--color-border-tertiary);">
+          <span style="color: var(--color-text-tertiary);">senha: </span><span style="color: var(--color-text-primary); font-weight: 500;">12345678</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; display: flex; gap: 16px; align-items: flex-start;">
+    <div style="min-width: 32px; height: 32px; border-radius: 50%; background: #E6F1FB; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 500; color: #0C447C; flex-shrink: 0;">5</div>
+    <div style="flex: 1;">
+      <p style="font-weight: 500; font-size: 14px; margin: 0 0 6px; color: var(--color-text-primary);">Confirmar conexão MQTT</p>
+      <p style="font-size: 12px; color: var(--color-text-secondary); margin: 0 0 8px;">No Monitor Serial deve aparecer:</p>
+      <div style="background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 8px 12px; font-family: var(--font-mono); font-size: 12px; color: var(--color-text-primary); border: 0.5px solid var(--color-border-tertiary);">Conectando ao MQTT (notebook)... OK!<br>Temp: 28.2 C | Vibracao: 0.47 mm/s [NORMAL] | MQTT: OK | Clientes AP: 1</div>
+    </div>
+  </div>
+
+  <div style="background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; display: flex; gap: 16px; align-items: flex-start;">
+    <div style="min-width: 32px; height: 32px; border-radius: 50%; background: #EAF3DE; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 500; color: #27500A; flex-shrink: 0;">6</div>
+    <div style="flex: 1;">
+      <p style="font-weight: 500; font-size: 14px; margin: 0 0 6px; color: var(--color-text-primary);">Ver os dados chegando</p>
+      <p style="font-size: 12px; color: var(--color-text-secondary); margin: 0 0 8px;">Abra um segundo CMD e rode:</p>
+      <div style="background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 8px 12px; font-family: var(--font-mono); font-size: 12px; color: var(--color-text-primary); border: 0.5px solid var(--color-border-tertiary);">mosquitto_sub -h localhost -t "motor/#" -v</div>
+      <p style="font-size: 12px; color: var(--color-text-secondary); margin: 8px 0 4px;">A cada 1 segundo vai aparecer:</p>
+      <div style="background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 8px 12px; font-family: var(--font-mono); font-size: 12px; color: var(--color-text-primary); border: 0.5px solid var(--color-border-tertiary);">motor/temperatura/motor 28.2<br>motor/vibracao/status NORMAL</div>
+    </div>
+  </div>
+
+  <div style="background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-top: 4px;">
+    <p style="font-size: 12px; font-weight: 500; color: var(--color-text-secondary); margin: 0 0 6px;">Ao terminar os testes — voltar ao IP automático:</p>
+    <div style="background: var(--color-background-primary); border-radius: var(--border-radius-md); padding: 8px 12px; font-family: var(--font-mono); font-size: 12px; color: var(--color-text-primary); border: 0.5px solid var(--color-border-tertiary);">netsh interface ip set address "Wi-Fi 2" dhcp</div>
+  </div>
+
+</div>
+</div>
