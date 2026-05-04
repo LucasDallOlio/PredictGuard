@@ -59,6 +59,10 @@ class MaquinaController {
     static async criar(req, res) {
         try {
             const maquina = req.body
+
+            if (req.file) {
+                maquina.imagem = req.file.filename;
+            }
             const resultado = await MaquinaModel.criar(maquina);
 
             res.status(201).json({
@@ -83,6 +87,10 @@ class MaquinaController {
         try {
             const { id } = req.params;
             const dadosMaquina = req.body;
+
+            if (req.file) {
+                dadosMaquina.imagem = req.file.filename;
+            }
 
             const affectedRows = await MaquinaModel.atualizar(id, dadosMaquina)
 

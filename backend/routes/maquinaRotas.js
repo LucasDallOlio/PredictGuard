@@ -1,6 +1,7 @@
 import express from 'express';
 import MaquinaController from '../controllers/MaquinaController.js'
 import { authMiddleware, adminMiddleware } from '../middlewares/authMiddleware.js';
+import upload from '../middlewares/uploadMiddleware.js';
 
 /**
  * @swagger
@@ -369,6 +370,15 @@ router.get('/:id', authMiddleware, MaquinaController.buscarPorID);
  *         application/json:
  *           schema:
  *             $ref: '#/components/schemas/MaquinaCreate'
+ *         multipart/form-data:
+ *           schema:
+ *             allOf:
+ *               - $ref: '#/components/schemas/MaquinaCreate'
+ *               - type: object
+ *                 properties:
+ *                   imagem:
+ *                     type: string
+ *                     format: binary
  *     responses:
  *       201:
  *         description: Maquina criada
@@ -408,7 +418,7 @@ router.get('/:id', authMiddleware, MaquinaController.buscarPorID);
  *             schema:
  *               $ref: '#/components/schemas/ApiResponseErro'
  */
-router.post('/', authMiddleware, adminMiddleware, MaquinaController.criar);
+router.post('/', authMiddleware, adminMiddleware, upload.single('imagem'), MaquinaController.criar);
 
 /**
  * @swagger
@@ -430,6 +440,15 @@ router.post('/', authMiddleware, adminMiddleware, MaquinaController.criar);
  *         application/json:
  *           schema:
  *             $ref: '#/components/schemas/MaquinaUpdate'
+ *         multipart/form-data:
+ *           schema:
+ *             allOf:
+ *               - $ref: '#/components/schemas/MaquinaUpdate'
+ *               - type: object
+ *                 properties:
+ *                   imagem:
+ *                     type: string
+ *                     format: binary
  *     responses:
  *       200:
  *         description: Maquina atualizada
@@ -475,7 +494,7 @@ router.post('/', authMiddleware, adminMiddleware, MaquinaController.criar);
  *             schema:
  *               $ref: '#/components/schemas/ApiResponseErro'
  */
-router.put('/:id', authMiddleware, adminMiddleware, MaquinaController.atualizar);
+router.put('/:id', authMiddleware, adminMiddleware, upload.single('imagem'), MaquinaController.atualizar);
 
 /**
  * @swagger

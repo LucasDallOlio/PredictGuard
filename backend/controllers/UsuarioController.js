@@ -90,6 +90,10 @@ class UsuarioController {
         try {
             const usuario = req.body
 
+            if (req.file) {
+                usuario.foto = req.file.filename;
+            }
+
             const resultado = await UsuarioModel.criar(usuario);
 
             res.status(201).json({
@@ -114,6 +118,10 @@ class UsuarioController {
         try {
             const { id } = req.params;
             const dadosUsuario = req.body;
+
+            if (req.file) {
+                dadosUsuario.foto = req.file.filename;
+            }
 
             const affectedRows = await UsuarioModel.atualizar(id, dadosUsuario)
 

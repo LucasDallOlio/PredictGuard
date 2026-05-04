@@ -1,6 +1,7 @@
 import express from 'express';
 import UsuarioController from '../controllers/UsuarioController.js';
 import { authMiddleware, adminMiddleware } from '../middlewares/authMiddleware.js';
+import upload from '../middlewares/uploadMiddleware.js';
 
 /**
  * @swagger
@@ -307,6 +308,15 @@ router.get('/:id', authMiddleware, UsuarioController.buscarPorID);
  *         application/json:
  *           schema:
  *             $ref: '#/components/schemas/UsuarioCreate'
+ *         multipart/form-data:
+ *           schema:
+ *             allOf:
+ *               - $ref: '#/components/schemas/UsuarioCreate'
+ *               - type: object
+ *                 properties:
+ *                   foto:
+ *                     type: string
+ *                     format: binary
  *     responses:
  *       201:
  *         description: Usuario criado
@@ -346,7 +356,7 @@ router.get('/:id', authMiddleware, UsuarioController.buscarPorID);
  *             schema:
  *               $ref: '#/components/schemas/ApiResponseErro'
  */
-router.post('/', authMiddleware, adminMiddleware, UsuarioController.criar);
+router.post('/', authMiddleware, adminMiddleware, upload.single('foto'), UsuarioController.criar);
 /**
  * @swagger
  * /usuarios/{id}:
@@ -367,6 +377,15 @@ router.post('/', authMiddleware, adminMiddleware, UsuarioController.criar);
  *         application/json:
  *           schema:
  *             $ref: '#/components/schemas/UsuarioUpdate'
+ *         multipart/form-data:
+ *           schema:
+ *             allOf:
+ *               - $ref: '#/components/schemas/UsuarioUpdate'
+ *               - type: object
+ *                 properties:
+ *                   foto:
+ *                     type: string
+ *                     format: binary
  *     responses:
  *       200:
  *         description: Usuario atualizado
@@ -412,7 +431,7 @@ router.post('/', authMiddleware, adminMiddleware, UsuarioController.criar);
  *             schema:
  *               $ref: '#/components/schemas/ApiResponseErro'
  */
-router.put('/:id', authMiddleware, adminMiddleware, UsuarioController.atualizar);
+router.put('/:id', authMiddleware, adminMiddleware, upload.single('foto'), UsuarioController.atualizar);
 /**
  * @swagger
  * /usuarios/{id}:
