@@ -78,15 +78,23 @@ create table if not exists sensores(
 create table if not exists leituras(
 	id int primary key auto_increment,
     sensor_id int not null,
-    valor decimal(10,2) not null,
-    unidade enum('celsius', 'g') not null,
+    valor decimal(10,2) null,
+    unidade enum('celsius', 'g', 'status') not null,
+    status_vibracao enum('NORMAL', 'ATENCAO', 'ALERTA', 'CRITICO') null,
     data_leitura datetime default current_timestamp,
 
     index idx_leituras_sensor_data (sensor_id, data_leitura),
     index idx_leituras_data (data_leitura),
 
     constraint chk_leituras_valor_positivo
-    check (valor >= 0),
+    check (valor is null or valor >= 0),
+
+    constraint chk_leituras_consistencia
+    check (
+        (unidade = 'status' and status_vibracao is not null and valor is null)
+        or
+        (unidade != 'status' and valor is not null and status_vibracao is null)
+    ),
 
     constraint fk_leituras_sensores
     foreign key (sensor_id) references sensores(id)
@@ -221,19 +229,19 @@ insert into sensores (id, maquina_id, modelo, tipo) values
     (7, 4, 'PT100-STD', 'temperatura'),
     (8, 4, 'VIB-MEMS-150', 'acelerômetro');
 
-insert into leituras (id, sensor_id, valor, unidade, data_leitura) values
-    (1, 1, 68.30, 'celsius', '2026-03-30 08:00:00'),
-    (2, 2, 1.80, 'g', '2026-03-30 08:00:00'),
-    (3, 3, 82.40, 'celsius', '2026-03-30 08:05:00'),
-    (4, 4, 3.10, 'g', '2026-03-30 08:05:00'),
-    (5, 5, 74.20, 'celsius', '2026-03-30 08:10:00'),
-    (6, 6, 2.40, 'g', '2026-03-30 08:10:00'),
-    (7, 7, 39.00, 'celsius', '2026-03-30 08:15:00'),
-    (8, 8, 0.90, 'g', '2026-03-30 08:15:00'),
-    (9, 1, 70.10, 'celsius', '2026-03-30 09:00:00'),
-    (10, 2, 2.10, 'g', '2026-03-30 09:00:00'),
-    (11, 3, 84.80, 'celsius', '2026-03-30 09:05:00'),
-    (12, 4, 3.45, 'g', '2026-03-30 09:05:00');
+insert into leituras (id, sensor_id, valor, unidade, status_vibracao, data_leitura) values
+    (1, 1, 68.30, 'celsius', null, '2026-03-30 08:00:00'),
+    (2, 2, null, 'status', 'NORMAL', '2026-03-30 08:00:00'),
+    (3, 3, 82.40, 'celsius', null, '2026-03-30 08:05:00'),
+    (4, 4, null, 'status', 'ATENCAO', '2026-03-30 08:05:00'),
+    (5, 5, 74.20, 'celsius', null, '2026-03-30 08:10:00'),
+    (6, 6, null, 'status', 'NORMAL', '2026-03-30 08:10:00'),
+    (7, 7, 39.00, 'celsius', null, '2026-03-30 08:15:00'),
+    (8, 8, null, 'status', 'NORMAL', '2026-03-30 08:15:00'),
+    (9, 1, 70.10, 'celsius', null, '2026-03-30 09:00:00'),
+    (10, 2, null, 'status', 'NORMAL', '2026-03-30 09:00:00'),
+    (11, 3, 84.80, 'celsius', null, '2026-03-30 09:05:00'),
+    (12, 4, null, 'status', 'ALERTA', '2026-03-30 09:05:00');
 
 insert into alertas (
     id, maquina_id, sensor_id, tipo_alerta, severidade,
