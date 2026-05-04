@@ -6,7 +6,7 @@ const authMiddleware = (req, res, next) => {
         const authHeader = req.headers.authorization;
 
         if (!authHeader) {
-            res.status(401).json({
+            return res.status(401).json({
                 erro: 'Token de acesso não fornecido',
                 mensagem: 'É necessário fornecer um token de autenticação'
             })
