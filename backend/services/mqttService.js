@@ -72,11 +72,17 @@ async function handleVibracao(payload) {
         return;
     }
 
-    // Status NORMAL não gera alerta
-    if (status === 'NORMAL') {
-        console.log('[MQTT] 📳 Vibração: NORMAL');
-        return;
-    }
+    // Salva leitura qualitativa (inclusive NORMAL)
+    await LeituraModel.registrar({
+        sensor_id: SENSOR_VIBRA,
+        valor: null,
+        unidade: 'status',
+        status_vibracao: status
+    });
+
+    console.log(`[MQTT] 📳 Vibração salva: ${status}`);
+
+    if (status === 'NORMAL') return;
 
     const severidade = SEVERIDADE_VIBRACAO[status];
 
