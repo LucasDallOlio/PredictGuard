@@ -4,6 +4,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import swaggerUi from 'swagger-ui-express';
 import swaggerSpec from './config/swagger.js';
+import iniciarMQTT from './services/mqttService.js';
 
 // Importar rotas
 import usuarioRotas from './routes/usuarioRotas.js'
@@ -16,7 +17,7 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 app.use(helmet({
-  crossOriginResourcePolicy: { policy: "cross-origin" }
+    crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 
 app.use(cors({
@@ -49,4 +50,6 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
     console.log(`Servidor rodando em http://localhost:${PORT}`);
     console.log(`Swagger em http://localhost:${PORT}/api-docs`);
+    iniciarMQTT();
+    console.log('Serviço MQTT iniciado.');
 })

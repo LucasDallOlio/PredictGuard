@@ -18,6 +18,7 @@
     "express": "^5.2.1",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.3",
+    "mqtt": "^5.15.1",
     "multer": "^2.1.1",
     "mysql2": "^3.19.1",
     "swagger-jsdoc": "^6.2.8",
