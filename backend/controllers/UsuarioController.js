@@ -1,6 +1,7 @@
 import { JWT_CONFIG } from '../config/jwt.js';
 import UsuarioModel from '../models/UsuarioModel.js';
 import jwt from 'jsonwebtoken';
+import { deleteFile } from '../utils/file.js'
 
 class UsuarioController {
     static async listarTodos(req, res) {
@@ -129,6 +130,16 @@ class UsuarioController {
             const { id } = req.params;
             const dadosUsuario = req.body;
 
+            const usuarioExistente = await UsuarioModel.buscarPorID(id);
+
+            if (!usuarioExistente) {
+                return res.status(404).json({
+                    sucesso: false,
+                    erro: 'Usuário não encontrado',
+                    mensagem: `Usuário com ID ${id} não foi encontrado`
+                });
+            }
+
             if (req.file) {
                 dadosUsuario.foto = req.file.filename;
             }
@@ -136,11 +147,20 @@ class UsuarioController {
             const affectedRows = await UsuarioModel.atualizar(id, dadosUsuario)
 
             if (affectedRows === 0) {
+
+                if (req.file) {
+                    await deleteFile(req.file.filename);
+                }
+
                 return res.status(404).json({
                     sucesso: false,
                     erro: 'Usuario não encontrado',
                     mensagem: `Usuario com ID ${id} não foi encontrado`
                 });
+            }
+
+            if (usuarioExistente.foto && req.file) {
+                await deleteFile(usuarioExistente.foto);
             }
 
             res.status(200).json({
@@ -183,6 +203,10 @@ class UsuarioController {
                     erro: 'Usuario não encontrado',
                     mensagem: `Usuario com ID ${id} não foi encontrado`
                 });
+            }
+
+            if (usuarioExistente.foto) {
+                await deleteFile(usuarioExistente.foto);
             }
 
             res.status(200).json({

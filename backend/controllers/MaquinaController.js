@@ -1,4 +1,5 @@
 import MaquinaModel from '../models/MaquinaModel.js';
+import { deleteFile } from '../utils/file.js'
 
 class MaquinaController {
 
@@ -98,6 +99,16 @@ class MaquinaController {
             const { id } = req.params;
             const dadosMaquina = req.body;
 
+            const maquinaExistente = await MaquinaModel.buscarPorID(id);
+
+            if (!maquinaExistente) {
+                return res.status(404).json({
+                    sucesso: false,
+                    erro: 'Máquina não encontrada',
+                    mensagem: `Máquina com ID ${id} não foi encontrada`
+                });
+            }
+
             if (req.file) {
                 dadosMaquina.imagem = req.file.filename;
             }
@@ -105,16 +116,25 @@ class MaquinaController {
             const affectedRows = await MaquinaModel.atualizar(id, dadosMaquina)
 
             if (affectedRows === 0) {
+
+                if (req.file) {
+                    await deleteFile(req.file.filename);
+                }
+
                 return res.status(404).json({
                     sucesso: false,
-                    erro: 'Maquina não encontrado',
-                    mensagem: `Maquina com ID ${id} não foi encontrado`
+                    erro: 'Máquina não encontrada',
+                    mensagem: `Máquina com ID ${id} não foi encontrada`
                 });
+            }
+
+            if (maquinaExistente.imagem && req.file) {
+                await deleteFile(maquinaExistente.imagem);
             }
 
             res.status(200).json({
                 sucesso: true,
-                mensagem: 'Maquina atualizado com sucesso',
+                mensagem: 'Máquina atualizada com sucesso',
                 dados: {
                     linhasAfetadas: affectedRows
                 }
@@ -152,6 +172,10 @@ class MaquinaController {
                     erro: 'Maquina não encontrado',
                     mensagem: `Maquina com ID ${id} não foi encontrado`
                 });
+            }
+
+            if (maquinaExistente.imagem) {
+                await deleteFile(maquinaExistente.imagem);
             }
 
             res.status(200).json({
