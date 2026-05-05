@@ -56,9 +56,9 @@ export default function MotoresPage() {
         {loading && <p>Carregando...</p>}
 
         <div className="grid gap-4">
-          {motores.map((motor) => (
+          {motores.map((motor, i) => (
             <CardMotor
-              key={motor.id}
+              key={i}
               motor={motor}
               onDelete={handleDelete}
               onClick={() => {

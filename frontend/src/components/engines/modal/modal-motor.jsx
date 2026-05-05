@@ -6,38 +6,44 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue
+} from "@/components/ui/select";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-import { 
-    Thermometer, 
-    Activity, 
-    Zap, 
-    Settings, 
-    Info, 
+import {
+    Thermometer,
+    Activity,
+    Zap,
+    Settings,
+    Info,
     ThermometerSun
 } from "lucide-react";
 
 import { useState, useEffect } from "react";
 import { ModalExcluirMotor } from "./ModalExcluirMotor";
-import { useMotors } from "@/hooks/useMotors"; 
 
 export function ModalMotorDetalhes({
-  open,
-  setOpen,
-  motor,
-  onUpdate,
-  onDelete
+    open,
+    setOpen,
+    motor,
+    onUpdate,
+    onDelete
 }) {
-
-   
 
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState({});
     const [loading, setLoading] = useState(false);
+
+    const [file, setFile] = useState(null);
 
     useEffect(() => {
         if (motor) {
@@ -46,9 +52,12 @@ export function ModalMotorDetalhes({
         }
     }, [motor, open]);
 
+
+
+
     const handleConfirmDelete = async () => {
         try {
-         await onDelete(motor.id);
+            await onDelete(motor.id);
             setIsDeleteDialogOpen(false);
             setOpen(false);
         } catch (err) {
@@ -62,11 +71,48 @@ export function ModalMotorDetalhes({
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
+    const handleImageUpload = (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setFile(file);
+
+        const preview = URL.createObjectURL(file);
+
+        setFormData(prev => ({
+            ...prev,
+            imagem: preview,
+        }));
+    };
     const handleSave = async () => {
         setLoading(true);
+
         try {
-     await onUpdate(formData.id, formData);
+            const form = new FormData();
+
+            // remove campos inúteis
+            const {
+                data_criacao,
+                data_atualizacao,
+                created_at,
+                updated_at,
+                ...rest
+            } = formData;
+
+          
+            Object.keys(rest).forEach((key) => {
+                form.append(key, rest[key]);
+            });
+
+
+            if (file) {
+                form.append("imagem", file);
+            }
+
+            await onUpdate(formData.id, form);
+
             setIsEditing(false);
+            setOpen(false);
         } catch (err) {
             console.error(err);
             alert("Erro ao atualizar motor");
@@ -89,10 +135,10 @@ export function ModalMotorDetalhes({
             </span>
 
             {isEditing ? (
-                <Input 
-                    name={name} 
-                    value={formData[name] || ""} 
-                    onChange={handleChange} 
+                <Input
+                    name={name}
+                    value={formData[name] || ""}
+                    onChange={handleChange}
                     className="h-8 text-sm w-full bg-white text-black"
                 />
             ) : (
@@ -109,15 +155,16 @@ export function ModalMotorDetalhes({
             if (!val) setIsEditing(false);
         }}>
             <DialogContent className="max-w-[95vw] lg:max-w-7xl p-0 overflow-hidden bg-background">
-                
+
                 <DialogHeader className="sr-only">
                     <DialogTitle>{formData.nome} - Detalhes</DialogTitle>
                 </DialogHeader>
 
                 <div className="flex flex-col lg:flex-row w-full h-full max-h-[90vh] overflow-y-auto lg:overflow-visible">
-                    
-                    {/* ESQUERDA */}
+
+
                     <div className="w-full lg:w-[35%] bg-muted/10 border-b lg:border-b-0 lg:border-r flex flex-col shrink-0">
+
                         <div className="h-56 lg:h-72 bg-white p-4 shrink-0 border-b relative">
                             <img
                                 src={formData.imagem}
@@ -126,13 +173,21 @@ export function ModalMotorDetalhes({
                             />
                         </div>
 
+
+                        {isEditing && (
+                            <div className="px-6 pt-3 space-y-2">
+
+                                <input type="file" accept="image/*" onChange={handleImageUpload} />
+                            </div>
+                        )}
+
                         <div className="p-6 lg:p-8 flex flex-col grow">
-                            
+
                             {isEditing ? (
-                                <Input 
-                                    name="nome" 
-                                    value={formData.nome || ""} 
-                                    onChange={handleChange} 
+                                <Input
+                                    name="nome"
+                                    value={formData.nome || ""}
+                                    onChange={handleChange}
                                     className="text-xl lg:text-2xl font-bold mb-2 bg-white text-black"
                                 />
                             ) : (
@@ -144,10 +199,10 @@ export function ModalMotorDetalhes({
                             {isEditing ? (
                                 <div className="flex items-center gap-2 mt-1 mb-6">
                                     <span className="text-sm font-medium text-muted-foreground">CÓDIGO:</span>
-                                    <Input 
-                                        name="cod_registro" 
-                                        value={formData.cod_registro || ""} 
-                                        onChange={handleChange} 
+                                    <Input
+                                        name="cod_registro"
+                                        value={formData.cod_registro || ""}
+                                        onChange={handleChange}
                                         className="h-8 w-32 text-sm bg-white text-black"
                                     />
                                 </div>
@@ -157,22 +212,75 @@ export function ModalMotorDetalhes({
                                 </p>
                             )}
 
+
                             <div className="flex flex-wrap lg:flex-col gap-2 lg:gap-3">
-                                <Badge variant="secondary" className="w-fit px-3 py-1 text-sm">
-                                    {formData.status_operacional}
-                                </Badge>
-                                <Badge variant="outline" className="w-fit px-3 py-1 text-sm">
-                                    Criticidade: {formData.nivel_criticidade}
-                                </Badge>
-                                <Badge
-                                    className={`w-fit px-3 py-1 text-sm ${
-                                        formData.status_saude === "Ok"
-                                            ? "bg-emerald-100 text-emerald-800 border-emerald-300"
-                                            : "bg-amber-100 text-amber-800 border-amber-300"
-                                    }`}
-                                >
-                                    Saúde: {formData.status_saude}
-                                </Badge>
+
+                                {isEditing ? (
+                                    <>
+
+                                        <Select
+                                            value={formData.status_operacional || ""}
+                                            onValueChange={(v) => setFormData(prev => ({ ...prev, status_operacional: v }))}
+                                        >
+                                            <SelectTrigger className="h-8 text-sm bg-white text-black">
+                                                <SelectValue placeholder="Operacional" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="Ativa">Ativa</SelectItem>
+                                                <SelectItem value="Parada">Parada</SelectItem>
+                                                <SelectItem value="Manutenção">Manutenção</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+
+
+                                        <Select
+                                            value={formData.nivel_criticidade || ""}
+                                            onValueChange={(v) => setFormData(prev => ({ ...prev, nivel_criticidade: v }))}
+                                        >
+                                            <SelectTrigger className="h-8 text-sm bg-white text-black">
+                                                <SelectValue placeholder="Criticidade" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="Baixa">Baixa</SelectItem>
+                                                <SelectItem value="Média">Média</SelectItem>
+                                                <SelectItem value="Alta">Alta</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+
+
+                                        <Select
+                                            value={formData.status_saude || ""}
+                                            onValueChange={(v) => setFormData(prev => ({ ...prev, status_saude: v }))}
+                                        >
+                                            <SelectTrigger className="h-8 text-sm bg-white text-black">
+                                                <SelectValue placeholder="Saúde" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="Ok">Ok</SelectItem>
+                                                <SelectItem value="Alerta">Alerta</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Badge variant="secondary" className="w-fit px-3 py-1 text-sm">
+                                            {formData.status_operacional}
+                                        </Badge>
+
+                                        <Badge variant="outline" className="w-fit px-3 py-1 text-sm">
+                                            Criticidade: {formData.nivel_criticidade}
+                                        </Badge>
+
+                                        <Badge
+                                            className={`w-fit px-3 py-1 text-sm ${formData.status_saude === "Ok"
+                                                ? "bg-emerald-100 text-emerald-800 border-emerald-300"
+                                                : "bg-amber-100 text-amber-800 border-amber-300"
+                                                }`}
+                                        >
+                                            Saúde: {formData.status_saude}
+                                        </Badge>
+                                    </>
+                                )}
                             </div>
 
                             <div className="mt-8 grid grid-cols-2 gap-4">
@@ -188,10 +296,11 @@ export function ModalMotorDetalhes({
                         </div>
                     </div>
 
+
                     <div className="w-full lg:w-[65%] p-6 lg:p-8 flex flex-col bg-background">
-                        
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 grow">
-                            
+
                             <div className="p-5 lg:p-6 rounded-xl border bg-card/50">
                                 <h3 className="font-semibold text-base lg:text-lg mb-4 flex items-center gap-2 border-b pb-3">
                                     <Info className="w-5 h-5 text-primary" />
@@ -262,8 +371,8 @@ export function ModalMotorDetalhes({
                                     <Button variant="secondary" onClick={() => setIsEditing(true)}>
                                         Editar
                                     </Button>
-                                    <Button 
-                                        variant="destructive" 
+                                    <Button
+                                        variant="destructive"
                                         onClick={() => setIsDeleteDialogOpen(true)}
                                     >
                                         Excluir
@@ -277,10 +386,10 @@ export function ModalMotorDetalhes({
             </DialogContent>
 
             <ModalExcluirMotor
-                open={isDeleteDialogOpen} 
-                setOpen={setIsDeleteDialogOpen} 
-                motor={motor} 
-                onConfirm={handleConfirmDelete} 
+                open={isDeleteDialogOpen}
+                setOpen={setIsDeleteDialogOpen}
+                motor={motor}
+                onConfirm={handleConfirmDelete}
             />
         </Dialog>
     );

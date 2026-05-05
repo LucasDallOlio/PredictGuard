@@ -8,22 +8,6 @@ import { ModalExcluirMotor } from "../modal/ModalExcluirMotor";
 
 export function CardMotor({ motor, onClick, onDelete }) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
-
-  async function handleDelete() {
-    try {
-      setIsDeleting(true);
-
-      await onDelete(motor.id); 
-
-      setIsDeleteDialogOpen(false);
-    } catch (err) {
-      console.error("Erro ao excluir motor:", err);
-      alert("Erro ao excluir motor");
-    } finally {
-      setIsDeleting(false);
-    }
-  }
 
   return (
     <>
@@ -93,12 +77,12 @@ export function CardMotor({ motor, onClick, onDelete }) {
         </CardContent>
       </Card>
 
+  
       <ModalExcluirMotor
         open={isDeleteDialogOpen}
         setOpen={setIsDeleteDialogOpen}
         motor={motor}
-        onConfirm={handleDelete}
-        loading={isDeleting}
+        onConfirm={onDelete} 
       />
     </>
   );

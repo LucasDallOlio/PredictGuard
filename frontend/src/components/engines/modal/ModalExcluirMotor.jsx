@@ -11,10 +11,8 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle } from "lucide-react";
-import { useMotors } from "@/hooks/useMotors";
 
-export function ModalExcluirMotor({ open, setOpen, motor }) {
-  const { deletarMotor } = useMotors(open);
+export function ModalExcluirMotor({ open, setOpen, motor, onConfirm }) {
   const [loading, setLoading] = useState(false);
 
   if (!motor) return null;
@@ -23,7 +21,7 @@ export function ModalExcluirMotor({ open, setOpen, motor }) {
     setLoading(true);
 
     try {
-      await deletarMotor(motor.id);
+      await onConfirm(motor.id); 
       setOpen(false);
     } catch (err) {
       console.error(err);

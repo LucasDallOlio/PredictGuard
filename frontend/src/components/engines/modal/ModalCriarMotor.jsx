@@ -65,6 +65,7 @@ export function ModalCriarMotor({ open, setOpen, onSave }) {
     const [formData, setFormData] = useState(initialState);
     const [loading, setLoading] = useState(false);
     const [erro, setErro] = useState("");
+    const [file, setFile] = useState(null);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -75,13 +76,13 @@ export function ModalCriarMotor({ open, setOpen, onSave }) {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleFileChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            setFormData(prev => ({ ...prev, imagem: file ? file.name : "maquina_placeholder.jpg"}));
-        }
-    };
+const handleFileChange = (e) => {
+    const selectedFile = e.target.files?.[0];
 
+    if (selectedFile) {
+        setFile(selectedFile);
+    }
+};
     const validar = () => {
         if (!formData.nome || !formData.cod_registro || !formData.setor) {
             return "Preencha os campos obrigatórios: Nome, Código e Setor.";
@@ -90,41 +91,44 @@ export function ModalCriarMotor({ open, setOpen, onSave }) {
     };
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
-        const erroValidacao = validar();
-        if (erroValidacao) {
-            setErro(erroValidacao);
-            return;
+    e.preventDefault();
+
+    const erroValidacao = validar();
+    if (erroValidacao) {
+        setErro(erroValidacao);
+        return;
+    }
+
+    setErro("");
+    setLoading(true);
+
+    try {
+        const formDataToSend = new FormData();
+
+       
+        Object.entries(formData).forEach(([key, value]) => {
+            if (value !== null && value !== undefined) {
+                formDataToSend.append(key, value);
+            }
+        });
+
+        
+        if (file) {
+            formDataToSend.append("imagem", file);
         }
 
-        setErro("");
-        setLoading(true);
+        await onSave(formDataToSend);
 
-        try {
-            const formatado = {
-                ...formData,
-                potencia_kw: formData.potencia_kw ? Number(formData.potencia_kw) : null,
-                corrente_nominal_a: formData.corrente_nominal_a ? Number(formData.corrente_nominal_a) : null,
-                frequencia_hz: formData.frequencia_hz ? Number(formData.frequencia_hz) : null,
-                rotacao_rpm: formData.rotacao_rpm ? Number(formData.rotacao_rpm) : null,
-                fator_servico: formData.fator_servico ? Number(formData.fator_servico) : null,
-                rendimento_percentual: formData.rendimento_percentual ? Number(formData.rendimento_percentual) : null,
-                fator_potencia: formData.fator_potencia ? Number(formData.fator_potencia) : null,
-                temperatura_ambiente_min_c: formData.temperatura_ambiente_min_c ? Number(formData.temperatura_ambiente_min_c) : null,
-                temperatura_ambiente_max_c: formData.temperatura_ambiente_max_c ? Number(formData.temperatura_ambiente_max_c) : null,
-                temperatura_limite_c: formData.temperatura_limite_c ? Number(formData.temperatura_limite_c) : null,
-                aceleracao_limite_g: formData.aceleracao_limite_g ? Number(formData.aceleracao_limite_g) : null,
-            };
+        setFormData(initialState);
+        setFile(null);
+        setOpen(false);
 
-            await onSave(formatado);
-            setFormData(initialState);
-            setOpen(false);
-        } catch (err) {
-            setErro("Erro ao salvar motor. Verifique os dados.");
-        } finally {
-            setLoading(false);
-        }
-    };
+    } catch (err) {
+        setErro("Erro ao salvar motor. Verifique os dados.");
+    } finally {
+        setLoading(false);
+    }
+};
 
     const inputStyle = "w-full h-9 text-sm bg-background border border-input rounded-md px-3 focus:ring-1 focus:ring-primary";
 
