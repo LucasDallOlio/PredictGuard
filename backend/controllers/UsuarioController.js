@@ -39,9 +39,10 @@ class UsuarioController {
 
             const resultado = await UsuarioModel.listarTodos(pagina, limite, filtro);
 
-            const usuariosComFotoURL = resultado.usuarios.map(usuario =>
-                usuario.foto = `${process.env.BASE_URL}${process.env.UPLOAD_PATH.replace(/^\.\//, '/')}/${usuario.foto}`
-            );
+            const usuariosComFotoURL = resultado.usuarios.map(usuario => ({
+                ...usuario,
+                foto: `${process.env.BASE_URL}${process.env.UPLOAD_PATH.replace(/^\.\//, '/')}/${usuario.foto}`
+            }));
 
             res.status(200).json({
                 sucesso: true,
@@ -203,7 +204,7 @@ class UsuarioController {
     static async login(req, res) {
         try {
             const { email, senha, canal } = req.body
-            
+
             const usuario = await UsuarioModel.verificarCredenciais(email, senha);
 
             if (!usuario) {
