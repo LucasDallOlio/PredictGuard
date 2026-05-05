@@ -19,7 +19,9 @@ class MaquinaController {
                 dados: maquinaComImagemURL,
                 paginacao: {
                     pagina: resultado.page,
-                    limite: resultado.limit
+                    limite: resultado.limit,
+                    total: resultado.total,
+                    totalPaginas: resultado.totalPages
                 }
             });
         }

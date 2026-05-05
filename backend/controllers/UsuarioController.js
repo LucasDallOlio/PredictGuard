@@ -49,7 +49,9 @@ class UsuarioController {
                 dados: usuariosComFotoURL,
                 paginacao: {
                     pagina: resultado.page,
-                    limite: resultado.limit
+                    limite: resultado.limit,
+                    total: resultado.total,
+                    totalPaginas: resultado.totalPages
                 }
             });
         }
