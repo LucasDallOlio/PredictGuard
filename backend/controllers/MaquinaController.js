@@ -6,12 +6,17 @@ class MaquinaController {
         try {
             let pagina = parseInt(req.query.pagina) || 1;
             let limite = parseInt(req.query.limite) || 10;
-            
+
             const resultado = await MaquinaModel.listarTodos(pagina, limite);
+
+            const maquinaComImagemURL = resultado.maquinas.map(maquina => ({
+                ...maquina,
+                imagem: `${process.env.BASE_URL}${process.env.UPLOAD_PATH.replace(/^\.\//, '/')}/${maquina.imagem}`
+            }))
 
             res.status(200).json({
                 sucesso: true,
-                dados: resultado.maquinas,
+                dados: maquinaComImagemURL,
                 paginacao: {
                     pagina: resultado.page,
                     limite: resultado.limit
@@ -41,6 +46,9 @@ class MaquinaController {
                     mensagem: `Maquina com ID ${id} não foi encontrado`
                 });
             }
+
+            maquina.imagem = `${process.env.BASE_URL}${process.env.UPLOAD_PATH.replace(/^\.\//, '/')}/${maquina.imagem}`
+
             res.status(200).json({
                 sucesso: true,
                 dados: maquina
@@ -82,7 +90,7 @@ class MaquinaController {
             });
         }
     }
-    
+
     static async atualizar(req, res) {
         try {
             const { id } = req.params;
