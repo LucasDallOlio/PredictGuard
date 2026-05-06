@@ -6,120 +6,131 @@ export function useTechnicians() {
   const [tecnicos, setTecnicos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [erro, setErro] = useState(null);
+  const [pagina, setPagina] = useState(1);
+  const [totalPaginas, setTotalPaginas] = useState(1);
 
   function getToken() {
     return localStorage.getItem("token");
   }
 
-  useEffect(() => {
-    let ativo = true;
 
-    async function buscarTecnicos() {
-      setLoading(true);
-      setErro(null);
+async function buscarTecnicos(paginaAtual) {
+  setLoading(true);
+  setErro(null);
 
-      try {
-        const res = await fetch(`${API_URL}?tipo=técnico`, {
-          headers: {
-            Authorization: `Bearer ${getToken()}`,
-          },
-        });
-
-        if (!res.ok) throw new Error("Erro ao buscar técnicos");
-
-        const data = await res.json();
-
-        if (ativo) setTecnicos(data.dados);
-      } catch (err) {
-        if (ativo) setErro(err.message);
-      } finally {
-        if (ativo) setLoading(false);
-      }
-    }
-
-    buscarTecnicos();
-
-    return () => {
-      ativo = false;
-    };
-  }, []);
-
-async function adicionarTecnico(novoTecnico) {
   try {
-    console.log("📤 Enviando técnico (JSON)...", novoTecnico);
+    const res = await fetch(`${API_URL}?tipo=técnico&pagina=${paginaAtual}&limite=10`,   {
+        headers: {
+          Authorization: `Bearer ${getToken()}`,
+        },
+        cache: "no-store",
+      }
+    );
 
-    const res = await fetch(API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${getToken()}`,
-      },
-      body: JSON.stringify(novoTecnico),
-    });
+    if (!res.ok) throw new Error("Erro ao buscar técnicos");
 
     const data = await res.json();
 
-    console.log("📥 STATUS:", res.status);
-    console.log("📥 RESPOSTA:", data);
+    console.log("Página enviada:", paginaAtual);
+    console.log("Dados recebidos:", data.dados);
 
-    if (!res.ok) {
-      throw new Error(data.mensagem || "Erro ao adicionar técnico");
-    }
-
-    
-    const novo = {
-      id: data.dados.id,
-      ...novoTecnico,
-      foto: null
-    };
-
-    setTecnicos((prev) => [...prev, novo]);
-
-    return novo;
+    setTecnicos(data.dados);
+    setTotalPaginas(data.paginacao?.totalPaginas || 1);
 
   } catch (err) {
-    console.error("🚨 ERRO:", err);
-    throw err;
+    setErro(err.message);
+  } finally {
+    setLoading(false);
   }
 }
 
-async function removerTecnico(id) {
-  const res = await fetch(`${API_URL}/${id}`, {
-    method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${getToken()}`,
-    },
-  });
+useEffect(() => {
+  buscarTecnicos(pagina);
+}, [pagina]);
 
-  const text = await res.text(); 
 
-  console.log("STATUS:", res.status);
-  console.log("RESPOSTA:", text);
+  function proximaPagina() {
+    setPagina((prev) => Math.min(prev + 1, totalPaginas));
+  }
 
-  if (!res.ok) throw new Error("Erro ao remover técnico");
+  function paginaAnterior() {
+    setPagina((prev) => Math.max(prev - 1, 1));
+  }
 
-  setTecnicos((prev) => prev.filter((tec) => tec.id !== id));
-}
+  
+  async function adicionarTecnico(formData) {
+    try {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${getToken()}`,
+        },
+        body: formData,
+      });
 
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.mensagem || "Erro ao adicionar técnico");
+      }
+
+      setPagina(1);
+      await buscarTecnicos(1);
+
+      return data.dados;
+
+    } catch (err) {
+      console.error("🚨 ERRO:", err);
+      throw err;
+    }
+  }
+
+  
+  async function removerTecnico(id) {
+    try {
+      const res = await fetch(`${API_URL}/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${getToken()}`,
+        },
+      });
+
+      if (!res.ok) throw new Error("Erro ao remover técnico");
+
+   
+      await buscarTecnicos(pagina);
+
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
+  }
+
+  
   async function atualizarTecnico(id, atualizacoes) {
-    const res = await fetch(`${API_URL}/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${getToken()}`,
-      },
-      body: JSON.stringify(atualizacoes),
-    });
+    try {
+      const res = await fetch(`${API_URL}/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${getToken()}`,
+        },
+        body: JSON.stringify(atualizacoes),
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (!res.ok) throw new Error(data.mensagem || "Erro ao atualizar técnico");
+      if (!res.ok) throw new Error(data.mensagem || "Erro ao atualizar técnico");
 
-    setTecnicos((prev) =>
-      prev.map((tec) => (tec.id === id ? data.dados : tec))
-    );
+    
+      await buscarTecnicos(pagina);
 
-    return data.dados;
+      return data.dados;
+
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
   }
 
   return {
@@ -129,5 +140,9 @@ async function removerTecnico(id) {
     adicionarTecnico,
     removerTecnico,
     atualizarTecnico,
+    pagina,
+    totalPaginas,
+    proximaPagina,
+    paginaAnterior,
   };
 }

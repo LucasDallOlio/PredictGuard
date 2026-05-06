@@ -61,16 +61,19 @@ export default function ModalAdicionarTecnico({ open, onClose, onAddTecnico }) {
   setCarregando(true);
 
   try {
-    const novoTecnico = {
-      nome,
-      email,
-      telefone,
-      senha,
-      tipo,
-      
-    };
+    const formData = new FormData();
 
-    await onAddTecnico(novoTecnico);
+    formData.append("nome", nome);
+    formData.append("email", email);
+    formData.append("telefone", telefone);
+    formData.append("senha", senha);
+    formData.append("tipo", tipo);
+
+    if (foto) {
+      formData.append("foto", foto);
+    }
+
+    await onAddTecnico(formData);
 
     limparCampos();
     onClose();

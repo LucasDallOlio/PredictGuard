@@ -16,7 +16,16 @@ export default function UsersTable() {
   const [modalRemoverOpen, setModalRemoverOpen] = useState(false);
   const [tecnicoSelecionado, setTecnicoSelecionado] = useState(null);
 
-  const { tecnicos, loading, adicionarTecnico, removerTecnico } = useTechnicians();
+  const {
+    tecnicos,
+    loading,
+    adicionarTecnico,
+    removerTecnico,
+    pagina,
+    totalPaginas,
+    proximaPagina,
+    paginaAnterior
+  } = useTechnicians();
 
   const handleAddTecnico = async (novoTecnico) => {
     try {
@@ -28,13 +37,13 @@ export default function UsersTable() {
     }
   };
 
-  
+
   const handleRemoveTecnico = (tec) => {
     setTecnicoSelecionado(tec);
     setModalRemoverOpen(true);
   };
 
- 
+
   const confirmarRemocao = async () => {
     try {
       await removerTecnico(tecnicoSelecionado.id);
@@ -49,14 +58,14 @@ export default function UsersTable() {
   return (
     <div className="w-full max-w-6xl mx-auto py-10 px-4 md:px-6 space-y-8 bg-white">
 
-      
+
       <ModalAdicionarTecnico
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         onAddTecnico={handleAddTecnico}
       />
 
-      
+
       {modalRemoverOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
 
@@ -93,7 +102,7 @@ export default function UsersTable() {
         </div>
       )}
 
-      
+
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
@@ -116,7 +125,7 @@ export default function UsersTable() {
         </Button>
       </div>
 
-    
+
       <div className="rounded-xl border border-gray-200 overflow-hidden bg-white">
         <div className="overflow-x-auto">
           {loading ? (
@@ -141,7 +150,15 @@ export default function UsersTable() {
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <Avatar className="h-9 w-9 border">
-                          <AvatarImage src={`/images/${tec.foto}`} />
+                          <AvatarImage
+                            src={
+                              tec.foto
+                                ? tec.foto
+                                : ""
+                            }
+
+                            
+                          />
                           <AvatarFallback>
                             {tec.nome?.charAt(0)}
                           </AvatarFallback>
@@ -185,6 +202,30 @@ export default function UsersTable() {
           )}
         </div>
       </div>
+      <div className="flex justify-center items-center gap-4 mt-6">
+
+        <Button
+          variant="outline"
+          onClick={paginaAnterior}
+          disabled={pagina === 1}
+        >
+          ← Anterior
+        </Button>
+
+        <span className="text-sm font-semibold text-gray-700">
+          Página {pagina} de {totalPaginas}
+        </span>
+
+        <Button
+          variant="outline"
+          onClick={proximaPagina}
+          disabled={pagina === totalPaginas}
+        >
+          Próxima →
+        </Button>
+
+      </div>
     </div>
+
   );
 }
