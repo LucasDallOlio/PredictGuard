@@ -1,0 +1,257 @@
+import express from 'express';
+import ServicoController from '../controllers/ServicoController.js'
+import { authMiddleware, adminMiddleware } from '../middlewares/authMiddleware.js';
+
+const router = express.Router();
+
+/**
+ * @swagger
+ * tags:
+ *   name: Serviços
+ *   description: Gestão de serviços
+ */
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Servico:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *         maquina_id:
+ *           type: integer
+ *         usuario_responsavel_id:
+ *           type: integer
+ *         usuario_solicitante_id:
+ *           type: integer
+ *         tipo:
+ *           type: string
+ *           enum: [Manutenção Preditiva, Manutenção Preventiva, Manutenção Corretiva, Alerta de Falha]
+ *         servico_status:
+ *           type: string
+ *           enum: [Solicitado, Em Andamento, Concluído]
+ *         descricao:
+ *           type: string
+ *         observacao:
+ *           type: string
+ *         data_alerta:
+ *           type: string
+ *           format: date-time
+ *         data_criacao:
+ *           type: string
+ *           format: date-time
+ *         data_encerramento:
+ *           type: string
+ *           format: date-time
+ *     ServicoCreate:
+ *       type: object
+ *       required:
+ *         - maquina_id
+ *         - usuario_responsavel_id
+ *         - tipo
+ *       properties:
+ *         maquina_id:
+ *           type: integer
+ *           example: 1
+ *         usuario_responsavel_id:
+ *           type: integer
+ *           example: 2
+ *         tipo:
+ *           type: string
+ *           enum: [Manutenção Preditiva, Manutenção Preventiva, Manutenção Corretiva, Alerta de Falha]
+ *         descricao:
+ *           type: string
+ *           example: "Analise de vibracao para identificar desalinhamento."
+ *         data_alerta:
+ *           type: string
+ *           format: date-time
+ *     ServicoUpdate:
+ *       type: object
+ *       properties:
+ *         servico_status:
+ *           type: string
+ *           enum: [Solicitado, Em Andamento, Concluído]
+ *           example: "Em Andamento"
+ *     ApiRespostaServicoLista:
+ *       type: object
+ *       properties:
+ *         sucesso:
+ *           type: boolean
+ *         dados:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/Servico'
+ *         paginacao:
+ *           type: object
+ *           properties:
+ *             pagina:
+ *               type: integer
+ *             limite:
+ *               type: integer
+ *             total:
+ *               type: integer
+ *             totalPaginas:
+ *               type: integer
+ *     ApiRespostaServicoItem:
+ *       type: object
+ *       properties:
+ *         sucesso:
+ *           type: boolean
+ *         dados:
+ *           $ref: '#/components/schemas/Servico'
+ */
+
+/**
+ * @swagger
+ * /servicos:
+ *   get:
+ *     tags: [Serviços]
+ *     summary: Lista serviços
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: pagina
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limite
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *     responses:
+ *       200:
+ *         description: Lista de serviços
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiRespostaServicoLista'
+ *       500:
+ *         description: Erro interno
+ */
+router.get('/', authMiddleware, ServicoController.listarTodos);
+/**
+ * @swagger
+ * /servicos/{id}:
+ *   get:
+ *     tags: [Serviços]
+ *     summary: Busca serviço por ID
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Serviço encontrado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiRespostaServicoItem'
+ *       404:
+ *         description: Serviço não encontrado
+ *       500:
+ *         description: Erro interno
+ */
+router.get('/:id', authMiddleware, ServicoController.buscarPorID);
+/**
+ * @swagger
+ * /servicos:
+ *   post:
+ *     tags: [Serviços]
+ *     summary: Cria um serviço
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ServicoCreate'
+ *     responses:
+ *       201:
+ *         description: Serviço criado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 sucesso:
+ *                   type: boolean
+ *                 mensagem:
+ *                   type: string
+ *                 dados:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *       500:
+ *         description: Erro interno
+ */
+router.post('/', authMiddleware, adminMiddleware, ServicoController.criar);
+/**
+ * @swagger
+ * /servicos/{id}:
+ *   put:
+ *     tags: [Serviços]
+ *     summary: Atualiza um serviço
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ServicoUpdate'
+ *     responses:
+ *       200:
+ *         description: Serviço atualizado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 sucesso:
+ *                   type: boolean
+ *                 mensagem:
+ *                   type: string
+ *                 dados:
+ *                   type: object
+ *                   properties:
+ *                     linhasAfetadas:
+ *                       type: integer
+ *       404:
+ *         description: Serviço não encontrado
+ *       500:
+ *         description: Erro interno
+ */
+router.put('/:id', authMiddleware, ServicoController.atualizar);
+
+// Rotas OPTIONS para CORS (preflight requests)
+router.options('/', (req, res) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.sendStatus(200);
+});
+
+router.options('/:id', (req, res) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'PUT, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.sendStatus(200);
+});
+
+export default router;

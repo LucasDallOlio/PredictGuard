@@ -9,6 +9,7 @@ import iniciarMQTT from './services/mqttService.js';
 // Importar rotas
 import usuarioRotas from './routes/usuarioRotas.js'
 import maquinaRotas from './routes/maquinaRotas.js'
+import servicoRotas from './routes/servicoRotas.js'
 
 dotenv.config();
 
@@ -39,6 +40,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 // Rotas da API
 app.use('/usuarios', usuarioRotas);
 app.use('/maquinas', maquinaRotas);
+app.use('/servicos', servicoRotas);
 
 app.get('/', (req, res) => {
     res.json({
