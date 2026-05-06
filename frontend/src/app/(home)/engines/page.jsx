@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { CardMotor } from "@/components/engines/card/card";
+// Verifique se o caminho do import abaixo está correto para o seu projeto!
+import { TabelaMotores } from "@/components/engines/card/card"; 
 import { Button } from "@/components/ui/button";
 import { IconEngine } from "@tabler/icons-react";
 import { ModalMotorDetalhes } from "@/components/engines/modal/modal-motor";
@@ -36,8 +37,7 @@ export default function MotoresPage() {
   return (
     <div className="p-6">
       <div className="max-w-6xl mx-auto space-y-6">
-
-             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-semibold flex items-center gap-3">
               <IconEngine className="w-8 h-8 text-primary" />
@@ -53,21 +53,23 @@ export default function MotoresPage() {
           </Button>
         </div>
 
-        {loading && <p>Carregando...</p>}
+        {loading && <p>Carregando motores...</p>}
 
-        <div className="grid gap-4">
-          {motores.map((motor, i) => (
-            <CardMotor
-              key={i}
-              motor={motor}
+        {/* AQUI ESTÁ O SEGREDO: 
+          Sem o .map() e passando a prop "motores" no plural! 
+        */}
+        {!loading && (
+          <div className="w-full">
+            <TabelaMotores
+              motores={motores} 
               onDelete={handleDelete}
-              onClick={() => {
+              onClick={(motor) => {
                 setMotorSelecionado(motor);
                 setOpen(true);
               }}
             />
-          ))}
-        </div>
+          </div>
+        )}
       </div>
 
       <ModalMotorDetalhes
@@ -86,6 +88,3 @@ export default function MotoresPage() {
     </div>
   );
 }
-
-
-  

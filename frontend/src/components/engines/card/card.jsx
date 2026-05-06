@@ -2,88 +2,138 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardTitle } from "@/components/ui/card";
-import { Thermometer, Activity, Trash2 } from "lucide-react";
+import { Thermometer, Activity, Trash2, Eye } from "lucide-react";
 import { ModalExcluirMotor } from "../modal/ModalExcluirMotor";
 
-export function CardMotor({ motor, onClick, onDelete }) {
+// 1. COMPONENTE DA LINHA
+function LinhaMotor({ motor, onClick, onDelete }) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   return (
     <>
-      <Card className="flex w-full max-w-6xl mx-auto flex-col md:flex-row overflow-hidden py-0">
+      <tr className="border-b transition-colors hover:bg-muted/50">
+        {/* Coluna de Imagem removida daqui */}
+        <td className="p-3 align-middle font-medium">{motor.nome}</td>
+        <td className="p-3 align-middle text-muted-foreground">{motor.setor}</td>
+        <td className="p-3 align-middle text-muted-foreground">{motor.cod_registro}</td>
         
-        <div className="md:w-2/5 w-full h-48 md:h-auto shrink-0">
-          <img
-            src={motor.imagem}
-            alt={motor.nome}
-            className="h-full w-full object-cover"
-          />
-        </div>
-
-        <CardContent className="flex flex-col justify-between p-6 w-full">
-          <div>
-            <CardTitle className="mb-2 text-xl">{motor.nome}</CardTitle>
-
-            <p className="text-muted-foreground text-sm">
-              Setor: {motor.setor}
-            </p>
-
-            <p className="text-muted-foreground text-sm mb-4">
-              Código: {motor.cod_registro}
-            </p>
-
-            <div className="flex gap-4 flex-wrap">
-              <div className="flex items-center gap-2 border rounded-lg px-3 py-1">
-                <Thermometer size={16} />
-                <span
-                  className={
-                    motor.temperatura > 85
-                      ? "text-red-500 font-medium"
-                      : "text-green-500 font-medium"
-                  }
-                >
-                  {motor.temperatura}°C
-                </span>
-              </div>
-
-              <div
-                className={`flex items-center gap-2 px-3 py-1 rounded-lg text-sm ${
-                  motor.vibracao === "Normal"
-                    ? "bg-green-100 text-green-600"
-                    : "bg-red-100 text-red-600"
-                }`}
-              >
-                <Activity size={16} />
-                {motor.vibracao}
-              </div>
+        <td className="p-3 align-middle">
+          <div className="flex flex-col sm:flex-row gap-2">
+            <div className="flex items-center gap-1 border rounded-md px-2 py-1 text-xs w-max">
+              <Thermometer size={14} />
+              <span className={motor.temperatura > 85 ? "text-red-500 font-medium" : "text-green-500 font-medium"}>
+                {motor.temperatura}°C
+              </span>
+            </div>
+            <div className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs w-max ${
+                motor.vibracao === "Normal" ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600"
+              }`}
+            >
+              <Activity size={14} />
+              {motor.vibracao}
             </div>
           </div>
-
-          <div className="flex justify-end gap-3 mt-6">
-            <Button variant="outline" onClick={onClick}>
-              Ver detalhes
+        </td>
+        
+        <td className="p-3 align-middle text-right">
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" size="sm" onClick={() => onClick(motor)}>
+              <Eye size={16} className="mr-0 sm:mr-2" />
+              <span className="hidden sm:inline">Ver detalhes</span>
             </Button>
-
+            
+            {/* Botão de excluir apenas com o ícone */}
             <Button
               variant="destructive"
+              size="icon"
+              className="h-8 w-8" 
               onClick={() => setIsDeleteDialogOpen(true)}
-              className="flex items-center gap-2"
             >
               <Trash2 size={16} />
-              Excluir
             </Button>
           </div>
-        </CardContent>
-      </Card>
+        </td>
+      </tr>
 
-  
       <ModalExcluirMotor
         open={isDeleteDialogOpen}
         setOpen={setIsDeleteDialogOpen}
         motor={motor}
-        onConfirm={onDelete} 
+        onConfirm={() => onDelete(motor.id)} 
       />
     </>
+  );
+}
+
+// 2. COMPONENTE DA TABELA COM PAGINAÇÃO
+export function TabelaMotores({ motores = [], onClick, onDelete }) {
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5; 
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentMotores = motores.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(motores.length / itemsPerPage);
+
+  return (
+    <div className="w-full flex flex-col gap-4">
+      <div className="rounded-md border bg-card text-card-foreground shadow-sm overflow-x-auto">
+        <table className="w-full caption-bottom text-sm">
+          <thead className="[&_tr]:border-b bg-muted/30">
+            <tr className="border-b transition-colors">
+              {/* Cabeçalho de Imagem removido daqui */}
+              <th className="h-12 px-3 text-left align-middle font-medium text-muted-foreground">Nome</th>
+              <th className="h-12 px-3 text-left align-middle font-medium text-muted-foreground">Setor</th>
+              <th className="h-12 px-3 text-left align-middle font-medium text-muted-foreground">Código</th>
+              <th className="h-12 px-3 text-left align-middle font-medium text-muted-foreground">Status</th>
+              <th className="h-12 px-3 text-right align-middle font-medium text-muted-foreground">Ações</th>
+            </tr>
+          </thead>
+          <tbody className="[&_tr:last-child]:border-0">
+            {currentMotores.length > 0 ? (
+              currentMotores.map((motor, index) => (
+                <LinhaMotor
+                  key={motor.cod_registro || index} 
+                  motor={motor}
+                  onClick={onClick}
+                  onDelete={onDelete}
+                />
+              ))
+            ) : (
+              <tr>
+                {/* Ajustei o colSpan de 6 para 5 porque tiramos uma coluna */}
+                <td colSpan="5" className="h-24 text-center align-middle text-muted-foreground">
+                  Nenhum motor para exibir.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-end space-x-2 py-2">
+          <span className="text-sm text-muted-foreground px-4">
+            Página <strong>{currentPage}</strong> de <strong>{totalPages}</strong>
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+          >
+            Anterior
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+            disabled={currentPage === totalPages}
+          >
+            Próximo
+          </Button>
+        </div>
+      )}
+    </div>
   );
 }
