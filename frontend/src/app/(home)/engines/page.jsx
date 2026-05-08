@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-// Verifique se o caminho do import abaixo está correto para o seu projeto!
-import { TabelaMotores } from "@/components/engines/card/card"; 
+import { TabelaMotores } from "@/components/engines/card/card";
 import { Button } from "@/components/ui/button";
 import { IconEngine } from "@tabler/icons-react";
 import { ModalMotorDetalhes } from "@/components/engines/modal/modal-motor";
@@ -10,7 +9,17 @@ import { ModalCriarMotor } from "@/components/engines/modal/ModalCriarMotor";
 import { useMotors } from "@/hooks/useMotors";
 
 export default function MotoresPage() {
-  const { motores, deletarMotor, addMotor, updateMotor, loading } = useMotors();
+  const {
+    motores,
+    deletarMotor,
+    addMotor,
+    updateMotor,
+    loading,
+    pagina,
+    totalPaginas,
+    proximaPagina,
+    paginaAnterior,
+  } = useMotors();
 
   const [open, setOpen] = useState(false);
   const [motorSelecionado, setMotorSelecionado] = useState(null);
@@ -37,7 +46,8 @@ export default function MotoresPage() {
   return (
     <div className="p-6">
       <div className="max-w-6xl mx-auto space-y-6">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+
+        <div className="flex justify-between items-center">
           <div>
             <h1 className="text-2xl font-semibold flex items-center gap-3">
               <IconEngine className="w-8 h-8 text-primary" />
@@ -55,20 +65,19 @@ export default function MotoresPage() {
 
         {loading && <p>Carregando motores...</p>}
 
-        {/* AQUI ESTÁ O SEGREDO: 
-          Sem o .map() e passando a prop "motores" no plural! 
-        */}
         {!loading && (
-          <div className="w-full">
-            <TabelaMotores
-              motores={motores} 
-              onDelete={handleDelete}
-              onClick={(motor) => {
-                setMotorSelecionado(motor);
-                setOpen(true);
-              }}
-            />
-          </div>
+          <TabelaMotores
+            motores={motores}
+            onDelete={handleDelete}
+            onClick={(motor) => {
+              setMotorSelecionado(motor);
+              setOpen(true);
+            }}
+            pagina={pagina}
+            totalPaginas={totalPaginas}
+            proximaPagina={proximaPagina}
+            paginaAnterior={paginaAnterior}
+          />
         )}
       </div>
 
