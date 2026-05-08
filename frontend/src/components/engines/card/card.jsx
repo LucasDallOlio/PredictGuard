@@ -24,11 +24,10 @@ function LinhaMotor({ motor, onClick, onDelete }) {
               </span>
             </div>
 
-            <div className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs w-max ${
-              motor.vibracao === "Normal"
-                ? "bg-green-100 text-green-600"
-                : "bg-red-100 text-red-600"
-            }`}>
+            <div className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs w-max ${motor.vibracao === "Normal"
+              ? "bg-green-100 text-green-600"
+              : "bg-red-100 text-red-600"
+              }`}>
               <Activity size={14} />
               {motor.vibracao}
             </div>
@@ -108,30 +107,30 @@ export function TabelaMotores({
         </table>
       </div>
 
-     
-      {totalPaginas > 1 && (
-        <div className="flex justify-center items-center gap-4">
-          <Button
-            variant="outline"
-            onClick={paginaAnterior}
-            disabled={pagina === 1}
-          >
-            ← Anterior
-          </Button>
 
-          <span className="text-sm">
-            Página <strong>{pagina}</strong> de <strong>{totalPaginas}</strong>
-          </span>
 
-          <Button
-            variant="outline"
-            onClick={proximaPagina}
-            disabled={pagina === totalPaginas}
-          >
-            Próxima →
-          </Button>
-        </div>
-      )}
+      <div className="flex justify-center items-center gap-4">
+        <Button
+          variant="outline"
+          onClick={paginaAnterior}
+          disabled={pagina === 1}
+        >
+          ← Anterior
+        </Button>
+
+        <span className="text-sm">
+          Página <strong>{pagina}</strong> de <strong>{totalPaginas}</strong>
+        </span>
+
+        <Button
+          variant="outline"
+          onClick={proximaPagina}
+          disabled={pagina === totalPaginas}
+        >
+          Próxima →
+        </Button>
+      </div>
+
     </div>
   );
 }
