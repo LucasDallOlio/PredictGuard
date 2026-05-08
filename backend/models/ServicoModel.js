@@ -53,7 +53,9 @@ class ServicoModel {
             })
             
             const [total] = await count({
-                table: 'servicos'
+                table: 'servicos',
+                where,
+                whereParams
             });
 
             return {

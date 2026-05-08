@@ -62,7 +62,9 @@ class MaquinaModel {
             })
             
             const [total] = await count({
-                table: 'maquinas'
+                table: 'maquinas',
+                where,
+                whereParams
             });
 
             return {

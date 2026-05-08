@@ -81,7 +81,9 @@ class UsuarioModel {
             const usuariosSemSenha = usuarios.map(({ senha, ...usuario }) => usuario);
 
             const [total] = await count({
-                table: 'usuarios'
+                table: 'usuarios',
+                where,
+                whereParams
             });
 
             return {
