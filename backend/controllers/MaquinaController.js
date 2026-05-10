@@ -3,6 +3,25 @@ import { deleteFile } from '../utils/file.js'
 
 class MaquinaController {
 
+    static async resumoStatus(req, res) {
+        try {
+            const resumo = await MaquinaModel.ResumoStatus();
+
+            res.status(200).json({
+                sucesso: true,
+                dados: resumo
+            });
+        }
+        catch (error) {
+            console.error('Erro ao buscar resumo de status das maquinas:', error)
+            res.status(500).json({
+                sucesso: false,
+                erro: 'Erro interno do servidor',
+                mensagem: 'Nao foi possivel buscar o resumo de status das maquinas'
+            });
+        }
+    }
+
     static async listarTodos(req, res) {
         try {
             let pagina = parseInt(req.query.pagina) || 1;

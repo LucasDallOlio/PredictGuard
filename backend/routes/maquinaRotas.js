@@ -310,6 +310,53 @@ router.get('/', authMiddleware, MaquinaController.listarTodos);
 
 /**
  * @swagger
+ * /maquinas/resumo-status:
+ *   get:
+ *     summary: Retorna resumo por status das maquinas
+ *     tags: [Maquinas]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Resumo de status retornado com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 sucesso:
+ *                   type: boolean
+ *                   example: true
+ *                 dados:
+ *                   type: object
+ *                   properties:
+ *                     totalMaquinas:
+ *                       type: integer
+ *                       example: 4
+ *                     statusOperacional:
+ *                       type: object
+ *                       additionalProperties:
+ *                         type: integer
+ *                       example:
+ *                         Ativa: 2
+ *                         Parada: 1
+ *                         Manutenção: 1
+ *                     statusSaude:
+ *                       type: object
+ *                       additionalProperties:
+ *                         type: integer
+ *                       example:
+ *                         Ok: 3
+ *                         Alerta: 1
+ *       401:
+ *         description: Nao autenticado
+ *       500:
+ *         description: Erro interno
+ */
+router.get('/resumo-status', authMiddleware, MaquinaController.resumoStatus);
+
+/**
+ * @swagger
  * /maquinas/{id}:
  *   get:
  *     summary: Busca maquina por ID

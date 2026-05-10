@@ -2,12 +2,20 @@ import { create, read, update, deleteRecord, readWithPagination, count } from '.
 
 class MaquinaModel {
 
+    static normalizarResumoStatus(linhas = [], chave) {
+        return linhas.reduce((acc, item) => {
+            const valorStatus = item[chave] ?? 'Indefinido';
+            acc[valorStatus] = Number(item.count);
+            return acc;
+        }, {});
+    }
+
     static async buscarPorID(id) {
         try {
             const rows = await read('maquinas', `id = ${Number(id)}`);
 
             if (!rows[0]) return null;
-            
+
             return rows[0];
         }
         catch (error) {
@@ -23,7 +31,7 @@ class MaquinaModel {
             throw new Error(`Erro ao criar maquina: ${error.message}`);
         }
     }
-    
+
     static async atualizar(id, dadosMaquina) {
         try {
             return await update('maquinas', dadosMaquina, 'id = ?', [id])
@@ -60,7 +68,7 @@ class MaquinaModel {
                 where,
                 whereParams
             })
-            
+
             const [total] = await count({
                 table: 'maquinas',
                 where,
@@ -73,6 +81,43 @@ class MaquinaModel {
                 page,
                 limit,
                 totalPages: Math.ceil(total.count / limit)
+            }
+        }
+        catch (error) {
+            throw new Error(`Erro ao buscar maquinas: ${error.message}`);
+        }
+    }
+
+    static async ResumoStatus() {
+        try {
+            const statusOperacionalRaw = await count({
+                table: "maquinas",
+                groupBy: "status_operacional"
+            });
+
+            const statusSaudeRaw = await count({
+                table: "maquinas",
+                groupBy: "status_saude"
+            });
+
+            const [totalMaquinasRaw] = await count({
+                table: 'maquinas'
+            });
+
+            const statusOperacional = MaquinaModel.normalizarResumoStatus(
+                statusOperacionalRaw,
+                'status_operacional'
+            );
+
+            const statusSaude = MaquinaModel.normalizarResumoStatus(
+                statusSaudeRaw,
+                'status_saude'
+            );
+
+            return {
+                totalMaquinas: Number(totalMaquinasRaw?.count ?? 0),
+                statusOperacional,
+                statusSaude
             }
         }
         catch (error) {
