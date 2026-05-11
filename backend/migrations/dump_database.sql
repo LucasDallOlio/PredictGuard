@@ -140,8 +140,8 @@ create table if not exists servicos (
     maquina_id int not null,
     usuario_responsavel_id int not null,
     usuario_solicitante_id int not null,
-    tipo enum('manutencao_preditiva', 'manutencao_preventiva', 'manutencao_corretiva', 'alerta_de_falha'),
-    servico_status enum('solicitado', 'em_andamento', 'concluido') not null default 'solicitado',
+    tipo enum('manutencao_preditiva', 'manutencao_preventiva', 'manutencao_corretiva', 'analise_de_falha'),
+    servico_status enum('solicitado', 'em_andamento', 'concluido', 'cancelado') not null default 'solicitado',
     descricao varchar(500),
     observacao varchar(500),
     data_alerta datetime default current_timestamp,
@@ -257,6 +257,6 @@ insert into servicos (
     tipo, servico_status, descricao, observacao,
     data_alerta, data_criacao, data_encerramento
 ) values
-    (1, 2, 2, 1, 'alerta_de_falha', 'em_andamento', 'Inspecionar aumento de temperatura e vibracao na Maquina 2.', 'Prioridade alta. Verificar alinhamento e lubrificacao.', '2026-03-30 09:06:00', '2026-03-30 09:10:00', null),
+    (1, 2, 2, 1, 'analise_de_falha', 'em_andamento', 'Inspecionar aumento de temperatura e vibracao na Maquina 2.', 'Prioridade alta. Verificar alinhamento e lubrificacao.', '2026-03-30 09:06:00', '2026-03-30 09:10:00', null),
     (2, 3, 3, 4, 'manutencao_preventiva', 'solicitado', 'Troca programada de rolamentos e reaperto geral.', 'Agendar para o proximo turno sem impacto de producao.', '2026-03-29 10:00:00', '2026-03-29 10:10:00', null),
     (3, 1, 2, 1, 'manutencao_preditiva', 'concluido', 'Analise preditiva executada com ajustes finos no acoplamento.', 'Sem anomalias criticas apos ajuste.', '2026-03-28 14:00:00', '2026-03-28 14:15:00', '2026-03-28 16:40:00');
