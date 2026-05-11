@@ -20,31 +20,48 @@ const router = express.Router();
  *       properties:
  *         id:
  *           type: integer
+ *           example: 10
  *         maquina_id:
  *           type: integer
+ *           example: 1
  *         usuario_responsavel_id:
  *           type: integer
+ *           example: 2
  *         usuario_solicitante_id:
  *           type: integer
+ *           example: 5
  *         tipo:
  *           type: string
  *           enum: [manutencao_preditiva, manutencao_preventiva, manutencao_corretiva, alerta_de_falha]
+ *           example: manutencao_preditiva
  *         servico_status:
  *           type: string
  *           enum: [solicitado, em_andamento, concluido]
+ *           example: solicitado
  *         descricao:
  *           type: string
+ *           example: "Analise de vibracao para identificar desalinhamento."
  *         observacao:
  *           type: string
+ *           example: "Aguardando janela de parada."
  *         data_alerta:
  *           type: string
  *           format: date-time
+ *           example: "2026-05-10T13:45:00.000Z"
  *         data_criacao:
  *           type: string
  *           format: date-time
+ *           example: "2026-05-10T13:50:00.000Z"
  *         data_encerramento:
  *           type: string
  *           format: date-time
+ *           example: "2026-05-11T10:30:00.000Z"
+ *         maquina:
+ *           type: string
+ *           example: "Compressor 3"
+ *         usuario_responsavel:
+ *           type: string
+ *           example: "Maria Souza"
  *     ServicoCreate:
  *       type: object
  *       required:
