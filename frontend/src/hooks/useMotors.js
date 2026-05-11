@@ -121,5 +121,6 @@ export function useMotors() {
     totalPaginas,
     proximaPagina,
     paginaAnterior,
+    fetchMotores,
   };
 }
