@@ -19,7 +19,7 @@ async function buscarTecnicos(paginaAtual) {
   setErro(null);
 
   try {
-    const res = await fetch(`${API_URL}?tipo=técnico&pagina=${paginaAtual}&limite=10`,   {
+    const res = await fetch(`${API_URL}?tipo=tecnico&pagina=${paginaAtual}&limite=10`,   {
         headers: {
           Authorization: `Bearer ${getToken()}`,
         },

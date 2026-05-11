@@ -164,9 +164,9 @@ const handleFileChange = (e) => {
                                     <SelectValue placeholder="Setor *" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="Linha 1">Linha 1</SelectItem>
-                                    <SelectItem value="Linha 2">Linha 2</SelectItem>
-                                    <SelectItem value="Linha 3">Linha 3</SelectItem>
+                                    <SelectItem value="linha_1">Linha 1</SelectItem>
+                                    <SelectItem value="linha_2">Linha 2</SelectItem>
+                                    <SelectItem value="linha_3">Linha 3</SelectItem>
                                 </SelectContent>
                             </Select>
                         </Section>
@@ -209,9 +209,9 @@ const handleFileChange = (e) => {
                                     <SelectValue placeholder="Operacional" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="Ativa">Ativa</SelectItem>
-                                    <SelectItem value="Parada">Parada</SelectItem>
-                                  <SelectItem value="Manutenção">Manutenção</SelectItem>
+                                                                        <SelectItem value="ativa">Ativa</SelectItem>
+                                                                        <SelectItem value="parada">Parada</SelectItem>
+                                                                    <SelectItem value="manutencao">Manutenção</SelectItem>
                                 </SelectContent>
                             </Select>
 
@@ -220,8 +220,8 @@ const handleFileChange = (e) => {
                                     <SelectValue placeholder="Saúde" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="Ok">Ok</SelectItem>
-                                    <SelectItem value="Alerta">Alerta</SelectItem>
+                                    <SelectItem value="ok">Ok</SelectItem>
+                                    <SelectItem value="alerta">Alerta</SelectItem>
                                
                                 </SelectContent>
                             </Select>
@@ -231,9 +231,9 @@ const handleFileChange = (e) => {
                                     <SelectValue placeholder="Criticidade" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="Baixa">Baixa</SelectItem>
-                                    <SelectItem value="Média">Média</SelectItem>
-                                    <SelectItem value="Alta">Alta</SelectItem>
+                                    <SelectItem value="baixa">Baixa</SelectItem>
+                                    <SelectItem value="media">Média</SelectItem>
+                                    <SelectItem value="alta">Alta</SelectItem>
                                 </SelectContent>
                             </Select>
 

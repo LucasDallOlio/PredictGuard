@@ -226,9 +226,9 @@ export function ModalMotorDetalhes({
                                                 <SelectValue placeholder="Operacional" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="Ativa">Ativa</SelectItem>
-                                                <SelectItem value="Parada">Parada</SelectItem>
-                                                <SelectItem value="Manutenção">Manutenção</SelectItem>
+                                                <SelectItem value="ativa">Ativa</SelectItem>
+                                                <SelectItem value="parada">Parada</SelectItem>
+                                                <SelectItem value="manutencao">Manutenção</SelectItem>
                                             </SelectContent>
                                         </Select>
 
@@ -241,9 +241,9 @@ export function ModalMotorDetalhes({
                                                 <SelectValue placeholder="Criticidade" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="Baixa">Baixa</SelectItem>
-                                                <SelectItem value="Média">Média</SelectItem>
-                                                <SelectItem value="Alta">Alta</SelectItem>
+                                                <SelectItem value="baixa">Baixa</SelectItem>
+                                                <SelectItem value="media">Média</SelectItem>
+                                                <SelectItem value="alta">Alta</SelectItem>
                                             </SelectContent>
                                         </Select>
 
@@ -256,8 +256,8 @@ export function ModalMotorDetalhes({
                                                 <SelectValue placeholder="Saúde" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="Ok">Ok</SelectItem>
-                                                <SelectItem value="Alerta">Alerta</SelectItem>
+                                                <SelectItem value="ok">Ok</SelectItem>
+                                                <SelectItem value="alerta">Alerta</SelectItem>
                                             </SelectContent>
                                         </Select>
                                     </>
@@ -272,7 +272,7 @@ export function ModalMotorDetalhes({
                                         </Badge>
 
                                         <Badge
-                                            className={`w-fit px-3 py-1 text-sm ${formData.status_saude === "Ok"
+                                            className={`w-fit px-3 py-1 text-sm ${formData.status_saude === "ok"
                                                 ? "bg-emerald-100 text-emerald-800 border-emerald-300"
                                                 : "bg-amber-100 text-amber-800 border-amber-300"
                                                 }`}

@@ -20,7 +20,7 @@ export function useMotors() {
 
     try {
       const res = await fetch(
-        `${API_URL}?tipo=técnico&pagina=${page}&limite=10`,
+        `${API_URL}?tipo=tecnico&pagina=${page}&limite=10`,
         {
           headers: {
             Authorization: `Bearer ${getToken()}`,

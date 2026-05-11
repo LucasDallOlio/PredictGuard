@@ -28,10 +28,10 @@ const router = express.Router();
  *           type: integer
  *         tipo:
  *           type: string
- *           enum: [Manutenção Preditiva, Manutenção Preventiva, Manutenção Corretiva, Alerta de Falha]
+ *           enum: [manutencao_preditiva, manutencao_preventiva, manutencao_corretiva, alerta_de_falha]
  *         servico_status:
  *           type: string
- *           enum: [Solicitado, Em Andamento, Concluído]
+ *           enum: [solicitado, em_andamento, concluido]
  *         descricao:
  *           type: string
  *         observacao:
@@ -60,7 +60,7 @@ const router = express.Router();
  *           example: 2
  *         tipo:
  *           type: string
- *           enum: [Manutenção Preditiva, Manutenção Preventiva, Manutenção Corretiva, Alerta de Falha]
+ *           enum: [manutencao_preditiva, manutencao_preventiva, manutencao_corretiva, alerta_de_falha]
  *         descricao:
  *           type: string
  *           example: "Analise de vibracao para identificar desalinhamento."
@@ -72,8 +72,8 @@ const router = express.Router();
  *       properties:
  *         servico_status:
  *           type: string
- *           enum: [Solicitado, Em Andamento, Concluído]
- *           example: "Em Andamento"
+ *           enum: [solicitado, em_andamento, concluido]
+ *           example: "em_andamento"
  *     ApiRespostaServicoLista:
  *       type: object
  *       properties:

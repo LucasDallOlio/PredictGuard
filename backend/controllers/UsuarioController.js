@@ -22,15 +22,15 @@ class UsuarioController {
                 const tipoNormalizado = String(filtro.tipo).trim().toLowerCase();
                 const mapaTipos = {
                     admin: 'admin',
-                    tecnico: 'técnico',
-                    'técnico': 'técnico'
+                    tecnico: 'tecnico',
+                    'técnico': 'tecnico'
                 };
 
                 if (!mapaTipos[tipoNormalizado]) {
                     return res.status(400).json({
                         sucesso: false,
                         erro: 'Filtro inválido',
-                        mensagem: "O filtro 'tipo' deve ser 'admin' ou 'técnico'"
+                        mensagem: "O filtro 'tipo' deve ser 'admin' ou 'tecnico'"
                     });
                 }
 
@@ -257,11 +257,11 @@ class UsuarioController {
                 });
             }
 
-            if (canal === 'mobile' && usuario.tipo !== 'técnico') {
+            if (canal === 'mobile' && usuario.tipo !== 'tecnico') {
                 return res.status(403).json({
                     sucesso: false,
                     erro: 'Acesso negado',
-                    mensagem: 'Apenas técnicos podem acessar esta funcionalidade'
+                    mensagem: 'Apenas tecnicos podem acessar esta funcionalidade'
                 });
             }
 

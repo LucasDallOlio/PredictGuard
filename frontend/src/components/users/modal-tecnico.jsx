@@ -8,7 +8,7 @@ export default function ModalAdicionarTecnico({ open, onClose, onAddTecnico }) {
   const [email, setEmail] = useState("");
   const [telefone, setTelefone] = useState("");
   const [senha, setSenha] = useState("");
-  const [tipo, setTipo] = useState("técnico");
+  const [tipo, setTipo] = useState("tecnico");
   const [foto, setFoto] = useState(null);
   const [carregando, setCarregando] = useState(false);
 
@@ -19,7 +19,7 @@ export default function ModalAdicionarTecnico({ open, onClose, onAddTecnico }) {
     setEmail("");
     setTelefone("");
     setSenha("");
-    setTipo("técnico");
+    setTipo("tecnico");
     setFoto(null);
   }
     function formatarTelefone(valor) {
@@ -153,7 +153,7 @@ export default function ModalAdicionarTecnico({ open, onClose, onAddTecnico }) {
               onChange={(e) => setTipo(e.target.value)}
               className="w-full border px-4 py-3 rounded appearance-none"
             >
-              <option value="técnico">Técnico</option>
+              <option value="tecnico">Técnico</option>
               <option value="admin">Admin</option>
             </select>
             <ChevronDown className="absolute right-3 top-10 w-4 h-4 text-gray-400" />

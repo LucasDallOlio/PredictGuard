@@ -20,9 +20,9 @@ const TOPICS = {
 
 // Mapeamento de status ISO 10816-3 → severidade do banco
 const SEVERIDADE_VIBRACAO = {
-    ATENCAO: 'baixa',
-    ALERTA:  'média',
-    CRITICO: 'crítica',
+    atencao: 'baixa',
+    alerta:  'media',
+    critico: 'critica',
 };
 
 // ── Handler: temperatura ──────────────────────────────────────────────────
@@ -50,7 +50,7 @@ async function handleTemperatura(payload) {
             maquina_id:        MAQUINA_ID,
             sensor_id:         SENSOR_TEMP,
             tipo_alerta:       'temperatura',
-            severidade:        valor >= limite * 1.1 ? 'crítica' : 'alta',
+            severidade:        valor >= limite * 1.1 ? 'critica' : 'alta',
             valor_detectado:   valor,
             limite_configurado: limite,
             unidade:           'celsius',
@@ -64,8 +64,8 @@ async function handleTemperatura(payload) {
 
 // ── Handler: vibração ─────────────────────────────────────────────────────
 async function handleVibracao(payload) {
-    const status = payload.trim().toUpperCase();
-    const statusValidos = ['NORMAL', 'ATENCAO', 'ALERTA', 'CRITICO'];
+    const status = payload.trim().toLowerCase();
+    const statusValidos = ['normal', 'atencao', 'alerta', 'critico'];
 
     if (!statusValidos.includes(status)) {
         console.warn('[MQTT] Status de vibração inválido:', payload);
@@ -80,21 +80,21 @@ async function handleVibracao(payload) {
         status_vibracao: status
     });
 
-    console.log(`[MQTT] 📳 Vibração salva: ${status}`);
+    console.log(`[MQTT] 📳 Vibracao salva: ${status}`);
 
-    if (status === 'NORMAL') return;
+    if (status === 'normal') return;
 
     const severidade = SEVERIDADE_VIBRACAO[status];
 
     await AlertaLeituraModel.criar({
         maquina_id:  MAQUINA_ID,
         sensor_id:   SENSOR_VIBRA,
-        tipo_alerta: 'vibração',
+        tipo_alerta: 'vibracao',
         severidade,
         mensagem:    `Vibração com status ${status} detectada na máquina ${MAQUINA_ID} (ISO 10816-3).`
     });
 
-    console.warn(`[MQTT] ⚠️  Alerta de vibração: ${status}`);
+    console.warn(`[MQTT] ⚠️  Alerta de vibracao: ${status}`);
 }
 
 // ── Roteador de mensagens ─────────────────────────────────────────────────

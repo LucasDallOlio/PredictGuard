@@ -89,20 +89,20 @@ import upload from '../middlewares/uploadMiddleware.js';
  *           example: motor_a1.jpg
  *         setor:
  *           type: string
- *           enum: [Linha 1, Linha 2, Linha 3]
- *           example: Linha 1
+ *           enum: [linha_1, linha_2, linha_3]
+ *           example: linha_1
  *         nivel_criticidade:
  *           type: string
- *           enum: [Baixa, Média, Alta]
- *           example: Média
+ *           enum: [baixa, media, alta]
+ *           example: media
  *         status_operacional:
  *           type: string
- *           enum: [Ativa, Parada, Manutenção]
- *           example: Ativa
+ *           enum: [ativa, parada, manutencao]
+ *           example: ativa
  *         status_saude:
  *           type: string
- *           enum: [Ok, Alerta]
- *           example: Ok
+ *           enum: [ok, alerta]
+ *           example: ok
  *         temperatura_limite_c:
  *           type: number
  *           format: float
@@ -190,20 +190,20 @@ import upload from '../middlewares/uploadMiddleware.js';
  *           example: motor_a1.jpg
  *         setor:
  *           type: string
- *           enum: [Linha 1, Linha 2, Linha 3]
- *           example: Linha 1
+ *           enum: [linha_1, linha_2, linha_3]
+ *           example: linha_1
  *         nivel_criticidade:
  *           type: string
- *           enum: [Baixa, Média, Alta]
- *           example: Média
+ *           enum: [baixa, media, alta]
+ *           example: media
  *         status_operacional:
  *           type: string
- *           enum: [Ativa, Parada, Manutenção]
- *           example: Ativa
+ *           enum: [ativa, parada, manutencao]
+ *           example: ativa
  *         status_saude:
  *           type: string
- *           enum: [Ok, Alerta]
- *           example: Ok
+ *           enum: [ok, alerta]
+ *           example: ok
  *         temperatura_limite_c:
  *           type: number
  *           format: float
@@ -217,12 +217,12 @@ import upload from '../middlewares/uploadMiddleware.js';
  *       properties: 
  *         status_operacional:
  *           type: string
- *           enum: [Ativa, Parada, Manutenção]
- *           example: Parada
+ *           enum: [ativa, parada, manutencao]
+ *           example: parada
  *         status_saude:
  *           type: string
- *           enum: [Ok, Alerta]
- *           example: Alerta
+ *           enum: [ok, alerta]
+ *           example: alerta
  *     ApiResponseSucesso:
  *       type: object
  *       properties:
@@ -338,16 +338,16 @@ router.get('/', authMiddleware, MaquinaController.listarTodos);
  *                       additionalProperties:
  *                         type: integer
  *                       example:
- *                         Ativa: 2
- *                         Parada: 1
- *                         Manutenção: 1
+ *                         ativa: 2
+ *                         parada: 1
+ *                         manutencao: 1
  *                     statusSaude:
  *                       type: object
  *                       additionalProperties:
  *                         type: integer
  *                       example:
- *                         Ok: 3
- *                         Alerta: 1
+ *                         ok: 3
+ *                         alerta: 1
  *       401:
  *         description: Nao autenticado
  *       500:

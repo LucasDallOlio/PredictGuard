@@ -8,7 +8,7 @@ create table if not exists usuarios(
     email varchar(255) unique not null,
     senha varchar(255) not null,
     telefone varchar(20) not null,
-    tipo enum('admin', 'técnico') not null,
+    tipo enum('admin', 'tecnico') not null,
     foto varchar(255) default 'profile_placeholder.jpg',
     data_criacao datetime default current_timestamp,
     data_atualizacao datetime default current_timestamp on update current_timestamp,
@@ -37,10 +37,10 @@ create table if not exists maquinas(
     temperatura_ambiente_max_c decimal(5,2),
     certificacao_norma varchar(255),
     imagem varchar(255) default 'maquina_placeholder.jpg',
-    setor enum('Linha 1', 'Linha 2', 'Linha 3'),
-    nivel_criticidade enum('Baixa', 'Média', 'Alta') not null default 'Média',
-    status_operacional enum('Ativa', 'Parada', 'Manutenção') not null,
-    status_saude enum('Ok', 'Alerta') not null default 'Ok',
+    setor enum('linha_1', 'linha_2', 'linha_3'),
+    nivel_criticidade enum('baixa', 'media', 'alta') not null default 'media',
+    status_operacional enum('ativa', 'parada', 'manutencao') not null,
+    status_saude enum('ok', 'alerta') not null default 'ok',
     temperatura_limite_c decimal(10,2) not null,
     aceleracao_limite_g decimal(10,2) not null,
     data_criacao datetime default current_timestamp,
@@ -63,7 +63,7 @@ create table if not exists sensores(
     id int primary key auto_increment,
     maquina_id int not null,
     modelo varchar(255) not null,
-    tipo enum('temperatura', 'acelerômetro'),
+    tipo enum('temperatura', 'acelerometro'),
     data_criacao datetime default current_timestamp,
     data_atualizacao datetime default current_timestamp on update current_timestamp,
 
@@ -80,7 +80,7 @@ create table if not exists leituras(
     sensor_id int not null,
     valor decimal(10,2) null,
     unidade enum('celsius', 'g', 'status') not null,
-    status_vibracao enum('NORMAL', 'ATENCAO', 'ALERTA', 'CRITICO') null,
+    status_vibracao enum('normal', 'atencao', 'alerta', 'critico') null,
     data_leitura datetime default current_timestamp,
 
     index idx_leituras_sensor_data (sensor_id, data_leitura),
@@ -106,8 +106,8 @@ create table if not exists alertas (
   id int primary key auto_increment,
   maquina_id int not null,
   sensor_id int null,
-  tipo_alerta enum('temperatura','vibração','tendência','offline') not null,
-  severidade enum('baixa','média','alta','crítica') not null default 'média',
+    tipo_alerta enum('temperatura','vibracao','tendencia','offline') not null,
+    severidade enum('baixa','media','alta','critica') not null default 'media',
   valor_detectado decimal(10,2) null,
   limite_configurado decimal(10,2) null,
   unidade enum('celsius','g') null,
@@ -140,8 +140,8 @@ create table if not exists servicos (
     maquina_id int not null,
     usuario_responsavel_id int not null,
     usuario_solicitante_id int not null,
-    tipo enum('Manutenção Preditiva', 'Manutenção Preventiva', 'Manutenção Corretiva', 'Alerta de Falha'),
-    servico_status enum('Solicitado', 'Em Andamento', "Concluído") not null default 'Solicitado',
+    tipo enum('manutencao_preditiva', 'manutencao_preventiva', 'manutencao_corretiva', 'alerta_de_falha'),
+    servico_status enum('solicitado', 'em_andamento', 'concluido') not null default 'solicitado',
     descricao varchar(500),
     observacao varchar(500),
     data_alerta datetime default current_timestamp,
@@ -202,8 +202,8 @@ create table if not exists logs (
 
 insert into usuarios (id, nome, email, senha, telefone, tipo, foto) values
     (1, 'Ana Souza', 'ana.souza@predictguard.com', '$2b$10$BXX0.935RtQgW8I6NM0CRer8RZS5drRODGIAfmFs6GTLe/DkEUQj2', '(11) 99999-1001', 'admin', 'ana.jpg'),
-    (2, 'Bruno Lima', 'bruno.lima@predictguard.com', '$2b$10$ijRQlhhvmVZmSfT5xcPhMeVB61M24PICwpjc9R2/UCPiPGaMM1akO', '(11) 99999-1002', 'técnico', 'bruno.jpg'),
-    (3, 'Carla Mendes', 'carla.mendes@predictguard.com', '$2b$10$Zyi8QFjqDI4/GD8F2QCk1.FXOGaujsHB3llx0eG0p/s0XZc.Qdtuu', '(11) 99999-1003', 'técnico', 'carla.jpg'),
+    (2, 'Bruno Lima', 'bruno.lima@predictguard.com', '$2b$10$ijRQlhhvmVZmSfT5xcPhMeVB61M24PICwpjc9R2/UCPiPGaMM1akO', '(11) 99999-1002', 'tecnico', 'bruno.jpg'),
+    (3, 'Carla Mendes', 'carla.mendes@predictguard.com', '$2b$10$Zyi8QFjqDI4/GD8F2QCk1.FXOGaujsHB3llx0eG0p/s0XZc.Qdtuu', '(11) 99999-1003', 'tecnico', 'carla.jpg'),
     (4, 'Diego Ramos', 'diego.ramos@predictguard.com', '$2b$10$x8/sTEVdHjAnesrhSK.BBOlBa23DqLnHZrRgGD3s6A/R6PSt/i3Ku', '(11) 99999-1004', 'admin', 'diego.jpg');
 
 insert into maquinas (
@@ -214,42 +214,42 @@ insert into maquinas (
     imagem, setor, nivel_criticidade, status_operacional, status_saude,
     temperatura_limite_c, aceleracao_limite_g
 ) values
-    (1, 'Motor Esteira A1', 'MTR-L1-001', 'WEG W22', 'A1S2026', 'Motor de Inducao Trifasico', 15.00, '220-380V', 45.50, 60.00, 1750, 'IP55', 'F', 1.15, 93.20, 0.890, 10.00, 45.00, 'IEC 60034', 'motor_a1.jpg', 'Linha 1', 'Média', 'Ativa', 'Ok', 85.00, 3.50),
-    (2, 'Motor Prensa B2', 'MTR-L2-014', 'Siemens SD100', 'B2S1825', 'Motor de Inducao Trifasico', 30.00, '380-440V', 58.20, 60.00, 1780, 'IP56', 'F', 1.15, 94.10, 0.910, 8.00, 40.00, 'IEC 60034', 'motor_b2.jpg', 'Linha 2', 'Alta', 'Ativa', 'Alerta', 80.00, 2.80),
-    (3, 'Compressor C3', 'MTR-L3-007', 'ABB M3AA', 'C3S5521', 'Compressor', 22.00, '220-380V', 49.80, 60.00, 1760, 'IP55', 'H', 1.20, 92.80, 0.870, 12.00, 42.00, 'NBR 17094', 'compressor_c3.jpg', 'Linha 3', 'Baixa', 'Manutenção', 'Ok', 90.00, 4.20),
-    (4, 'Ventilador Exaustao D4', 'MTR-L1-021', 'WEG W50', 'D4S3302', 'Ventilador Industrial', 7.50, '220V', 22.30, 60.00, 1720, 'IP54', 'F', 1.10, 90.40, 0.850, 10.00, 38.00, 'IEC 60034', 'ventilador_d4.jpg', 'Linha 1', 'Baixa', 'Parada', 'Ok', 75.00, 2.20);
+    (1, 'Motor Esteira A1', 'MTR-L1-001', 'WEG W22', 'A1S2026', 'Motor de Inducao Trifasico', 15.00, '220-380V', 45.50, 60.00, 1750, 'IP55', 'F', 1.15, 93.20, 0.890, 10.00, 45.00, 'IEC 60034', 'motor_a1.jpg', 'linha_1', 'media', 'ativa', 'ok', 85.00, 3.50),
+    (2, 'Motor Prensa B2', 'MTR-L2-014', 'Siemens SD100', 'B2S1825', 'Motor de Inducao Trifasico', 30.00, '380-440V', 58.20, 60.00, 1780, 'IP56', 'F', 1.15, 94.10, 0.910, 8.00, 40.00, 'IEC 60034', 'motor_b2.jpg', 'linha_2', 'alta', 'ativa', 'alerta', 80.00, 2.80),
+    (3, 'Compressor C3', 'MTR-L3-007', 'ABB M3AA', 'C3S5521', 'Compressor', 22.00, '220-380V', 49.80, 60.00, 1760, 'IP55', 'H', 1.20, 92.80, 0.870, 12.00, 42.00, 'NBR 17094', 'compressor_c3.jpg', 'linha_3', 'baixa', 'manutencao', 'ok', 90.00, 4.20),
+    (4, 'Ventilador Exaustao D4', 'MTR-L1-021', 'WEG W50', 'D4S3302', 'Ventilador Industrial', 7.50, '220V', 22.30, 60.00, 1720, 'IP54', 'F', 1.10, 90.40, 0.850, 10.00, 38.00, 'IEC 60034', 'ventilador_d4.jpg', 'linha_1', 'baixa', 'parada', 'ok', 75.00, 2.20);
 
 insert into sensores (id, maquina_id, modelo, tipo) values
     (1, 1, 'PT100-XR', 'temperatura'),
-    (2, 1, 'VIB-MEMS-200', 'acelerômetro'),
+    (2, 1, 'VIB-MEMS-200', 'acelerometro'),
     (3, 2, 'PT100-XR', 'temperatura'),
-    (4, 2, 'VIB-MEMS-200', 'acelerômetro'),
+    (4, 2, 'VIB-MEMS-200', 'acelerometro'),
     (5, 3, 'PT100-IND', 'temperatura'),
-    (6, 3, 'VIB-PIEZO-500', 'acelerômetro'),
+    (6, 3, 'VIB-PIEZO-500', 'acelerometro'),
     (7, 4, 'PT100-STD', 'temperatura'),
-    (8, 4, 'VIB-MEMS-150', 'acelerômetro');
+    (8, 4, 'VIB-MEMS-150', 'acelerometro');
 
 insert into leituras (id, sensor_id, valor, unidade, status_vibracao, data_leitura) values
     (1, 1, 68.30, 'celsius', null, '2026-03-30 08:00:00'),
-    (2, 2, null, 'status', 'NORMAL', '2026-03-30 08:00:00'),
+    (2, 2, null, 'status', 'normal', '2026-03-30 08:00:00'),
     (3, 3, 82.40, 'celsius', null, '2026-03-30 08:05:00'),
-    (4, 4, null, 'status', 'ATENCAO', '2026-03-30 08:05:00'),
+    (4, 4, null, 'status', 'atencao', '2026-03-30 08:05:00'),
     (5, 5, 74.20, 'celsius', null, '2026-03-30 08:10:00'),
-    (6, 6, null, 'status', 'NORMAL', '2026-03-30 08:10:00'),
+    (6, 6, null, 'status', 'normal', '2026-03-30 08:10:00'),
     (7, 7, 39.00, 'celsius', null, '2026-03-30 08:15:00'),
-    (8, 8, null, 'status', 'NORMAL', '2026-03-30 08:15:00'),
+    (8, 8, null, 'status', 'normal', '2026-03-30 08:15:00'),
     (9, 1, 70.10, 'celsius', null, '2026-03-30 09:00:00'),
-    (10, 2, null, 'status', 'NORMAL', '2026-03-30 09:00:00'),
+    (10, 2, null, 'status', 'normal', '2026-03-30 09:00:00'),
     (11, 3, 84.80, 'celsius', null, '2026-03-30 09:05:00'),
-    (12, 4, null, 'status', 'ALERTA', '2026-03-30 09:05:00');
+    (12, 4, null, 'status', 'alerta', '2026-03-30 09:05:00');
 
 insert into alertas (
     id, maquina_id, sensor_id, tipo_alerta, severidade,
     valor_detectado, limite_configurado, unidade, mensagem, data_alerta
 ) values
     (1, 2, 3, 'temperatura', 'alta', 84.80, 80.00, 'celsius', 'Temperatura acima do limite configurado na Maquina 2.', '2026-03-30 09:06:00'),
-    (2, 2, 4, 'vibração', 'crítica', 3.45, 2.80, 'g', 'Vibracao critica detectada no conjunto de rolamentos da Maquina 2.', '2026-03-30 09:06:30'),
-    (3, 1, 2, 'tendência', 'média', 2.10, 3.50, 'g', 'Tendencia de aumento gradual de vibracao na Maquina 1.', '2026-03-30 09:07:00'),
+    (2, 2, 4, 'vibracao', 'critica', 3.45, 2.80, 'g', 'Vibracao critica detectada no conjunto de rolamentos da Maquina 2.', '2026-03-30 09:06:30'),
+    (3, 1, 2, 'tendencia', 'media', 2.10, 3.50, 'g', 'Tendencia de aumento gradual de vibracao na Maquina 1.', '2026-03-30 09:07:00'),
     (4, 4, null, 'offline', 'baixa', null, null, null, 'Sensor da Maquina 4 ficou offline por mais de 5 minutos.', '2026-03-30 09:08:00');
 
 insert into servicos (
@@ -257,6 +257,6 @@ insert into servicos (
     tipo, servico_status, descricao, observacao,
     data_alerta, data_criacao, data_encerramento
 ) values
-    (1, 2, 2, 1, 'Alerta de Falha', 'Em Andamento', 'Inspecionar aumento de temperatura e vibracao na Maquina 2.', 'Prioridade alta. Verificar alinhamento e lubrificacao.', '2026-03-30 09:06:00', '2026-03-30 09:10:00', null),
-    (2, 3, 3, 4, 'Manutenção Preventiva', 'Solicitado', 'Troca programada de rolamentos e reaperto geral.', 'Agendar para o proximo turno sem impacto de producao.', '2026-03-29 10:00:00', '2026-03-29 10:10:00', null),
-    (3, 1, 2, 1, 'Manutenção Preditiva', 'Concluído', 'Analise preditiva executada com ajustes finos no acoplamento.', 'Sem anomalias criticas apos ajuste.', '2026-03-28 14:00:00', '2026-03-28 14:15:00', '2026-03-28 16:40:00');
+    (1, 2, 2, 1, 'alerta_de_falha', 'em_andamento', 'Inspecionar aumento de temperatura e vibracao na Maquina 2.', 'Prioridade alta. Verificar alinhamento e lubrificacao.', '2026-03-30 09:06:00', '2026-03-30 09:10:00', null),
+    (2, 3, 3, 4, 'manutencao_preventiva', 'solicitado', 'Troca programada de rolamentos e reaperto geral.', 'Agendar para o proximo turno sem impacto de producao.', '2026-03-29 10:00:00', '2026-03-29 10:10:00', null),
+    (3, 1, 2, 1, 'manutencao_preditiva', 'concluido', 'Analise preditiva executada com ajustes finos no acoplamento.', 'Sem anomalias criticas apos ajuste.', '2026-03-28 14:00:00', '2026-03-28 14:15:00', '2026-03-28 16:40:00');
