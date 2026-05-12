@@ -7,7 +7,7 @@ import upload from '../middlewares/uploadMiddleware.js';
  * @swagger
  * tags:
  *   name: Usuarios
- *   description: Rotas de usuarios e autenticacao
+ *   description: Rotas de usuarios
  *
  * components:
  *   securitySchemes:
