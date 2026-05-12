@@ -1,6 +1,4 @@
-import { JWT_CONFIG } from '../config/jwt.js';
 import UsuarioModel from '../models/UsuarioModel.js';
-import jwt from 'jsonwebtoken';
 import { deleteFile } from '../utils/file.js'
 
 class UsuarioController {
@@ -242,75 +240,6 @@ class UsuarioController {
                 sucesso: false,
                 erro: 'Erro interno do servidor',
                 mensagem: 'Não foi possível excluir o usuario'
-            });
-        }
-    }
-
-    static async login(req, res) {
-        try {
-            const { email, senha, canal } = req.body
-
-            const usuario = await UsuarioModel.verificarCredenciais(email, senha);
-
-            if (!usuario) {
-                return res.status(401).json({
-                    sucesso: false,
-                    erro: 'Credenciais inválidas',
-                    mensagem: 'Email ou senha incorretos'
-                });
-            }
-
-            if (!['web', 'mobile'].includes(canal)) {
-                return res.status(400).json({
-                    sucesso: false,
-                    erro: 'Canal inválido',
-                    mensagem: 'O canal deve ser web ou mobile'
-                });
-            }
-
-            if (canal === 'web' && usuario.tipo !== 'admin') {
-                return res.status(403).json({
-                    sucesso: false,
-                    erro: 'Acesso negado',
-                    mensagem: 'Apenas administradores podem acessar esta funcionalidade'
-                });
-            }
-
-            if (canal === 'mobile' && usuario.tipo !== 'tecnico') {
-                return res.status(403).json({
-                    sucesso: false,
-                    erro: 'Acesso negado',
-                    mensagem: 'Apenas tecnicos podem acessar esta funcionalidade'
-                });
-            }
-
-            const token = jwt.sign(
-                {
-                    id: usuario.id,
-                    email: usuario.email,
-                    tipo: usuario.tipo
-                },
-                JWT_CONFIG.secret,
-                { expiresIn: JWT_CONFIG.expiresIn }
-            );
-
-            usuario.foto = `${process.env.BASE_URL}${process.env.UPLOAD_PATH.replace(/^\.\//, '/')}/${usuario.foto}`;
-
-            res.status(200).json({
-                sucesso: true,
-                mensagem: 'Login realizado com sucesso',
-                dados: {
-                    token,
-                    usuario
-                }
-            })
-        }
-        catch (error) {
-            console.error('Erro ao fazer login:', error);
-            res.status(500).json({
-                sucesso: false,
-                erro: 'Erro interno do servidor',
-                mensagem: 'Não foi possível processar o login'
             });
         }
     }

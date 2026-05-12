@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-const API_URL = "http://localhost:3001/usuarios";
+const API_URL = "http://localhost:3001/auth";
 
 const AuthContext = createContext(null);
 

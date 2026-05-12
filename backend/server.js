@@ -7,6 +7,7 @@ import swaggerSpec from './config/swagger.js';
 import iniciarMQTT from './services/mqttService.js';
 
 // Importar rotas
+import authRotas from './routes/authRotas.js'
 import usuarioRotas from './routes/usuarioRotas.js'
 import maquinaRotas from './routes/maquinaRotas.js'
 import servicoRotas from './routes/servicoRotas.js'
@@ -38,6 +39,7 @@ app.use('/uploads', express.static('uploads'));
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Rotas da API
+app.use('/auth', authRotas);
 app.use('/usuarios', usuarioRotas);
 app.use('/maquinas', maquinaRotas);
 app.use('/servicos', servicoRotas);
