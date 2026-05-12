@@ -1,5 +1,6 @@
 import { create, read, update, deleteRecord, readWithPagination, count } from '../config/database.js';
 import { hashPassword, comparePassword } from '../utils/bcrypt.js';
+import normalizarResumoStatus from '../utils/normalizarResumoStatus.js';
 
 class UsuarioModel {
 
@@ -117,6 +118,30 @@ class UsuarioModel {
         }
         catch (error) {
             throw new Error(`Erro ao verificar credenciais: ${error.message}`);
+        }
+    }
+
+    static async ResumoUsuarios() {
+        try {
+            const tiposRaw = await count({
+                table: 'usuarios',
+                groupBy: 'tipo'
+            });
+
+            const [totalUsuariosRaw] = await count({
+                table: 'usuarios'
+            });
+
+            const resumoTipos = normalizarResumoStatus(tiposRaw, 'tipo');
+
+            return {
+                totalUsuarios: Number(totalUsuariosRaw?.count ?? 0),
+                totalTecnicos: Number(resumoTipos?.tecnico ?? 0),
+                totalAdmins: Number(resumoTipos?.admin ?? 0)
+            }
+        }
+        catch (error) {
+            throw new Error(`Erro ao buscar resumo de usuarios: ${error.message}`);
         }
     }
 }

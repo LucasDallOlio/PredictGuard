@@ -181,6 +181,44 @@ router.post('/login', UsuarioController.login);
 
 /**
  * @swagger
+ * /usuarios/resumo-tipos:
+ *   get:
+ *     summary: Retorna resumo de usuarios por tipo
+ *     tags: [Usuarios]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Resumo de usuarios retornado com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 sucesso:
+ *                   type: boolean
+ *                   example: true
+ *                 dados:
+ *                   type: object
+ *                   properties:
+ *                     totalUsuarios:
+ *                       type: integer
+ *                       example: 12
+ *                     totalTecnicos:
+ *                       type: integer
+ *                       example: 9
+ *                     totalAdmins:
+ *                       type: integer
+ *                       example: 3
+ *       401:
+ *         description: Nao autenticado
+ *       500:
+ *         description: Erro interno
+ */
+router.get('/resumo-tipos', authMiddleware, UsuarioController.resumoTipos);
+
+/**
+ * @swagger
  * /usuarios:
  *   get:
  *     summary: Lista usuarios com paginacao e filtro opcional

@@ -1,4 +1,5 @@
-import { create, update, getConnection } from '../config/database.js';
+import { create, update, getConnection, count } from '../config/database.js';
+import normalizarResumoStatus from '../utils/normalizarResumoStatus.js';
 
 class ServicoModel {
 
@@ -100,6 +101,29 @@ class ServicoModel {
         }
         finally {
             connection.release();
+        }
+    }
+
+    static async ResumoStatus() {
+        try {
+            const statusRaw = await count({
+                table: 'servicos',
+                groupBy: 'servico_status'
+            });
+
+            const [totalServicosRaw] = await count({
+                table: 'servicos'
+            });
+
+            const statusServicos = normalizarResumoStatus(statusRaw, 'servico_status');
+
+            return {
+                totalServicos: Number(totalServicosRaw?.count ?? 0),
+                statusServicos
+            }
+        }
+        catch (error) {
+            throw new Error(`Erro ao buscar resumo de servicos: ${error.message}`);
         }
     }
 

@@ -150,6 +150,48 @@ const router = express.Router();
  *         description: Erro interno
  */
 router.get('/', authMiddleware, ServicoController.listarTodos);
+
+/**
+ * @swagger
+ * /servicos/resumo-status:
+ *   get:
+ *     summary: Retorna resumo por status dos servicos
+ *     tags: [Serviços]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Resumo de status retornado com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 sucesso:
+ *                   type: boolean
+ *                   example: true
+ *                 dados:
+ *                   type: object
+ *                   properties:
+ *                     totalServicos:
+ *                       type: integer
+ *                       example: 8
+ *                     statusServicos:
+ *                       type: object
+ *                       additionalProperties:
+ *                         type: integer
+ *                       example:
+ *                         solicitado: 3
+ *                         em_andamento: 2
+ *                         concluido: 2
+ *                         cancelado: 1
+ *       401:
+ *         description: Nao autenticado
+ *       500:
+ *         description: Erro interno
+ */
+router.get('/resumo-status', authMiddleware, ServicoController.resumoStatus);
+
 /**
  * @swagger
  * /servicos/{id}:

@@ -2,11 +2,30 @@ import ServicoModel from '../models/ServicoModel.js';
 
 class ServicoController {
 
+    static async resumoStatus(req, res) {
+        try {
+            const resumo = await ServicoModel.ResumoStatus();
+
+            res.status(200).json({
+                sucesso: true,
+                dados: resumo
+            });
+        }
+        catch (error) {
+            console.error('Erro ao buscar resumo de status dos servicos:', error)
+            res.status(500).json({
+                sucesso: false,
+                erro: 'Erro interno do servidor',
+                mensagem: 'Nao foi possivel buscar o resumo de status dos servicos'
+            });
+        }
+    }
+
     static async listarTodos(req, res) {
         try {
             let pagina = parseInt(req.query.pagina) || 1;
             let limite = parseInt(req.query.limite) || 10;
-
+                        
             const resultado = await ServicoModel.listarTodos(pagina, limite);
 
             res.status(200).json({

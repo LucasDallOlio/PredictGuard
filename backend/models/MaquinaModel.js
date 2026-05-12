@@ -1,14 +1,7 @@
 import { create, read, update, deleteRecord, readWithPagination, count } from '../config/database.js';
+import normalizarResumoStatus from '../utils/normalizarResumoStatus.js';
 
 class MaquinaModel {
-
-    static normalizarResumoStatus(linhas = [], chave) {
-        return linhas.reduce((acc, item) => {
-            const valorStatus = item[chave] ?? 'Indefinido';
-            acc[valorStatus] = Number(item.count);
-            return acc;
-        }, {});
-    }
 
     static async buscarPorID(id) {
         try {
@@ -104,12 +97,12 @@ class MaquinaModel {
                 table: 'maquinas'
             });
 
-            const statusOperacional = MaquinaModel.normalizarResumoStatus(
+            const statusOperacional = normalizarResumoStatus(
                 statusOperacionalRaw,
                 'status_operacional'
             );
 
-            const statusSaude = MaquinaModel.normalizarResumoStatus(
+            const statusSaude = normalizarResumoStatus(
                 statusSaudeRaw,
                 'status_saude'
             );

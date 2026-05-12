@@ -4,6 +4,25 @@ import jwt from 'jsonwebtoken';
 import { deleteFile } from '../utils/file.js'
 
 class UsuarioController {
+    static async resumoTipos(req, res) {
+        try {
+            const resumo = await UsuarioModel.ResumoUsuarios();
+
+            res.status(200).json({
+                sucesso: true,
+                dados: resumo
+            });
+        }
+        catch (error) {
+            console.error('Erro ao buscar resumo de usuarios:', error)
+            res.status(500).json({
+                sucesso: false,
+                erro: 'Erro interno do servidor',
+                mensagem: 'Nao foi possivel buscar o resumo de usuarios'
+            });
+        }
+    }
+
     static async listarTodos(req, res) {
         try {
             let pagina = parseInt(req.query.pagina) || 1;
