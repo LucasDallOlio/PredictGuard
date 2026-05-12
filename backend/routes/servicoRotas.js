@@ -139,6 +139,16 @@ const router = express.Router();
  *         schema:
  *           type: integer
  *           default: 10
+ *       - in: query
+ *         name: tipo
+ *         schema:
+ *           type: string
+ *           enum: [manutencao_preditiva, manutencao_preventiva, manutencao_corretiva, analise_de_falha]
+ *       - in: query
+ *         name: servico_status
+ *         schema:
+ *           type: string
+ *           enum: [solicitado, em_andamento, concluido, cancelado]
  *     responses:
  *       200:
  *         description: Lista de serviços

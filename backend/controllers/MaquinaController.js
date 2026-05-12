@@ -26,8 +26,64 @@ class MaquinaController {
         try {
             let pagina = parseInt(req.query.pagina) || 1;
             let limite = parseInt(req.query.limite) || 10;
+            const filtroBruto = {
+                setor: req.query.setor,
+                status_operacional: req.query.status_operacional,
+                status_saude: req.query.status_saude
+            };
 
-            const resultado = await MaquinaModel.listarTodos(pagina, limite);
+            const filtro = Object.fromEntries(
+                Object.entries(filtroBruto).filter(([_, valor]) => {
+                    return valor !== undefined && valor !== null && String(valor).trim() !== '';
+                })
+            );
+
+            if (filtro.setor) {
+                const setorNormalizado = String(filtro.setor).trim().toLowerCase();
+                const setoresValidos = ['linha_1', 'linha_2', 'linha_3'];
+
+                if (!setoresValidos.includes(setorNormalizado)) {
+                    return res.status(400).json({
+                        sucesso: false,
+                        erro: 'Filtro inválido',
+                        mensagem: "O filtro 'setor' deve ser 'linha_1', 'linha_2' ou 'linha_3'"
+                    });
+                }
+
+                filtro.setor = setorNormalizado;
+            }
+
+            if (filtro.status_operacional) {
+                const statusOperacionalNormalizado = String(filtro.status_operacional).trim().toLowerCase();
+                const statusOperacionalValidos = ['ativa', 'parada', 'manutencao'];
+
+                if (!statusOperacionalValidos.includes(statusOperacionalNormalizado)) {
+                    return res.status(400).json({
+                        sucesso: false,
+                        erro: 'Filtro inválido',
+                        mensagem: "O filtro 'status_operacional' deve ser 'ativa', 'parada' ou 'manutencao'"
+                    });
+                }
+
+                filtro.status_operacional = statusOperacionalNormalizado;
+            }
+
+            if (filtro.status_saude) {
+                const statusSaudeNormalizado = String(filtro.status_saude).trim().toLowerCase();
+                const statusSaudeValidos = ['ok', 'alerta'];
+
+                if (!statusSaudeValidos.includes(statusSaudeNormalizado)) {
+                    return res.status(400).json({
+                        sucesso: false,
+                        erro: 'Filtro inválido',
+                        mensagem: "O filtro 'status_saude' deve ser 'ok' ou 'alerta'"
+                    });
+                }
+
+                filtro.status_saude = statusSaudeNormalizado;
+            }
+
+            const resultado = await MaquinaModel.listarTodos(pagina, limite, filtro);
 
             const maquinaComImagemURL = resultado.maquinas.map(maquina => ({
                 ...maquina,

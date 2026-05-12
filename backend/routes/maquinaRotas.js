@@ -269,6 +269,21 @@ const router = express.Router();
  *         schema:
  *           type: integer
  *           default: 10
+ *       - in: query
+ *         name: setor
+ *         schema:
+ *           type: string
+ *           enum: [linha_1, linha_2, linha_3]
+ *       - in: query
+ *         name: status_operacional
+ *         schema:
+ *           type: string
+ *           enum: [ativa, parada, manutencao]
+ *       - in: query
+ *         name: status_saude
+ *         schema:
+ *           type: string
+ *           enum: [ok, alerta]
  *     responses:
  *       200:
  *         description: Lista de maquinas

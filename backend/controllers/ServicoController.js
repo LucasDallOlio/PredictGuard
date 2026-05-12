@@ -25,8 +25,53 @@ class ServicoController {
         try {
             let pagina = parseInt(req.query.pagina) || 1;
             let limite = parseInt(req.query.limite) || 10;
-                        
-            const resultado = await ServicoModel.listarTodos(pagina, limite);
+            const filtroBruto = {
+                tipo: req.query.tipo,
+                servico_status: req.query.servico_status
+            };
+
+            const filtro = Object.fromEntries(
+                Object.entries(filtroBruto).filter(([_, valor]) => {
+                    return valor !== undefined && valor !== null && String(valor).trim() !== '';
+                })
+            );
+
+            if (filtro.tipo) {
+                const tipoNormalizado = String(filtro.tipo).trim().toLowerCase();
+                const tiposValidos = [
+                    'manutencao_preditiva',
+                    'manutencao_preventiva',
+                    'manutencao_corretiva',
+                    'analise_de_falha'
+                ];
+
+                if (!tiposValidos.includes(tipoNormalizado)) {
+                    return res.status(400).json({
+                        sucesso: false,
+                        erro: 'Filtro inválido',
+                        mensagem: "O filtro 'tipo' deve ser 'manutencao_preditiva', 'manutencao_preventiva', 'manutencao_corretiva' ou 'analise_de_falha'"
+                    });
+                }
+
+                filtro.tipo = tipoNormalizado;
+            }
+
+            if (filtro.servico_status) {
+                const statusNormalizado = String(filtro.servico_status).trim().toLowerCase();
+                const statusValidos = ['solicitado', 'em_andamento', 'concluido', 'cancelado'];
+
+                if (!statusValidos.includes(statusNormalizado)) {
+                    return res.status(400).json({
+                        sucesso: false,
+                        erro: 'Filtro inválido',
+                        mensagem: "O filtro 'servico_status' deve ser 'solicitado', 'em_andamento', 'concluido' ou 'cancelado'"
+                    });
+                }
+
+                filtro.servico_status = statusNormalizado;
+            }
+
+            const resultado = await ServicoModel.listarTodos(pagina, limite, filtro);
 
             res.status(200).json({
                 sucesso: true,

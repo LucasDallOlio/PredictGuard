@@ -59,8 +59,11 @@ class ServicoModel {
 
             if (filtro) {
                 const columns = Object.keys(filtro);
-                whereParams = Object.values(filtro);
-                whereSQL = `where ${columns.map(column => `s.${column} = ?`).join(' AND ')}`;
+
+                if (columns.length > 0) {
+                    whereParams = Object.values(filtro);
+                    whereSQL = `where ${columns.map(column => `s.${column} = ?`).join(' AND ')}`;
+                }
             }
 
             const offset = (page - 1) * limit;
@@ -75,13 +78,13 @@ class ServicoModel {
                 inner join usuarios u on u.id = s.usuario_responsavel_id
                 ${whereSQL}
                 order by s.id asc
-                limit ? offset ?
+                limit ?, ?
             `;
 
             const [servicos] = await connection.execute(sql, [
                 ...whereParams,
-                Number(limit),
-                Number(offset)
+                Number(offset),
+                Number(limit)
             ]);
 
             const countSql = `select count(*) as count from servicos s ${whereSQL}`;
