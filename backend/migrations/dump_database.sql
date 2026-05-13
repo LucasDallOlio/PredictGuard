@@ -61,7 +61,7 @@ create table if not exists maquinas(
 
 create table if not exists sensores(
     id int primary key auto_increment,
-    maquina_id int not null,
+    maquina_id int null,
     modelo varchar(255) not null,
     tipo enum('temperatura', 'acelerometro'),
     data_criacao datetime default current_timestamp,
