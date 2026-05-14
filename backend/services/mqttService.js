@@ -15,14 +15,7 @@ const SENSOR_VIBRA= parseInt(process.env.MQTT_SENSOR_ID_VIBRA) || 2;
 
 const TOPICS = {
     TEMPERATURA: 'motor/temperatura/motor',
-    VIBRACAO:    'motor/vibracao/status',
-};
-
-// Mapeamento de status ISO 10816-3 → severidade do banco
-const SEVERIDADE_VIBRACAO = {
-    atencao: 'baixa',
-    alerta:  'media',
-    critico: 'critica',
+    VIBRACAO:    'motor/vibracao/rms',
 };
 
 // ── Handler: temperatura ──────────────────────────────────────────────────
@@ -41,20 +34,18 @@ async function handleTemperatura(payload) {
         unidade: 'celsius'
     });
 
-    // Gera alerta se ultrapassar o limite da máquina
-    // (limite vem do .env ou pode ser buscado do banco — veja nota abaixo)
     const limite = parseFloat(process.env.MQTT_TEMP_LIMITE) || 85.0;
 
     if (valor >= limite) {
         await AlertaLeituraModel.criar({
-            maquina_id:        MAQUINA_ID,
-            sensor_id:         SENSOR_TEMP,
-            tipo_alerta:       'temperatura',
-            severidade:        valor >= limite * 1.1 ? 'critica' : 'alta',
-            valor_detectado:   valor,
+            maquina_id:         MAQUINA_ID,
+            sensor_id:          SENSOR_TEMP,
+            tipo_alerta:        'temperatura',
+            severidade:         valor >= limite * 1.1 ? 'critica' : 'alta',
+            valor_detectado:    valor,
             limite_configurado: limite,
-            unidade:           'celsius',
-            mensagem:          `Temperatura ${valor}°C acima do limite de ${limite}°C na máquina ${MAQUINA_ID}.`
+            unidade:            'celsius',
+            mensagem:           `Temperatura ${valor}°C acima do limite de ${limite}°C na máquina ${MAQUINA_ID}.`
         });
         console.warn(`[MQTT] ⚠️  Alerta de temperatura: ${valor}°C (limite: ${limite}°C)`);
     }
@@ -64,37 +55,37 @@ async function handleTemperatura(payload) {
 
 // ── Handler: vibração ─────────────────────────────────────────────────────
 async function handleVibracao(payload) {
-    const status = payload.trim().toLowerCase();
-    const statusValidos = ['normal', 'atencao', 'alerta', 'critico'];
+    const valor = parseFloat(payload);
 
-    if (!statusValidos.includes(status)) {
-        console.warn('[MQTT] Status de vibração inválido:', payload);
+    if (isNaN(valor)) {
+        console.warn('[MQTT] Vibração inválida recebida:', payload);
         return;
     }
 
-    // Salva leitura qualitativa (inclusive NORMAL)
+    // Salva leitura - Ajustado para 'mm/s' conforme seu ENUM do banco
     await LeituraModel.registrar({
         sensor_id: SENSOR_VIBRA,
-        valor: null,
-        unidade: 'status',
-        status_vibracao: status
+        valor,
+        unidade: 'mm/s' 
     });
 
-    console.log(`[MQTT] 📳 Vibracao salva: ${status}`);
+    const limite = parseFloat(process.env.MQTT_VIBRA_LIMITE) || 7.1;
 
-    if (status === 'normal') return;
+    if (valor >= limite) {
+        await AlertaLeituraModel.criar({
+            maquina_id:         MAQUINA_ID,
+            sensor_id:          SENSOR_VIBRA,
+            tipo_alerta:        'vibracao', // Sem acento conforme ENUM do banco
+            severidade:         valor >= limite * 1.1 ? 'critica' : 'alta', // Sem acento conforme ENUM
+            valor_detectado:    valor,
+            limite_configurado: limite,
+            unidade:            'mm/s',
+            mensagem:           `Vibração ${valor} mm/s acima do limite de ${limite} mm/s na máquina ${MAQUINA_ID}.`
+        });
+        console.warn(`[MQTT] ⚠️  Alerta de vibração: ${valor} mm/s (limite: ${limite} mm/s)`);
+    }
 
-    const severidade = SEVERIDADE_VIBRACAO[status];
-
-    await AlertaLeituraModel.criar({
-        maquina_id:  MAQUINA_ID,
-        sensor_id:   SENSOR_VIBRA,
-        tipo_alerta: 'vibracao',
-        severidade,
-        mensagem:    `Vibração com status ${status} detectada na máquina ${MAQUINA_ID} (ISO 10816-3).`
-    });
-
-    console.warn(`[MQTT] ⚠️  Alerta de vibracao: ${status}`);
+    console.log(`[MQTT] 📳 Vibração salva: ${valor} mm/s`);
 }
 
 // ── Roteador de mensagens ─────────────────────────────────────────────────
@@ -109,8 +100,8 @@ function iniciarMQTT() {
         port:               PORT,
         clientId:           CLIENT_ID,
         clean:              true,
-        reconnectPeriod:    5000,   // tenta reconectar a cada 5s
-        connectTimeout:     10000,  // timeout de 10s
+        reconnectPeriod:    5000,
+        connectTimeout:     10000,
         keepalive:          60,
     });
 
@@ -139,7 +130,6 @@ function iniciarMQTT() {
         try {
             await handler(payload);
         } catch (error) {
-            // Nunca derruba o processo por erro de um handler
             console.error(`[MQTT] Erro ao processar tópico "${topic}":`, error.message);
         }
     });
