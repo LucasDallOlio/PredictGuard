@@ -2,7 +2,7 @@
  * ============================================================ 
  *  MONITOR DE MOTOR TRIFÁSICO — ESP32  (v3 — AP + MQTT Local) 
  *  Sensores : MPU-6050 (vibração) + MLX90614 (temperatura IR) 
- *  Análise  : FFT via arduinoFFT + classificação ISO 10816-3 
+ *  Análise  : FFT via arduinoFFT → RMS de vibração (mm/s) 
  *  Conexão  : ESP32 cria rede WiFi (AP) → notebook conecta → 
  *             ESP32 publica MQTT no broker do notebook 
  * ============================================================ 
@@ -25,7 +25,7 @@
  *    3. Mosquitto roda no notebook (IP 192.168.4.2) 
  *    4. ESP32 publica nos tópicos MQTT: 
  *         motor/temperatura/motor   → float (°C) 
- *         motor/vibracao/status     → string (NORMAL/ATENCAO/ALERTA/CRITICO) 
+ *         motor/vibracao/rms        → float (mm/s) 
  * ============================================================ 
  */
 
@@ -49,9 +49,9 @@ const char* MQTT_BROKER  = "192.168.4.2";
 const int MQTT_PORT = 1883;
 const char* MQTT_CLIENT = "esp32_motor_monitor";
 
-// Apenas 2 tópicos — temperatura e status de vibração
+// Apenas 2 tópicos — temperatura e vibração RMS
 const char* TOPIC_TEMP = "motor/temperatura/motor";
-const char* TOPIC_VIBRA = "motor/vibracao/status";
+const char* TOPIC_VIBRA = "motor/vibracao/rms";
 
 WiFiClient espClient;
 PubSubClient mqttClient(espClient);
@@ -77,11 +77,6 @@ ArduinoFFT<double> fftZ(vRealZ, vImagZ, AMOSTRAS_FFT, FREQ_AMOSTRAGEM);
 float baseX = 0, baseY = 0, baseZ = 0;
 const int AMOSTRAS_CALIBRACAO = 500;
 
-// ── Limiares de vibração — ISO 10816-3 ────────────────────────────────────
-const float LIMIAR_NORMAL = 2.3f;
-const float LIMIAR_ATENCAO = 4.5f;
-const float LIMIAR_ALERTA = 7.1f;
-
 // ── Temporização ──────────────────────────────────────────────────────────
 unsigned long ultimaPublicacao = 0;
 const unsigned long INTERVALO_PUBLICACAO = 1000;  // publica a cada 1 s
@@ -89,7 +84,6 @@ const unsigned long INTERVALO_PUBLICACAO = 1000;  // publica a cada 1 s
 // ── Protótipos ────────────────────────────────────────────────────────────
 float calcularVibracaoPorEixo();
 float calcularRMSdoEixo(double* vReal, double* vImag, ArduinoFFT<double>& fft);
-String classificarVibracao(float rmsMMpS);
 void conectarWiFi();
 void conectarMQTT();
 
@@ -166,9 +160,8 @@ void setup() {
   }
   mqttClient.loop();
 
-  // ── FFT por eixo → status de vibração ───────────────────────────────────
+  // ── FFT por eixo → RMS de vibração (mm/s) ───────────────────────────────
   float rmsTotal = calcularVibracaoPorEixo();
-  String statusVibra = classificarVibracao(rmsTotal);
 
   // ── Temperatura do objeto ───────────────────────────────────────────────
   float tempMotor = mlx.readObjectTempC();
@@ -179,18 +172,20 @@ void setup() {
     ultimaPublicacao = agora;
 
     // Log serial (debug)
-    Serial.printf("Temp: %.1f C  |  Vibracao: %.2f mm/s [%s]  |  MQTT: %s  |  Clientes AP: %d\n ", 
-                  tempMotor, rmsTotal, statusVibra.c_str(),
+    Serial.printf("Temp: %.1f C  |  Vibracao: %.2f mm/s  |  MQTT: %s  |  Clientes AP: %d\n ",
+                  tempMotor, rmsTotal,
                   mqttClient.connected() ? "OK" : "OFF",
                   WiFi.softAPgetStationNum());
 
     // Publica no broker MQTT do notebook
     if (mqttClient.connected()) {
       char bufTemp[16];
-      snprintf(bufTemp, sizeof(bufTemp), "%.1f", tempMotor);
+      char bufVibra[16];
+      snprintf(bufTemp,  sizeof(bufTemp),  "%.1f", tempMotor);
+      snprintf(bufVibra, sizeof(bufVibra), "%.2f", rmsTotal);
 
-      mqttClient.publish(TOPIC_TEMP, bufTemp);
-      mqttClient.publish(TOPIC_VIBRA, statusVibra.c_str());
+      mqttClient.publish(TOPIC_TEMP,  bufTemp);
+      mqttClient.publish(TOPIC_VIBRA, bufVibra);
     }
   }
 }
@@ -236,16 +231,6 @@ void setup() {
     somaQuadrados += velocidade * velocidade;
   }
   return sqrt(somaQuadrados);
-}
-
-// ==========================================================================
-// Classificação ISO 10816-3
-// ==========================================================================
-  String classificarVibracao(float rmsMMpS) {
-  if (rmsMMpS < LIMIAR_NORMAL) return "NORMAL";
-  if (rmsMMpS < LIMIAR_ATENCAO) return "ATENCAO";
-  if (rmsMMpS < LIMIAR_ALERTA) return "ALERTA";
-  return "CRITICO";
 }
 
 // ==========================================================================
