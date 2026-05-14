@@ -44,6 +44,93 @@ import DetalhesSolicitacaoModal from "./DetalhesSolicitacaoModal";
 
 import { useService } from "@/hooks/useServiceRequest";
 
+const STATUS_CONFIG = {
+  solicitado: {
+    label: "Solicitado",
+
+    className: `
+      bg-blue-500/10
+      text-blue-400
+      border border-blue-500/20
+    `,
+
+    icon: Shield,
+  },
+
+  em_andamento: {
+    label: "Em Andamento",
+
+    className: `
+      bg-yellow-500/10
+      text-yellow-400
+      border border-yellow-500/20
+    `,
+
+    icon: Activity,
+  },
+
+  alerta: {
+    label: "Alerta",
+
+    className: `
+      bg-orange-500/10
+      text-orange-400
+      border border-orange-500/20
+    `,
+
+    icon: AlertTriangle,
+  },
+
+  critico: {
+    label: "Crítico",
+
+    className: `
+      bg-red-500/10
+      text-red-400
+      border border-red-500/20
+    `,
+
+    icon: AlertTriangle,
+  },
+
+  concluido: {
+    label: "Concluído",
+
+    className: `
+      bg-green-500/10
+      text-green-400
+      border border-green-500/20
+    `,
+
+    icon: Shield,
+  },
+
+  cancelado: {
+    label: "Cancelado",
+
+    className: `
+      bg-gray-500/10
+      text-gray-400
+      border border-gray-500/20
+    `,
+
+    icon: Shield,
+  },
+};
+
+const TIPOS_LABELS = {
+  analise_de_falha: "Análise de Falha",
+
+  manutencao_preventiva:
+    "Manutenção Preventiva",
+
+  manutencao_preditiva:
+    "Manutenção Preditiva",
+
+  manutencao_corretiva:
+    "Manutenção Corretiva",
+};
+
 const TableComp = () => {
 
   const {
@@ -83,6 +170,7 @@ const TableComp = () => {
     carregarServicos();
 
     function atualizarTabela() {
+
       carregarServicos();
     }
 
@@ -116,86 +204,52 @@ const TableComp = () => {
       .join(" ");
   }
 
-  function getStatus(status) {
+  function formatarTipo(tipo) {
 
-    const statusFormatado =
-      status
-        ?.toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "");
+    if (!tipo) return "Não informado";
 
-    switch (statusFormatado) {
+    return (
+      TIPOS_LABELS[tipo] ||
+      formatarTexto(tipo)
+    );
+  }
 
-      case "critico":
+  function getStatusInfo(status) {
 
-        return `
-          bg-red-500/10
-          text-red-400
-          border border-red-500/20
-        `;
+    if (!status) {
 
-      case "em andamento":
-      case "alerta":
+      return {
+        label: "Não informado",
 
-        return `
-          bg-yellow-500/10
-          text-yellow-400
-          border border-yellow-500/20
-        `;
-
-      case "concluido":
-
-        return `
-          bg-green-500/10
-          text-green-400
-          border border-green-500/20
-        `;
-
-      case "cancelado":
-
-        return `
+        className: `
           bg-gray-500/10
           text-gray-400
           border border-gray-500/20
-        `;
+        `,
 
-      default:
+        icon: Shield,
+      };
+    }
 
-        return `
+    const key = status
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/\s+/g, "_");
+
+    return (
+      STATUS_CONFIG[key] || {
+        label: formatarTexto(status),
+
+        className: `
           bg-blue-500/10
           text-blue-400
           border border-blue-500/20
-        `;
-    }
-  }
+        `,
 
-  function getIcon(status) {
-
-    const statusFormatado =
-      status
-        ?.toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "");
-
-    switch (statusFormatado) {
-
-      case "critico":
-
-        return AlertTriangle;
-
-      case "em andamento":
-      case "alerta":
-
-        return Activity;
-
-      case "cancelado":
-
-        return Shield;
-
-      default:
-
-        return Shield;
-    }
+        icon: Shield,
+      }
+    );
   }
 
   function handleView(item) {
@@ -366,10 +420,13 @@ const TableComp = () => {
 
                         servicos.map((item) => {
 
-                          const Icon =
-                            getIcon(
+                          const statusInfo =
+                            getStatusInfo(
                               item.servico_status
                             );
+
+                          const Icon =
+                            statusInfo.icon;
 
                           return (
 
@@ -405,7 +462,7 @@ const TableComp = () => {
 
                                   <span className="font-medium">
 
-                                    {formatarTexto(
+                                    {formatarTipo(
                                       item.tipo
                                     )}
 
@@ -430,9 +487,8 @@ const TableComp = () => {
                                 truncate
                               ">
 
-                                {formatarTexto(
-                                  item.descricao
-                                )}
+                                {item.descricao ||
+                                  "Não informado"}
 
                               </TableCell>
 
@@ -454,15 +510,11 @@ const TableComp = () => {
                                       text-xs
                                       font-medium
                                     `,
-                                    getStatus(
-                                      item.servico_status
-                                    )
+                                    statusInfo.className
                                   )}
                                 >
 
-                                  {formatarTexto(
-                                    item.servico_status
-                                  )}
+                                  {statusInfo.label}
 
                                 </span>
 
@@ -509,9 +561,7 @@ const TableComp = () => {
 
                                     </DropdownMenuItem>
 
-                                    {formatarTexto(
-                                      item.servico_status
-                                    ) !==
+                                    {statusInfo.label !==
                                       "Cancelado" && (
 
                                         <DropdownMenuItem

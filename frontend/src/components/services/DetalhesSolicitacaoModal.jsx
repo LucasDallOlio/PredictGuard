@@ -5,6 +5,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription
 } from "@/components/ui/dialog";
 
 import { Badge } from "@/components/ui/badge";
@@ -118,6 +119,12 @@ const DetalhesSolicitacaoModal = ({
             Detalhes da Solicitação
 
           </DialogTitle>
+          <DialogDescription>
+
+            Visualização completa das
+            informações da solicitação.
+
+          </DialogDescription>
 
         </DialogHeader>
 
@@ -220,6 +227,35 @@ const DetalhesSolicitacaoModal = ({
             </Badge>
 
           </div>
+          {
+            (
+              data.servico_status?.toLowerCase() === "concluído" ||
+              data.servico_status?.toLowerCase() === "concluido"
+            ) &&
+            data.observacao && (
+
+              <div>
+
+                <p className="
+        text-muted-foreground
+      ">
+
+                  Observação
+
+                </p>
+
+                <p className="
+        break-words
+      ">
+
+                  {data.observacao}
+
+                </p>
+
+              </div>
+
+            )
+          }
 
         </div>
 
