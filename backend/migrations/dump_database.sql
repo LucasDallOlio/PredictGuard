@@ -78,23 +78,15 @@ create table if not exists sensores(
 create table if not exists leituras(
 	id int primary key auto_increment,
     sensor_id int not null,
-    valor decimal(10,2) null,
-    unidade enum('celsius', 'g', 'status') not null,
-    status_vibracao enum('normal', 'atencao', 'alerta', 'critico') null,
+    valor decimal(10,2) not null,
+    unidade enum('celsius', 'mm/s') not null,
     data_leitura datetime default current_timestamp,
 
     index idx_leituras_sensor_data (sensor_id, data_leitura),
     index idx_leituras_data (data_leitura),
 
     constraint chk_leituras_valor_positivo
-    check (valor is null or valor >= 0),
-
-    constraint chk_leituras_consistencia
-    check (
-        (unidade = 'status' and status_vibracao is not null and valor is null)
-        or
-        (unidade != 'status' and valor is not null and status_vibracao is null)
-    ),
+    check (valor >= 0),
 
     constraint fk_leituras_sensores
     foreign key (sensor_id) references sensores(id)
@@ -110,7 +102,7 @@ create table if not exists alertas (
     severidade enum('baixa','media','alta','critica') not null default 'media',
   valor_detectado decimal(10,2) null,
   limite_configurado decimal(10,2) null,
-  unidade enum('celsius','g') null,
+  unidade enum('celsius','mm/s') null,
   mensagem varchar(500) not null,
   data_alerta datetime default current_timestamp,
 
@@ -229,27 +221,27 @@ insert into sensores (id, maquina_id, modelo, tipo) values
     (7, 4, 'PT100-STD', 'temperatura'),
     (8, 4, 'VIB-MEMS-150', 'acelerometro');
 
-insert into leituras (id, sensor_id, valor, unidade, status_vibracao, data_leitura) values
-    (1, 1, 68.30, 'celsius', null, '2026-03-30 08:00:00'),
-    (2, 2, null, 'status', 'normal', '2026-03-30 08:00:00'),
-    (3, 3, 82.40, 'celsius', null, '2026-03-30 08:05:00'),
-    (4, 4, null, 'status', 'atencao', '2026-03-30 08:05:00'),
-    (5, 5, 74.20, 'celsius', null, '2026-03-30 08:10:00'),
-    (6, 6, null, 'status', 'normal', '2026-03-30 08:10:00'),
-    (7, 7, 39.00, 'celsius', null, '2026-03-30 08:15:00'),
-    (8, 8, null, 'status', 'normal', '2026-03-30 08:15:00'),
-    (9, 1, 70.10, 'celsius', null, '2026-03-30 09:00:00'),
-    (10, 2, null, 'status', 'normal', '2026-03-30 09:00:00'),
-    (11, 3, 84.80, 'celsius', null, '2026-03-30 09:05:00'),
-    (12, 4, null, 'status', 'alerta', '2026-03-30 09:05:00');
+insert into leituras (id, sensor_id, valor, unidade, data_leitura) values
+    (1, 1, 68.30, 'celsius', '2026-03-30 08:00:00'),
+    (2, 2, 1.80, 'mm/s', '2026-03-30 08:00:00'),
+    (3, 3, 82.40, 'celsius', '2026-03-30 08:05:00'),
+    (4, 4, 3.10, 'mm/s', '2026-03-30 08:05:00'),
+    (5, 5, 74.20, 'celsius', '2026-03-30 08:10:00'),
+    (6, 6, 2.40, 'mm/s', '2026-03-30 08:10:00'),
+    (7, 7, 39.00, 'celsius', '2026-03-30 08:15:00'),
+    (8, 8, 0.90, 'mm/s', '2026-03-30 08:15:00'),
+    (9, 1, 70.10, 'celsius', '2026-03-30 09:00:00'),
+    (10, 2, 2.10, 'mm/s', '2026-03-30 09:00:00'),
+    (11, 3, 84.80, 'celsius', '2026-03-30 09:05:00'),
+    (12, 4, 3.45, 'mm/s', '2026-03-30 09:05:00');
 
 insert into alertas (
     id, maquina_id, sensor_id, tipo_alerta, severidade,
     valor_detectado, limite_configurado, unidade, mensagem, data_alerta
 ) values
     (1, 2, 3, 'temperatura', 'alta', 84.80, 80.00, 'celsius', 'Temperatura acima do limite configurado na Maquina 2.', '2026-03-30 09:06:00'),
-    (2, 2, 4, 'vibracao', 'critica', 3.45, 2.80, 'g', 'Vibracao critica detectada no conjunto de rolamentos da Maquina 2.', '2026-03-30 09:06:30'),
-    (3, 1, 2, 'tendencia', 'media', 2.10, 3.50, 'g', 'Tendencia de aumento gradual de vibracao na Maquina 1.', '2026-03-30 09:07:00'),
+    (2, 2, 4, 'vibração', 'crítica', 3.45, 2.80, 'mm/s', 'Vibracao critica detectada no conjunto de rolamentos da Maquina 2.', '2026-03-30 09:06:30'),
+    (3, 1, 2, 'tendência', 'média', 2.10, 3.50, 'mm/s', 'Tendencia de aumento gradual de vibracao na Maquina 1.', '2026-03-30 09:07:00'),
     (4, 4, null, 'offline', 'baixa', null, null, null, 'Sensor da Maquina 4 ficou offline por mais de 5 minutos.', '2026-03-30 09:08:00');
 
 insert into servicos (
