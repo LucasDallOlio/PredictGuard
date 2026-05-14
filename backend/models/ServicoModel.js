@@ -50,62 +50,60 @@ class ServicoModel {
         }
     }
 
-    static async listarTodos(page = 1, limit = 10, filtro = null) {
-        const connection = await getConnection();
+   static async listarTodos(page = 1, limit = 10, filtro = null) {
+    const connection = await getConnection();
 
-        try {
-            let whereSQL = '';
-            let whereParams = [];
+    try {
+        let whereSQL = '';
+        let whereParams = [];
 
-            if (filtro) {
-                const columns = Object.keys(filtro);
+        if (filtro) {
+            const columns = Object.keys(filtro);
 
-                if (columns.length > 0) {
-                    whereParams = Object.values(filtro);
-                    whereSQL = `where ${columns.map(column => `s.${column} = ?`).join(' AND ')}`;
-                }
-            }
-
-            const offset = (page - 1) * limit;
-
-            const sql = `
-                select
-                    s.*,
-                    m.nome as maquina,
-                    u.nome as usuario_responsavel
-                from servicos s
-                inner join maquinas m on m.id = s.maquina_id
-                inner join usuarios u on u.id = s.usuario_responsavel_id
-                ${whereSQL}
-                order by s.id asc
-                limit ?, ?
-            `;
-
-            const [servicos] = await connection.execute(sql, [
-                ...whereParams,
-                Number(offset),
-                Number(limit)
-            ]);
-
-            const countSql = `select count(*) as count from servicos s ${whereSQL}`;
-            const [totalRows] = await connection.execute(countSql, whereParams);
-            const total = Number(totalRows?.[0]?.count ?? 0);
-
-            return {
-                servicos,
-                total,
-                page,
-                limit,
-                totalPages: Math.ceil(total / limit)
+            if (columns.length > 0) {
+                whereParams = Object.values(filtro);
+                whereSQL = `where ${columns.map(column => `s.${column} = ?`).join(' AND ')}`;
             }
         }
-        catch (error) {
-            throw new Error(`Erro ao buscar servicos: ${error.message}`);
-        }
-        finally {
-            connection.release();
+
+        const offset = Number((page - 1) * limit);
+        limit = Number(limit);
+
+        const sql = `
+            select
+                s.*,
+                m.nome as maquina,
+                u.nome as usuario_responsavel
+            from servicos s
+            inner join maquinas m on m.id = s.maquina_id
+            inner join usuarios u on u.id = s.usuario_responsavel_id
+            ${whereSQL}
+            order by s.id asc
+            limit ${offset}, ${limit}
+        `;
+
+        const [servicos] = await connection.execute(sql, whereParams);
+
+        const countSql = `select count(*) as count from servicos s ${whereSQL}`;
+        const [totalRows] = await connection.execute(countSql, whereParams);
+
+        const total = Number(totalRows?.[0]?.count ?? 0);
+
+        return {
+            servicos,
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit)
         }
     }
+    catch (error) {
+        throw new Error(`Erro ao buscar servicos: ${error.message}`);
+    }
+    finally {
+        connection.release();
+    }
+}
 
     static async ResumoStatus() {
         try {
