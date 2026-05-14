@@ -101,11 +101,31 @@ const TableComp = () => {
 
   }, [pagina]);
 
+  function formatarTexto(texto) {
+
+    if (!texto) return "Não informado";
+
+    return texto
+      .replace(/_/g, " ")
+      .toLowerCase()
+      .split(" ")
+      .map((palavra) =>
+        palavra.charAt(0).toUpperCase() +
+        palavra.slice(1)
+      )
+      .join(" ");
+  }
+
   function getStatus(status) {
 
-    switch (status?.toLowerCase()) {
+    const statusFormatado =
+      status
+        ?.toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
 
-      case "crítico":
+    switch (statusFormatado) {
+
       case "critico":
 
         return `
@@ -123,7 +143,6 @@ const TableComp = () => {
           border border-yellow-500/20
         `;
 
-      case "concluído":
       case "concluido":
 
         return `
@@ -152,9 +171,14 @@ const TableComp = () => {
 
   function getIcon(status) {
 
-    switch (status?.toLowerCase()) {
+    const statusFormatado =
+      status
+        ?.toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
 
-      case "crítico":
+    switch (statusFormatado) {
+
       case "critico":
 
         return AlertTriangle;
@@ -381,7 +405,9 @@ const TableComp = () => {
 
                                   <span className="font-medium">
 
-                                    {item.tipo}
+                                    {formatarTexto(
+                                      item.tipo
+                                    )}
 
                                   </span>
 
@@ -391,8 +417,9 @@ const TableComp = () => {
 
                               <TableCell className="text-sm">
 
-                                {item.maquina ||
-                                  "Não informado"}
+                                {formatarTexto(
+                                  item.maquina
+                                )}
 
                               </TableCell>
 
@@ -403,14 +430,17 @@ const TableComp = () => {
                                 truncate
                               ">
 
-                                {item.descricao}
+                                {formatarTexto(
+                                  item.descricao
+                                )}
 
                               </TableCell>
 
                               <TableCell className="text-sm">
 
-                                {item.usuario_responsavel ||
-                                  "Não informado"}
+                                {formatarTexto(
+                                  item.usuario_responsavel
+                                )}
 
                               </TableCell>
 
@@ -430,7 +460,9 @@ const TableComp = () => {
                                   )}
                                 >
 
-                                  {item.servico_status}
+                                  {formatarTexto(
+                                    item.servico_status
+                                  )}
 
                                 </span>
 
@@ -477,7 +509,9 @@ const TableComp = () => {
 
                                     </DropdownMenuItem>
 
-                                    {item.servico_status !==
+                                    {formatarTexto(
+                                      item.servico_status
+                                    ) !==
                                       "Cancelado" && (
 
                                         <DropdownMenuItem
@@ -487,10 +521,10 @@ const TableComp = () => {
                                             )
                                           }
                                           className="
-                                          flex gap-2
-                                          cursor-pointer
-                                          text-red-400
-                                        "
+                                            flex gap-2
+                                            cursor-pointer
+                                            text-red-400
+                                          "
                                         >
 
                                           <AlertTriangle
