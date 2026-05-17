@@ -2,24 +2,56 @@ import mqtt from 'mqtt';
 import dotenv from 'dotenv';
 import LeituraModel from '../models/LeituraModel.js';
 import AlertaLeituraModel from '../models/AlertaLeituraModel.js';
+import { getConnection } from '../config/database.js';
 
 dotenv.config();
 
 // ── Configuração ──────────────────────────────────────────────────────────
-const BROKER_URL  = process.env.MQTT_BROKER_URL  || 'mqtt://192.168.4.2';
+const BROKER_URL  = process.env.MQTT_BROKER_URL  || 'mqtt://127.0.0.1';
 const PORT        = parseInt(process.env.MQTT_PORT) || 1883;
 const CLIENT_ID   = process.env.MQTT_CLIENT_ID   || 'predictguard_backend';
-const MAQUINA_ID  = parseInt(process.env.MQTT_MAQUINA_ID)   || 1;
-const SENSOR_TEMP = parseInt(process.env.MQTT_SENSOR_ID_TEMP)  || 1;
-const SENSOR_VIBRA= parseInt(process.env.MQTT_SENSOR_ID_VIBRA) || 2;
 
-const TOPICS = {
-    TEMPERATURA: 'motor/temperatura/motor',
-    VIBRACAO:    'motor/vibracao/rms',
-};
+// Tópicos com wildcards para subscrever a múltiplos sensores
+const TOPIC_TEMP_PATTERN = 'motor/temperatura/+';
+const TOPIC_VIBRA_PATTERN = 'motor/vibracao/+';
+
+// Limites de alerta
+const TEMP_LIMITE = parseFloat(process.env.MQTT_TEMP_LIMITE) || 85.0;
+const VIBRA_LIMITE = parseFloat(process.env.MQTT_VIBRA_LIMITE) || 7.1;
+
+const sensorCache = new Map();
+
+async function carregarSensoresEmCache() {
+    const connection = await getConnection();
+
+    try {
+        const sql = `
+            select id, maquina_id, tipo
+            from sensores
+            where tipo in ('temperatura', 'acelerometro')
+        `;
+
+        const [rows] = await connection.execute(sql);
+
+        sensorCache.clear();
+
+        for (const row of rows) {
+            sensorCache.set(Number(row.id), {
+                id: Number(row.id),
+                maquina_id: Number(row.maquina_id),
+                tipo: row.tipo
+            });
+        }
+    }
+    finally {
+        connection.release();
+    }
+}
+
+
 
 // ── Handler: temperatura ──────────────────────────────────────────────────
-async function handleTemperatura(payload) {
+async function handleTemperatura(payload, sensorId) {
     const valor = parseFloat(payload);
 
     if (isNaN(valor)) {
@@ -27,34 +59,40 @@ async function handleTemperatura(payload) {
         return;
     }
 
+    const sensor = sensorCache.get(sensorId);
+    if (!sensor) {
+        console.warn(`[MQTT] Sensor ${sensorId} não encontrado`);
+        return;
+    }
+
+    const maquinaId = sensor.maquina_id;
+
     // Salva leitura
     await LeituraModel.registrar({
-        sensor_id: SENSOR_TEMP,
+        sensor_id: sensorId,
         valor,
         unidade: 'celsius'
     });
 
-    const limite = parseFloat(process.env.MQTT_TEMP_LIMITE) || 85.0;
-
-    if (valor >= limite) {
+    if (valor >= TEMP_LIMITE) {
         await AlertaLeituraModel.criar({
-            maquina_id:         MAQUINA_ID,
-            sensor_id:          SENSOR_TEMP,
+            maquina_id:         maquinaId,
+            sensor_id:          sensorId,
             tipo_alerta:        'temperatura',
-            severidade:         valor >= limite * 1.1 ? 'critica' : 'alta',
+            severidade:         valor >= TEMP_LIMITE * 1.1 ? 'critica' : 'alta',
             valor_detectado:    valor,
-            limite_configurado: limite,
+            limite_configurado: TEMP_LIMITE,
             unidade:            'celsius',
-            mensagem:           `Temperatura ${valor}°C acima do limite de ${limite}°C na máquina ${MAQUINA_ID}.`
+            mensagem:           `Temperatura ${valor}°C acima do limite de ${TEMP_LIMITE}°C na máquina ${maquinaId}.`
         });
-        console.warn(`[MQTT] ⚠️  Alerta de temperatura: ${valor}°C (limite: ${limite}°C)`);
+        console.warn(`[MQTT] ⚠️  Alerta de temperatura: M${maquinaId} S${sensorId} ${valor}°C (limite: ${TEMP_LIMITE}°C)`);
     }
 
-    console.log(`[MQTT] 🌡️  Temperatura salva: ${valor}°C`);
+    console.log(`[MQTT] 🌡️  S${sensorId} Temperatura salva: ${valor}°C`);
 }
 
 // ── Handler: vibração ─────────────────────────────────────────────────────
-async function handleVibracao(payload) {
+async function handleVibracao(payload, sensorId) {
     const valor = parseFloat(payload);
 
     if (isNaN(valor)) {
@@ -62,40 +100,55 @@ async function handleVibracao(payload) {
         return;
     }
 
-    // Salva leitura - Ajustado para 'mm/s' conforme seu ENUM do banco
+    const sensor = sensorCache.get(sensorId);
+    if (!sensor) {
+        console.warn(`[MQTT] Sensor ${sensorId} não encontrado`);
+        return;
+    }
+
+    const maquinaId = sensor.maquina_id;
+
+    // Salva leitura
     await LeituraModel.registrar({
-        sensor_id: SENSOR_VIBRA,
+        sensor_id: sensorId,
         valor,
         unidade: 'mm/s' 
     });
 
-    const limite = parseFloat(process.env.MQTT_VIBRA_LIMITE) || 7.1;
-
-    if (valor >= limite) {
+    if (valor >= VIBRA_LIMITE) {
         await AlertaLeituraModel.criar({
-            maquina_id:         MAQUINA_ID,
-            sensor_id:          SENSOR_VIBRA,
-            tipo_alerta:        'vibracao', // Sem acento conforme ENUM do banco
-            severidade:         valor >= limite * 1.1 ? 'critica' : 'alta', // Sem acento conforme ENUM
+            maquina_id:         maquinaId,
+            sensor_id:          sensorId,
+            tipo_alerta:        'vibracao',
+            severidade:         valor >= VIBRA_LIMITE * 1.1 ? 'critica' : 'alta',
             valor_detectado:    valor,
-            limite_configurado: limite,
+            limite_configurado: VIBRA_LIMITE,
             unidade:            'mm/s',
-            mensagem:           `Vibração ${valor} mm/s acima do limite de ${limite} mm/s na máquina ${MAQUINA_ID}.`
+            mensagem:           `Vibração ${valor} mm/s acima do limite de ${VIBRA_LIMITE} mm/s na máquina ${maquinaId}.`
         });
-        console.warn(`[MQTT] ⚠️  Alerta de vibração: ${valor} mm/s (limite: ${limite} mm/s)`);
+        console.warn(`[MQTT] ⚠️  Alerta de vibração: M${maquinaId} S${sensorId} ${valor} mm/s (limite: ${VIBRA_LIMITE} mm/s)`);
     }
 
-    console.log(`[MQTT] 📳 Vibração salva: ${valor} mm/s`);
+    console.log(`[MQTT] 📳 S${sensorId} Vibração salva: ${valor} mm/s`);
 }
 
-// ── Roteador de mensagens ─────────────────────────────────────────────────
-const handlers = {
-    [TOPICS.TEMPERATURA]: handleTemperatura,
-    [TOPICS.VIBRACAO]:    handleVibracao,
-};
+// ── Extrai sensor_id do tópico ──────────────────────────────────────────
+function extrairSensorId(topic) {
+    const partes = topic.split('/');
+    const sensorId = parseInt(partes[partes.length - 1], 10);
+    return Number.isFinite(sensorId) ? sensorId : null;
+}
 
 // ── Inicialização do serviço ──────────────────────────────────────────────
-function iniciarMQTT() {
+async function iniciarMQTT() {
+    try {
+        await carregarSensoresEmCache();
+        console.log(`[MQTT] Sensores carregados em cache: ${sensorCache.size}`);
+    }
+    catch (error) {
+        console.error('[MQTT] Erro ao carregar sensores em cache:', error.message);
+    }
+
     const client = mqtt.connect(BROKER_URL, {
         port:               PORT,
         clientId:           CLIENT_ID,
@@ -108,27 +161,33 @@ function iniciarMQTT() {
     client.on('connect', () => {
         console.log(`[MQTT] ✅ Conectado ao broker: ${BROKER_URL}:${PORT}`);
 
-        const topicos = Object.values(TOPICS);
+        const topicos = [TOPIC_TEMP_PATTERN, TOPIC_VIBRA_PATTERN];
         client.subscribe(topicos, { qos: 1 }, (err) => {
             if (err) {
                 console.error('[MQTT] Erro ao subscrever tópicos:', err.message);
                 return;
             }
-            console.log('[MQTT] 📡 Subscrito nos tópicos:', topicos);
+            console.log('[MQTT] 📡 Subscrito nos padrões:', topicos);
         });
     });
 
     client.on('message', async (topic, message) => {
         const payload = message.toString();
-        const handler = handlers[topic];
+        const sensorId = extrairSensorId(topic);
 
-        if (!handler) {
-            console.warn('[MQTT] Tópico sem handler:', topic);
+        if (!sensorId) {
+            console.warn('[MQTT] Não conseguiu extrair sensor_id do tópico:', topic);
             return;
         }
 
         try {
-            await handler(payload);
+            if (topic.includes('temperatura')) {
+                await handleTemperatura(payload, sensorId);
+            } else if (topic.includes('vibracao')) {
+                await handleVibracao(payload, sensorId);
+            } else {
+                console.warn('[MQTT] Tópico não reconhecido:', topic);
+            }
         } catch (error) {
             console.error(`[MQTT] Erro ao processar tópico "${topic}":`, error.message);
         }

@@ -49,9 +49,13 @@ const char* MQTT_BROKER  = "192.168.4.2";
 const int MQTT_PORT = 1883;
 const char* MQTT_CLIENT = "esp32_motor_monitor";
 
-// Apenas 2 tópicos — temperatura e vibração RMS
-const char* TOPIC_TEMP = "motor/temperatura/motor";
-const char* TOPIC_VIBRA = "motor/vibracao/rms";
+// Sensor identifiers (devem existir na tabela `sensores` do backend)
+const int SENSOR_ID_TEMP = 1;   // id do sensor de temperatura
+const int SENSOR_ID_VIBRA = 2;  // id do sensor de vibração
+
+// Tópicos base — o Arduino vai anexar o `SENSOR_ID` como último segmento
+const char* TOPIC_TEMP_BASE = "motor/temperatura/";
+const char* TOPIC_VIBRA_BASE = "motor/vibracao/";
 
 WiFiClient espClient;
 PubSubClient mqttClient(espClient);
@@ -184,8 +188,14 @@ void setup() {
       snprintf(bufTemp,  sizeof(bufTemp),  "%.1f", tempMotor);
       snprintf(bufVibra, sizeof(bufVibra), "%.2f", rmsTotal);
 
-      mqttClient.publish(TOPIC_TEMP,  bufTemp);
-      mqttClient.publish(TOPIC_VIBRA, bufVibra);
+      // Constrói tópicos com o sensor_id no final (ex.: motor/temperatura/1)
+      char topicTemp[32];
+      char topicVibra[32];
+      snprintf(topicTemp,  sizeof(topicTemp),  "%s%d", TOPIC_TEMP_BASE, SENSOR_ID_TEMP);
+      snprintf(topicVibra, sizeof(topicVibra), "%s%d", TOPIC_VIBRA_BASE, SENSOR_ID_VIBRA);
+
+      mqttClient.publish(topicTemp,  bufTemp);
+      mqttClient.publish(topicVibra, bufVibra);
     }
   }
 }
