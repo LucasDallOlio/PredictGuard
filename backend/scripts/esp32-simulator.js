@@ -1,4 +1,14 @@
 import mqtt from 'mqtt';
+import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Carrega .env.simulator ou .env como fallback
+dotenv.config({ path: path.join(__dirname, '..', '.env.simulator') });
+dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
 const BROKER_URL = process.env.MQTT_BROKER_URL || 'mqtt://127.0.0.1';
 const PORT = parseInt(process.env.MQTT_PORT || '1883', 10);
@@ -24,7 +34,21 @@ const VIBRA_SPIKE_PROB = parseFloat(process.env.SIM_VIBRA_SPIKE_PROB || '0.04');
 const VIBRA_SPIKE_MAX = parseFloat(process.env.SIM_VIBRA_SPIKE_MAX || '6.0');
 const VIBRA_SPIKE_DURATION_MS = parseInt(process.env.SIM_VIBRA_SPIKE_DURATION_MS || '5000', 10);
 
-const DEVICE_IDS = (process.env.SIM_DEVICE_IDS || '1')
+const TEMP_SENSOR_IDS = (process.env.SIM_TEMP_SENSOR_IDS || '')
+  .split(',')
+  .map((v) => v.trim())
+  .filter(Boolean)
+  .map((v) => parseInt(v, 10))
+  .filter((v) => Number.isFinite(v));
+
+const VIBRA_SENSOR_IDS = (process.env.SIM_VIBRA_SENSOR_IDS || '')
+  .split(',')
+  .map((v) => v.trim())
+  .filter(Boolean)
+  .map((v) => parseInt(v, 10))
+  .filter((v) => Number.isFinite(v));
+
+const LEGACY_DEVICE_IDS = (process.env.SIM_DEVICE_IDS || '')
   .split(',')
   .map((v) => v.trim())
   .filter(Boolean)
@@ -40,57 +64,94 @@ function rand(min, max) {
 
 function resolveTopic(template, ctx) {
   return template
-    .replaceAll('{maquinaId}', String(ctx.maquinaId))
-    .replaceAll('{sensorTempId}', String(ctx.sensorTempId))
-    .replaceAll('{sensorVibraId}', String(ctx.sensorVibraId));
+    .replaceAll('{maquinaId}', String(ctx.maquinaId ?? ctx.sensorId))
+    .replaceAll('{sensorId}', String(ctx.sensorId))
+    .replaceAll('{sensorTempId}', String(ctx.sensorId))
+    .replaceAll('{sensorVibraId}', String(ctx.sensorId));
 }
 
-function buildDeviceState(maquinaId, index) {
+function buildSensorState(sensorId, tipo, index) {
   return {
-    maquinaId,
-    sensorTempId: maquinaId * 2 - 1,
-    sensorVibraId: maquinaId * 2,
-    tempBase: TEMP_BASE + rand(-TEMP_BASE_JITTER, TEMP_BASE_JITTER),
-    vibraBase: VIBRA_BASE + rand(-VIBRA_BASE_JITTER, VIBRA_BASE_JITTER),
-    tempOffset: 0,
-    phaseTemp: rand(0, Math.PI * 2),
-    phaseVibra: rand(0, Math.PI * 2),
-    tempSpikeUntil: 0,
-    tempSpikeValue: 0,
-    vibraSpikeUntil: 0,
-    vibraSpikeValue: 0,
+    sensorId,
+    tipo,
+    base: tipo === 'temperatura'
+      ? TEMP_BASE + rand(-TEMP_BASE_JITTER, TEMP_BASE_JITTER)
+      : VIBRA_BASE + rand(-VIBRA_BASE_JITTER, VIBRA_BASE_JITTER),
+    offset: 0,
+    phase: rand(0, Math.PI * 2),
+    spikeUntil: 0,
+    spikeValue: 0,
     index,
   };
 }
 
 function nextTemperatura(state, now) {
-  state.tempOffset += rand(-TEMP_DRIFT, TEMP_DRIFT);
-  const wave = Math.sin((now - t0) / 30000 + state.phaseTemp) * 0.8;
+  state.offset += rand(-TEMP_DRIFT, TEMP_DRIFT);
+  const wave = Math.sin((now - t0) / 30000 + state.phase) * 0.8;
   const noise = rand(-TEMP_NOISE, TEMP_NOISE);
 
-  if (now >= state.tempSpikeUntil && Math.random() < TEMP_SPIKE_PROB) {
-    state.tempSpikeValue = rand(1.2, TEMP_SPIKE_MAX);
-    state.tempSpikeUntil = now + TEMP_SPIKE_DURATION_MS;
+  if (now >= state.spikeUntil && Math.random() < TEMP_SPIKE_PROB) {
+    state.spikeValue = rand(1.2, TEMP_SPIKE_MAX);
+    state.spikeUntil = now + TEMP_SPIKE_DURATION_MS;
   }
 
-  const spike = now < state.tempSpikeUntil ? state.tempSpikeValue : 0;
-  return state.tempBase + state.tempOffset + wave + noise + spike;
+  const spike = now < state.spikeUntil ? state.spikeValue : 0;
+  return state.base + state.offset + wave + noise + spike;
 }
 
 function nextVibracao(state, now) {
-  const wave = Math.sin((now - t0) / 15000 + state.phaseVibra) * 0.4;
+  const wave = Math.sin((now - t0) / 15000 + state.phase) * 0.4;
   const noise = rand(-VIBRA_NOISE, VIBRA_NOISE);
 
-  if (now >= state.vibraSpikeUntil && Math.random() < VIBRA_SPIKE_PROB) {
-    state.vibraSpikeValue = rand(0.8, VIBRA_SPIKE_MAX);
-    state.vibraSpikeUntil = now + VIBRA_SPIKE_DURATION_MS;
+  if (now >= state.spikeUntil && Math.random() < VIBRA_SPIKE_PROB) {
+    state.spikeValue = rand(0.8, VIBRA_SPIKE_MAX);
+    state.spikeUntil = now + VIBRA_SPIKE_DURATION_MS;
   }
 
-  const spike = now < state.vibraSpikeUntil ? state.vibraSpikeValue : 0;
-  return Math.max(0, state.vibraBase + wave + noise + spike);
+  const spike = now < state.spikeUntil ? state.spikeValue : 0;
+  return Math.max(0, state.base + wave + noise + spike);
 }
 
-const devices = DEVICE_IDS.map((id, index) => buildDeviceState(id, index));
+const usingSensorMode = TEMP_SENSOR_IDS.length > 0 || VIBRA_SENSOR_IDS.length > 0;
+
+const tempSensors = usingSensorMode
+  ? (TEMP_SENSOR_IDS.length > 0 ? TEMP_SENSOR_IDS : LEGACY_DEVICE_IDS).map((sensorId, index) => (
+      buildSensorState(sensorId, 'temperatura', index)
+    ))
+  : LEGACY_DEVICE_IDS.map((maquinaId, index) => ({
+      maquinaId,
+      sensorId: maquinaId * 2 - 1,
+      tipo: 'temperatura',
+      base: TEMP_BASE + rand(-TEMP_BASE_JITTER, TEMP_BASE_JITTER),
+      offset: 0,
+      phase: rand(0, Math.PI * 2),
+      spikeUntil: 0,
+      spikeValue: 0,
+      index,
+    }));
+
+const vibraSensors = usingSensorMode
+  ? (VIBRA_SENSOR_IDS.length > 0 ? VIBRA_SENSOR_IDS : LEGACY_DEVICE_IDS).map((sensorId, index) => (
+      buildSensorState(sensorId, 'vibracao', index)
+    ))
+  : LEGACY_DEVICE_IDS.map((maquinaId, index) => ({
+      maquinaId,
+      sensorId: maquinaId * 2,
+      tipo: 'vibracao',
+      base: VIBRA_BASE + rand(-VIBRA_BASE_JITTER, VIBRA_BASE_JITTER),
+      offset: 0,
+      phase: rand(0, Math.PI * 2),
+      spikeUntil: 0,
+      spikeValue: 0,
+      index,
+    }));
+
+if (usingSensorMode) {
+  console.log('[SIM] Modo sensor ativo. Temperatura:', tempSensors.map((sensor) => sensor.sensorId).join(', ') || '-');
+  console.log('[SIM] Modo sensor ativo. Vibracao:', vibraSensors.map((sensor) => sensor.sensorId).join(', ') || '-');
+} else {
+  console.log('[SIM] Modo legado ativo. Maquinas:', LEGACY_DEVICE_IDS.join(', ') || '-');
+}
 
 function startPublishing(client) {
   if (publishTimer) return;
@@ -98,19 +159,20 @@ function startPublishing(client) {
   publishTimer = setInterval(() => {
     const now = Date.now();
 
-    devices.forEach((device) => {
-      const temp = nextTemperatura(device, now);
-      const vibra = nextVibracao(device, now);
-      const topicTemp = resolveTopic(TOPIC_TEMP_TEMPLATE, device);
-      const topicVibra = resolveTopic(TOPIC_VIBRA_TEMPLATE, device);
+    tempSensors.forEach((sensor) => {
+      const temp = nextTemperatura(sensor, now);
+      const topicTemp = resolveTopic(TOPIC_TEMP_TEMPLATE, sensor);
 
       client.publish(topicTemp, temp.toFixed(1));
-      client.publish(topicVibra, vibra.toFixed(2));
+      console.log(`[SIM] S${sensor.sensorId} Temp: ${temp.toFixed(1)} C`);
+    });
 
-      console.log(
-        `[SIM] M${device.maquinaId} Temp: ${temp.toFixed(1)} C | ` +
-        `Vibracao: ${vibra.toFixed(2)} mm/s`
-      );
+    vibraSensors.forEach((sensor) => {
+      const vibra = nextVibracao(sensor, now);
+      const topicVibra = resolveTopic(TOPIC_VIBRA_TEMPLATE, sensor);
+
+      client.publish(topicVibra, vibra.toFixed(2));
+      console.log(`[SIM] S${sensor.sensorId} Vibracao: ${vibra.toFixed(2)} mm/s`);
     });
   }, INTERVAL_MS);
 }
