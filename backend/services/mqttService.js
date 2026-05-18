@@ -22,6 +22,11 @@ const VIBRA_LIMITE = parseFloat(process.env.MQTT_VIBRA_LIMITE) || 7.1;
 const sensorCache = new Map();
 const maquinaLimitesCache = new Map();
 
+function invalidarLimitesMaquina(maquinaId) {
+    if (!maquinaId) return;
+    maquinaLimitesCache.delete(Number(maquinaId));
+}
+
 async function carregarSensoresEmCache() {
     const connection = await getConnection();
 
@@ -244,5 +249,9 @@ async function iniciarMQTT() {
 
     return client;
 }
+
+export {
+    invalidarLimitesMaquina
+};
 
 export default iniciarMQTT;

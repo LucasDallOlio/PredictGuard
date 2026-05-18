@@ -1,4 +1,5 @@
 import MaquinaModel from '../models/MaquinaModel.js';
+import { invalidarLimitesMaquina } from '../services/mqttService.js';
 import { deleteFile } from '../utils/file.js'
 
 class MaquinaController {
@@ -206,6 +207,8 @@ class MaquinaController {
             if (maquinaExistente.imagem && req.file) {
                 await deleteFile(maquinaExistente.imagem);
             }
+
+            invalidarLimitesMaquina(id);
 
             res.status(200).json({
                 sucesso: true,
