@@ -12,6 +12,7 @@ import usuarioRotas from './routes/usuarioRotas.js'
 import maquinaRotas from './routes/maquinaRotas.js'
 import servicoRotas from './routes/servicoRotas.js'
 import sensorRotas from './routes/sensorRotas.js'
+import leituraRotas from './routes/leituraRotas.js'
 
 dotenv.config();
 
@@ -45,6 +46,7 @@ app.use('/usuarios', usuarioRotas);
 app.use('/maquinas', maquinaRotas);
 app.use('/servicos', servicoRotas);
 app.use('/sensores', sensorRotas);
+app.use('/leituras', leituraRotas);
 
 app.get('/', (req, res) => {
     res.json({
