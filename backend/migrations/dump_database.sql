@@ -42,7 +42,7 @@ create table if not exists maquinas(
     status_operacional enum('ativa', 'parada', 'manutencao') not null,
     status_saude enum('ok', 'alerta') not null default 'ok',
     temperatura_limite_c decimal(10,2) not null,
-    aceleracao_limite_g decimal(10,2) not null,
+    aceleracao_limite_mms decimal(10,2) not null,
     data_criacao datetime default current_timestamp,
     data_atualizacao datetime default current_timestamp on update current_timestamp,
 
@@ -51,7 +51,7 @@ create table if not exists maquinas(
     index idx_maquinas_criticidade (nivel_criticidade),
 
     constraint chk_maquinas_limites_positivos
-    check (temperatura_limite_c > 0 and aceleracao_limite_g > 0),
+    check (temperatura_limite_c > 0 and aceleracao_limite_mms > 0),
 
     constraint chk_maquinas_temp_ambiente_intervalo
     check (
@@ -204,7 +204,7 @@ insert into maquinas (
     classe_isolamento, fator_servico, rendimento_percentual, fator_potencia,
     temperatura_ambiente_min_c, temperatura_ambiente_max_c, certificacao_norma,
     imagem, setor, nivel_criticidade, status_operacional, status_saude,
-    temperatura_limite_c, aceleracao_limite_g
+    temperatura_limite_c, aceleracao_limite_mms
 ) values
     (1, 'Motor Esteira A1', 'MTR-L1-001', 'WEG W22', 'A1S2026', 'Motor de Inducao Trifasico', 15.00, '220-380V', 45.50, 60.00, 1750, 'IP55', 'F', 1.15, 93.20, 0.890, 10.00, 45.00, 'IEC 60034', 'motor_a1.jpg', 'linha_1', 'media', 'ativa', 'ok', 85.00, 3.50),
     (2, 'Motor Prensa B2', 'MTR-L2-014', 'Siemens SD100', 'B2S1825', 'Motor de Inducao Trifasico', 30.00, '380-440V', 58.20, 60.00, 1780, 'IP56', 'F', 1.15, 94.10, 0.910, 8.00, 40.00, 'IEC 60034', 'motor_b2.jpg', 'linha_2', 'alta', 'ativa', 'alerta', 80.00, 2.80),

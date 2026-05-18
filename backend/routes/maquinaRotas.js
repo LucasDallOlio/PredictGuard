@@ -107,7 +107,7 @@ import upload from '../middlewares/uploadMiddleware.js';
  *           type: number
  *           format: float
  *           example: 85.0
- *         aceleracao_limite_g:
+ *         aceleracao_limite_mms:
  *           type: number
  *           format: float
  *           example: 3.5
@@ -121,7 +121,7 @@ import upload from '../middlewares/uploadMiddleware.js';
  *           example: 2026-03-30T09:10:00.000Z
  *     MaquinaCreate:
  *       type: object
- *       required: [nome, cod_registro, status_operacional, temperatura_limite_c, aceleracao_limite_g]
+ *       required: [nome, cod_registro, status_operacional, temperatura_limite_c, aceleracao_limite_mms]
  *       properties:
  *         nome:
  *           type: string
@@ -208,7 +208,7 @@ import upload from '../middlewares/uploadMiddleware.js';
  *           type: number
  *           format: float
  *           example: 85.0
- *         aceleracao_limite_g:
+ *         aceleracao_limite_mms:
  *           type: number
  *           format: float
  *           example: 3.5

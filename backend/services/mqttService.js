@@ -1,7 +1,7 @@
 import mqtt from 'mqtt';
 import dotenv from 'dotenv';
 import LeituraModel from '../models/LeituraModel.js';
-import AlertaLeituraModel from '../models/AlertaLeituraModel.js';
+import AlertaModel from '../models/AlertaModel.js';
 import { getConnection } from '../config/database.js';
 
 dotenv.config();
@@ -20,6 +20,7 @@ const TEMP_LIMITE = parseFloat(process.env.MQTT_TEMP_LIMITE) || 85.0;
 const VIBRA_LIMITE = parseFloat(process.env.MQTT_VIBRA_LIMITE) || 7.1;
 
 const sensorCache = new Map();
+const maquinaLimitesCache = new Map();
 
 async function carregarSensoresEmCache() {
     const connection = await getConnection();
@@ -49,6 +50,36 @@ async function carregarSensoresEmCache() {
 }
 
 
+async function obterLimitesMaquina(maquinaId) {
+    if (!maquinaId) return null;
+
+    if (maquinaLimitesCache.has(maquinaId)) {
+        return maquinaLimitesCache.get(maquinaId);
+    }
+
+    const connection = await getConnection();
+
+    try {
+        const sql = `select temperatura_limite_c, aceleracao_limite_mms from maquinas where id = ? limit 1`;
+        const [rows] = await connection.execute(sql, [maquinaId]);
+        const row = rows[0];
+
+        if (!row) return null;
+
+        const limites = {
+            temperatura_limite_c: row.temperatura_limite_c !== undefined ? Number(row.temperatura_limite_c) : null,
+            aceleracao_limite_mms: row.aceleracao_limite_mms !== undefined ? Number(row.aceleracao_limite_mms) : null
+        };
+
+        maquinaLimitesCache.set(maquinaId, limites);
+        return limites;
+    }
+    finally {
+        connection.release();
+    }
+}
+
+
 
 // ── Handler: temperatura ──────────────────────────────────────────────────
 async function handleTemperatura(payload, sensorId) {
@@ -67,6 +98,9 @@ async function handleTemperatura(payload, sensorId) {
 
     const maquinaId = sensor.maquina_id;
 
+    const limites = await obterLimitesMaquina(maquinaId);
+    const limiteUsado = (limites && limites.temperatura_limite_c) != null ? limites.temperatura_limite_c : TEMP_LIMITE;
+
     // Salva leitura
     await LeituraModel.registrar({
         sensor_id: sensorId,
@@ -74,18 +108,18 @@ async function handleTemperatura(payload, sensorId) {
         unidade: 'celsius'
     });
 
-    if (valor >= TEMP_LIMITE) {
-        await AlertaLeituraModel.criar({
+    if (valor >= limiteUsado) {
+        await AlertaModel.criar({
             maquina_id:         maquinaId,
             sensor_id:          sensorId,
             tipo_alerta:        'temperatura',
-            severidade:         valor >= TEMP_LIMITE * 1.1 ? 'critica' : 'alta',
+            severidade:         valor >= limiteUsado * 1.1 ? 'critica' : 'alta',
             valor_detectado:    valor,
-            limite_configurado: TEMP_LIMITE,
+            limite_configurado: limiteUsado,
             unidade:            'celsius',
-            mensagem:           `Temperatura ${valor}°C acima do limite de ${TEMP_LIMITE}°C na máquina ${maquinaId}.`
+            mensagem:           `Temperatura ${valor}°C acima do limite de ${limiteUsado}°C na máquina ${maquinaId}.`
         });
-        console.warn(`[MQTT] ⚠️  Alerta de temperatura: M${maquinaId} S${sensorId} ${valor}°C (limite: ${TEMP_LIMITE}°C)`);
+        console.warn(`[MQTT] ⚠️  Alerta de temperatura: M${maquinaId} S${sensorId} ${valor}°C (limite: ${limiteUsado}°C)`);
     }
 
     console.log(`[MQTT] 🌡️  S${sensorId} Temperatura salva: ${valor}°C`);
@@ -108,6 +142,9 @@ async function handleVibracao(payload, sensorId) {
 
     const maquinaId = sensor.maquina_id;
 
+    const limites = await obterLimitesMaquina(maquinaId);
+    const limiteUsado = (limites && limites.aceleracao_limite_mms) != null ? limites.aceleracao_limite_mms : VIBRA_LIMITE;
+
     // Salva leitura
     await LeituraModel.registrar({
         sensor_id: sensorId,
@@ -115,18 +152,18 @@ async function handleVibracao(payload, sensorId) {
         unidade: 'mm/s' 
     });
 
-    if (valor >= VIBRA_LIMITE) {
-        await AlertaLeituraModel.criar({
+    if (valor >= limiteUsado) {
+        await AlertaModel.criar({
             maquina_id:         maquinaId,
             sensor_id:          sensorId,
             tipo_alerta:        'vibracao',
-            severidade:         valor >= VIBRA_LIMITE * 1.1 ? 'critica' : 'alta',
+            severidade:         valor >= limiteUsado * 1.1 ? 'critica' : 'alta',
             valor_detectado:    valor,
-            limite_configurado: VIBRA_LIMITE,
+            limite_configurado: limiteUsado,
             unidade:            'mm/s',
-            mensagem:           `Vibração ${valor} mm/s acima do limite de ${VIBRA_LIMITE} mm/s na máquina ${maquinaId}.`
+            mensagem:           `Vibração ${valor} mm/s acima do limite de ${limiteUsado} mm/s na máquina ${maquinaId}.`
         });
-        console.warn(`[MQTT] ⚠️  Alerta de vibração: M${maquinaId} S${sensorId} ${valor} mm/s (limite: ${VIBRA_LIMITE} mm/s)`);
+        console.warn(`[MQTT] ⚠️  Alerta de vibração: M${maquinaId} S${sensorId} ${valor} mm/s (limite: ${limiteUsado} mm/s)`);
     }
 
     console.log(`[MQTT] 📳 S${sensorId} Vibração salva: ${valor} mm/s`);
