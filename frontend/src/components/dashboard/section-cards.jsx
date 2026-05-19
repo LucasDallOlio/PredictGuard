@@ -1,6 +1,16 @@
-import { IconTrendingDown, IconTrendingUp } from "@tabler/icons-react"
+"use client"
+
+import {
+  IconActivity,
+  IconAlertTriangle,
+  IconSettings,
+  IconTrendingDown,
+  IconTrendingUp,
+  IconUsers,
+} from "@tabler/icons-react"
 
 import { Badge } from "@/components/ui/badge"
+
 import {
   Card,
   CardAction,
@@ -10,112 +20,266 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 
+import { useDashboardData } from "@/hooks/useDashboardData"
+
 export function SectionCards() {
+
+  const {
+    maquinasResumo,
+    usuariosResumo,
+    loading,
+  } = useDashboardData()
+
+  if (loading) {
+
+    return (
+
+      <div className="grid grid-cols-1 gap-4 px-4 lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
+
+        {[1, 2, 3, 4].map((item) => (
+
+          <Card
+            key={item}
+            className="h-[180px] animate-pulse"
+          >
+
+            <CardHeader>
+
+              <div className="h-4 w-32 rounded bg-muted" />
+
+              <div className="h-8 w-20 rounded bg-muted mt-2" />
+
+            </CardHeader>
+
+          </Card>
+
+        ))}
+
+      </div>
+
+    )
+  }
+
   return (
-    <div className="grid grid-cols-1 gap-4 px-4 
-    *:data-[slot=card]:bg-gradient-to-t 
-    *:data-[slot=card]:from-primary/5 
-    *:data-[slot=card]:to-card 
-    *:data-[slot=card]:shadow-xs 
-    lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4 
-    dark:*:data-[slot=card]:bg-card">
 
-      {/* MOTORES ATIVOS */}
+    <div
+      className="
+      grid grid-cols-1 gap-4 px-4
+      *:data-[slot=card]:bg-gradient-to-t
+      *:data-[slot=card]:from-primary/5
+      *:data-[slot=card]:to-card
+      *:data-[slot=card]:shadow-xs
+      lg:px-6
+      @xl/main:grid-cols-2
+      @5xl/main:grid-cols-4
+      dark:*:data-[slot=card]:bg-card
+    "
+    >
+
+      {/* MÁQUINAS ATIVAS */}
+
       <Card className="@container/card">
+
         <CardHeader>
-          <CardDescription>Motores Ativos</CardDescription>
+
+          <CardDescription>
+            Máquinas Ativas
+          </CardDescription>
+
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            120
+
+            {maquinasResumo.ativos}
+
           </CardTitle>
+
           <CardAction>
-            <Badge variant="outline">
-              <IconTrendingUp />
-              +8%
+
+            <Badge
+              variant="outline"
+              className="text-emerald-500"
+            >
+
+              <IconTrendingUp className="size-4" />
+              Online
+
             </Badge>
+
           </CardAction>
+
         </CardHeader>
+
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
+
           <div className="flex gap-2 font-medium">
-            Em funcionamento <IconTrendingUp className="size-4" />
+
+            Em funcionamento
+            <IconActivity className="size-4 text-emerald-500" />
+
           </div>
+
           <div className="text-muted-foreground">
-            Total de motores ativos no sistema
+
+            Máquinas operando normalmente
+
           </div>
+
         </CardFooter>
+
       </Card>
 
-      {/* SOLICITAÇÕES */}
+   
+
       <Card className="@container/card">
+
         <CardHeader>
-          <CardDescription>Total de Solicitações</CardDescription>
+
+          <CardDescription>
+            Máquinas Paradas
+          </CardDescription>
+
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            342
+
+            {maquinasResumo.inativos}
+
           </CardTitle>
+
           <CardAction>
-            <Badge variant="outline">
-              <IconTrendingUp />
-              +15%
+
+            <Badge
+              variant="outline"
+              className="text-red-500"
+            >
+
+              <IconTrendingDown className="size-4" />
+              Offline
+
             </Badge>
+
           </CardAction>
+
         </CardHeader>
+
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
+
           <div className="flex gap-2 font-medium">
-            Aumento de chamados <IconTrendingUp className="size-4" />
+
+            Necessitam atenção
+            <IconAlertTriangle className="size-4 text-red-500" />
+
           </div>
+
           <div className="text-muted-foreground">
-            Solicitações registradas recentemente
+
+            Máquinas fora de operação
+
           </div>
+
         </CardFooter>
+
       </Card>
 
-      {/* TÉCNICOS */}
+     
+
       <Card className="@container/card">
+
         <CardHeader>
-          <CardDescription>Total de Técnicos</CardDescription>
+
+          <CardDescription>
+            Em Manutenção
+          </CardDescription>
+
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            25
+
+            {maquinasResumo.manutencao}
+
           </CardTitle>
+
           <CardAction>
-            <Badge variant="outline">
-              <IconTrendingUp />
-              +2
+
+            <Badge
+              variant="outline"
+              className="text-yellow-500"
+            >
+
+              <IconSettings className="size-4" />
+              Manutenção
+
             </Badge>
+
           </CardAction>
+
         </CardHeader>
+
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
+
           <div className="flex gap-2 font-medium">
-            Equipe disponível <IconTrendingUp className="size-4" />
+
+            Máquinas em análise
+            <IconSettings className="size-4 text-yellow-500" />
+
           </div>
+
           <div className="text-muted-foreground">
-            Técnicos cadastrados no sistema
+
+            Equipamentos passando por manutenção
+
           </div>
+
         </CardFooter>
+
       </Card>
 
-      {/* MOTORES INATIVOS */}
+     
+
       <Card className="@container/card">
+
         <CardHeader>
-          <CardDescription>Motores Inativos</CardDescription>
+
+          <CardDescription>
+            Técnicos
+          </CardDescription>
+
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            18
+
+            {usuariosResumo.tecnicos}
+
           </CardTitle>
+
           <CardAction>
-            <Badge variant="outline">
-              <IconTrendingDown />
-              -5%
+
+            <Badge
+              variant="outline"
+              className="text-blue-500"
+            >
+
+              <IconUsers className="size-4" />
+              Equipe
+
             </Badge>
+
           </CardAction>
+
         </CardHeader>
+
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
+
           <div className="flex gap-2 font-medium">
-            Necessitam manutenção <IconTrendingDown className="size-4" />
+
+            Técnicos disponíveis
+            <IconUsers className="size-4 text-blue-500" />
+
           </div>
+
           <div className="text-muted-foreground">
-            Motores fora de operação
+
+            Equipe responsável pelas manutenções
+
           </div>
+
         </CardFooter>
+
       </Card>
 
     </div>
-  );
+  )
 }

@@ -12,6 +12,10 @@ import usuarioRotas from './routes/usuarioRotas.js'
 import maquinaRotas from './routes/maquinaRotas.js'
 import servicoRotas from './routes/servicoRotas.js'
 import sensorRotas from './routes/sensorRotas.js'
+import leituraRotas from './routes/leituraRotas.js'
+import alertaRotas from './routes/alertaRotas.js'
+
+import { logMiddleware } from './middlewares/logMiddleware.js';
 
 dotenv.config();
 
@@ -35,6 +39,8 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.use(logMiddleware);
+
 app.use('/uploads', express.static('uploads'));
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
@@ -45,6 +51,8 @@ app.use('/usuarios', usuarioRotas);
 app.use('/maquinas', maquinaRotas);
 app.use('/servicos', servicoRotas);
 app.use('/sensores', sensorRotas);
+app.use('/leituras', leituraRotas);
+app.use('/alertas', alertaRotas);
 
 app.get('/', (req, res) => {
     res.json({
