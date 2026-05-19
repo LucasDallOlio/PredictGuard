@@ -59,7 +59,7 @@ export function ModalCriarMotor({ open, setOpen, onSave }) {
         status_operacional: "",
         status_saude: "",
         temperatura_limite_c: "",
-        aceleracao_limite_g: "",
+        aceleracao_limite_mms: "",
     };
 
     const [formData, setFormData] = useState(initialState);
@@ -83,12 +83,21 @@ const handleFileChange = (e) => {
         setFile(selectedFile);
     }
 };
-    const validar = () => {
-        if (!formData.nome || !formData.cod_registro || !formData.setor) {
-            return "Preencha os campos obrigatórios: Nome, Código e Setor.";
-        }
-        return "";
-    };
+const validar = () => {
+
+    if (
+        !formData.nome ||
+        !formData.cod_registro ||
+        !formData.setor ||
+        !formData.status_operacional ||
+        !formData.temperatura_limite_c ||
+        !formData.aceleracao_limite_mms
+    ) {
+        return "Preencha todos os campos obrigatórios.";
+    }
+
+    return "";
+};
 
     const handleSubmit = async (e) => {
     e.preventDefault();
@@ -215,16 +224,7 @@ const handleFileChange = (e) => {
                                 </SelectContent>
                             </Select>
 
-                            <Select value={formData.status_saude} onValueChange={(v) => handleSelectChange("status_saude", v)}>
-                                <SelectTrigger className={inputStyle}>
-                                    <SelectValue placeholder="Saúde" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="ok">Ok</SelectItem>
-                                    <SelectItem value="alerta">Alerta</SelectItem>
-                               
-                                </SelectContent>
-                            </Select>
+                         
 
                             <Select value={formData.nivel_criticidade} onValueChange={(v) => handleSelectChange("nivel_criticidade", v)}>
                                 <SelectTrigger className={inputStyle}>
@@ -238,7 +238,15 @@ const handleFileChange = (e) => {
                             </Select>
 
                             <Input className={inputStyle} name="temperatura_limite_c" type="number" value={formData.temperatura_limite_c} placeholder="Limite Temp °C" onChange={handleChange} />
-                            <Input className={inputStyle} name="aceleracao_limite_g" type="number" step="0.1" value={formData.aceleracao_limite_g} placeholder="Limite G" onChange={handleChange} />
+                 <Input
+  className={inputStyle}
+  name="aceleracao_limite_mms"
+  type="number"
+  step="0.1"
+  value={formData.aceleracao_limite_mms}
+  placeholder="Limite MM/S"
+  onChange={handleChange}
+/>
                         </Section>
                     </div>
                 </form>
