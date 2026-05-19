@@ -162,7 +162,7 @@ export default function UsersTable() {
           </div>
         </div>
 
-        {/* Card da Tabela */}
+    
         <div className="rounded-2xl border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm overflow-hidden">
 
           {loading ? (

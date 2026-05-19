@@ -1,7 +1,14 @@
 "use client"
 
 import * as React from "react"
-import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
+} from "recharts"
 
 import {
   Card,
@@ -12,7 +19,10 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
+import {
+  ChartContainer,
+  ChartTooltip,
+} from "@/components/ui/chart"
 
 import {
   Select,
@@ -27,150 +37,471 @@ import {
   ToggleGroupItem,
 } from "@/components/ui/toggle-group"
 
-export const description = "An interactive area chart"
-
-
-const chartData = [
-  { date: "2024-04-01", desktop: 222, mobile: 150, motor: "Motor A" },
-  { date: "2024-04-02", desktop: 97, mobile: 180, motor: "Motor B" },
-  { date: "2024-04-03", desktop: 167, mobile: 120, motor: "Motor A" },
-  { date: "2024-04-04", desktop: 242, mobile: 260, motor: "Motor B" },
-  { date: "2024-04-05", desktop: 373, mobile: 290, motor: "Motor A" },
-]
+import { useDashboardData } from "@/hooks/useDashboardData"
 
 const chartConfig = {
-  desktop: {
-    label: "Desktop",
-    color: "var(--primary)",
+  temperatura: {
+    label: "Temperatura",
+    color: "var(--chart-1)",
   },
-  mobile: {
-    label: "Mobile",
-    color: "var(--primary)",
+  vibracao: {
+    label: "Vibração",
+    color: "var(--chart-2)",
   },
 }
 
-export function ChartAreaInteractive() {
-  const [timeRange, setTimeRange] = React.useState("90d")
-  const [motorFilter, setMotorFilter] = React.useState("all")
+const ranges = {
+  "1h": {
+    period: 60 * 60 * 1000,
+    interval: 5 * 60 * 1000,
+  },
+  "1d": {
+    period: 24 * 60 * 60 * 1000,
+    interval: 60 * 60 * 1000,
+  },
+  "7d": {
+    period: 7 * 24 * 60 * 60 * 1000,
+    interval: 3 * 60 * 60 * 1000,
+  },
+}
 
-  const filteredData = chartData.filter((item) => {
-    const date = new Date(item.date)
-    const referenceDate = new Date("2024-06-30")
+function roundDate(date, interval) {
+  return new Date(Math.floor(date.getTime() / interval) * interval)
+}
 
-    let daysToSubtract = 90
-    if (timeRange === "30d") daysToSubtract = 30
-    if (timeRange === "7d") daysToSubtract = 7
+function formatDateLabel(date, timeRange) {
+  if (timeRange === "7d") {
+    return date.toLocaleDateString("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+    })
+  }
 
-    const startDate = new Date(referenceDate)
-    startDate.setDate(startDate.getDate() - daysToSubtract)
-
-    const matchMotor = motorFilter === "all" || item.motor === motorFilter
-
-    return date >= startDate && matchMotor
+  return date.toLocaleTimeString("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit",
   })
+}
+
+export function ChartAreaInteractive() {
+  const { chartData, maquinas, loading } = useDashboardData()
+
+  const [timeRange, setTimeRange] = React.useState("7d")
+  const [setorFilter, setSetorFilter] = React.useState("todos")
+  const [motorFilter, setMotorFilter] = React.useState("")
+
+  const setores = React.useMemo(() => {
+    return [...new Set(maquinas.map((m) => m.setor))]
+  }, [maquinas])
+
+  const maquinasFiltradas = React.useMemo(() => {
+    if (setorFilter === "todos") {
+      return maquinas
+    }
+
+    return maquinas.filter((m) => m.setor === setorFilter)
+  }, [maquinas, setorFilter])
+
+  React.useEffect(() => {
+    const maquinaExiste = maquinasFiltradas.some(
+      (m) => m.nome === motorFilter
+    )
+
+    if (!maquinaExiste && maquinasFiltradas.length > 0) {
+      setMotorFilter(maquinasFiltradas[0].nome)
+    }
+  }, [maquinasFiltradas, motorFilter])
+
+  const filteredData = React.useMemo(() => {
+    const now = new Date()
+    const config = ranges[timeRange]
+
+    const start = new Date(now.getTime() - config.period)
+
+    const dados = chartData
+      .filter((item) => {
+        const itemDate = new Date(item.date)
+
+        return (
+          itemDate >= start &&
+          (!motorFilter || item.maquina === motorFilter)
+        )
+      })
+      .sort(
+        (a, b) =>
+          new Date(a.date).getTime() - new Date(b.date).getTime()
+      )
+
+    const grouped = new Map()
+
+    dados.forEach((item) => {
+      const rounded = roundDate(
+        new Date(item.date),
+        config.interval
+      )
+
+      const key = rounded.toISOString()
+
+      grouped.set(key, {
+        temperatura: item.temperatura,
+        vibracao: item.vibracao,
+      })
+    })
+
+    const timeline = []
+
+    const roundedStart = roundDate(start, config.interval)
+    const roundedNow = roundDate(now, config.interval)
+
+    for (
+      let t = roundedStart.getTime();
+      t <= roundedNow.getTime();
+      t += config.interval
+    ) {
+      const currentDate = new Date(t)
+
+      const key = currentDate.toISOString()
+
+      const values = grouped.get(key)
+
+      timeline.push({
+        date: currentDate.toISOString(),
+        fullDate: currentDate,
+
+        temperatura:
+          values?.temperatura ?? 0,
+
+        vibracao:
+          values?.vibracao ?? 0,
+      })
+    }
+
+    return timeline
+  }, [chartData, timeRange, motorFilter])
+
+  if (loading) {
+    return (
+      <Card>
+        <CardContent className="h-[350px] flex items-center justify-center text-muted-foreground">
+          Carregando gráfico...
+        </CardContent>
+      </Card>
+    )
+  }
 
   return (
-    <Card className="@container/card">
-      <CardHeader>
-        <CardTitle>Total Motores</CardTitle>
-        <CardDescription>
-          <span className="hidden @[540px]/card:block">
-            Total últimos 3 meses
-          </span>
-          <span className="@[540px]/card:hidden">Últimos 3 meses</span>
-        </CardDescription>
+    <Card className="@container/card overflow-hidden">
+      <CardHeader className="border-b">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <CardTitle className="text-xl">
+              Monitoramento das Máquinas
+            </CardTitle>
 
-        <CardAction className="flex gap-2">
-     
-          <ToggleGroup
-            type="single"
-            value={timeRange}
-            onValueChange={setTimeRange}
-            variant="outline"
-            className="hidden @[767px]/card:flex"
-          >
-            <ToggleGroupItem value="90d">Últimos 3 meses</ToggleGroupItem>
-            <ToggleGroupItem value="30d">Últimos 30 dias</ToggleGroupItem>
-            <ToggleGroupItem value="7d">Últimos 7 dias</ToggleGroupItem>
-          </ToggleGroup>
+            <CardDescription className="mt-1">
+              Temperatura e vibração em tempo real
+            </CardDescription>
+          </div>
 
- 
-          <Select value={motorFilter} onValueChange={setMotorFilter}>
-            <SelectTrigger className="w-40">
-              <SelectValue placeholder="Motor" />
-            </SelectTrigger>
-            <SelectContent className="rounded-xl">
-              <SelectItem value="all">Todos os motores</SelectItem>
-              <SelectItem value="Motor A">Motor A</SelectItem>
-              <SelectItem value="Motor B">Motor B</SelectItem>
-            </SelectContent>
-          </Select>
-        </CardAction>
+          <CardAction className="flex flex-wrap gap-2">
+            <ToggleGroup
+              type="single"
+              value={timeRange}
+              onValueChange={(value) => {
+                if (value) {
+                  setTimeRange(value)
+                }
+              }}
+              variant="outline"
+            >
+              <ToggleGroupItem value="1h">
+                Última 1h
+              </ToggleGroupItem>
+
+              <ToggleGroupItem value="1d">
+                Último dia
+              </ToggleGroupItem>
+
+              <ToggleGroupItem value="7d">
+                Últimos 7 dias
+              </ToggleGroupItem>
+            </ToggleGroup>
+
+            <Select
+              value={setorFilter}
+              onValueChange={setSetorFilter}
+            >
+              <SelectTrigger className="w-44">
+                <SelectValue placeholder="Setor" />
+              </SelectTrigger>
+
+              <SelectContent>
+                <SelectItem value="todos">
+                  Todos setores
+                </SelectItem>
+
+                {setores.map((setor) => (
+                  <SelectItem
+                    key={setor}
+                    value={setor}
+                  >
+                    {setor
+                      .replaceAll("_", " ")
+                      .replace(/\b\w/g, (l) =>
+                        l.toUpperCase()
+                      )}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select
+              value={motorFilter}
+              onValueChange={setMotorFilter}
+            >
+              <SelectTrigger className="w-52">
+                <SelectValue placeholder="Máquina" />
+              </SelectTrigger>
+
+              <SelectContent>
+                {maquinasFiltradas.map((maquina) => (
+                  <SelectItem
+                    key={maquina.id}
+                    value={maquina.nome}
+                  >
+                    {maquina.nome}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </CardAction>
+        </div>
       </CardHeader>
 
-      <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
-        <ChartContainer config={chartConfig} className="aspect-auto h-[250px] w-full">
-          <AreaChart data={filteredData}>
-            <defs>
-              <linearGradient id="fillDesktop" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="var(--color-desktop)" stopOpacity={1.0} />
-                <stop offset="95%" stopColor="var(--color-desktop)" stopOpacity={0.1} />
-              </linearGradient>
-
-              <linearGradient id="fillMobile" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="var(--color-mobile)" stopOpacity={0.8} />
-                <stop offset="95%" stopColor="var(--color-mobile)" stopOpacity={0.1} />
-              </linearGradient>
-            </defs>
-
-            <CartesianGrid vertical={false} />
-
-            <XAxis
-              dataKey="date"
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-              minTickGap={32}
-              tickFormatter={(value) => {
-                const date = new Date(value)
-                return date.toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                })
+      <CardContent className="pt-6">
+        <ChartContainer
+          config={chartConfig}
+          className="h-[380px] w-full"
+        >
+          <ResponsiveContainer width="100%" height={380}>
+            <AreaChart
+              data={filteredData}
+              margin={{
+                left: 10,
+                right: 10,
+                top: 10,
+                bottom: 0,
               }}
-            />
+            >
+              <defs>
+                <linearGradient
+                  id="fillTemperatura"
+                  x1="0"
+                  y1="0"
+                  x2="0"
+                  y2="1"
+                >
+                  <stop
+                    offset="5%"
+                    stopColor="var(--chart-1)"
+                    stopOpacity={0.35}
+                  />
+                  <stop
+                    offset="95%"
+                    stopColor="var(--chart-1)"
+                    stopOpacity={0.02}
+                  />
+                </linearGradient>
 
-            <ChartTooltip
-              cursor={false}
-              content={
-                <ChartTooltipContent
-                  labelFormatter={(value) => {
-                    return new Date(value).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                    })
-                  }}
-                  indicator="dot"
-                />
-              }
-            />
+                <linearGradient
+                  id="fillVibracao"
+                  x1="0"
+                  y1="0"
+                  x2="0"
+                  y2="1"
+                >
+                  <stop
+                    offset="5%"
+                    stopColor="var(--chart-2)"
+                    stopOpacity={0.35}
+                  />
+                  <stop
+                    offset="95%"
+                    stopColor="var(--chart-2)"
+                    stopOpacity={0.02}
+                  />
+                </linearGradient>
+              </defs>
 
-            <Area
-              dataKey="mobile"
-              type="natural"
-              fill="url(#fillMobile)"
-              stroke="var(--color-mobile)"
-              stackId="a"
-            />
+              <CartesianGrid
+                vertical={false}
+                strokeDasharray="4 4"
+                opacity={0.2}
+              />
 
-            <Area
-              dataKey="desktop"
-              type="natural"
-              fill="url(#fillDesktop)"
-              stroke="var(--color-desktop)"
-              stackId="a"
-            />
-          </AreaChart>
+              <YAxis
+                tickLine={false}
+                axisLine={false}
+                width={40}
+                tick={{ fontSize: 12 }}
+              />
+
+              <XAxis
+                dataKey="date"
+                tickLine={false}
+                axisLine={false}
+                minTickGap={24}
+                tick={{ fontSize: 12 }}
+                interval="preserveStartEnd"
+                tickFormatter={(value, index) => {
+                  const date = new Date(value)
+
+                  if (timeRange === "7d") {
+                    const previous =
+                      filteredData[index - 1]
+
+                    const previousDate = previous
+                      ? new Date(previous.date)
+                      : null
+
+                    const mudouDia =
+                      !previousDate ||
+                      previousDate.getDate() !==
+                        date.getDate()
+
+                    if (mudouDia) {
+                      return date.toLocaleDateString(
+                        "pt-BR",
+                        {
+                          day: "2-digit",
+                          month: "2-digit",
+                        }
+                      )
+                    }
+
+                    return date.toLocaleTimeString(
+                      "pt-BR",
+                      {
+                        hour: "2-digit",
+                      }
+                    )
+                  }
+
+                  return formatDateLabel(
+                    date,
+                    timeRange
+                  )
+                }}
+              />
+
+              <ChartTooltip
+                cursor={{
+                  stroke: "hsl(var(--border))",
+                  strokeWidth: 1,
+                  strokeDasharray: "3 3",
+                }}
+                content={({ active, payload, label }) => {
+                  if (
+                    !active ||
+                    !payload ||
+                    !payload.length
+                  ) {
+                    return null
+                  }
+
+                  const date = new Date(label)
+
+                  return (
+                    <div className="min-w-[220px] rounded-xl border bg-background/95 backdrop-blur px-4 py-3 shadow-2xl">
+                      <div className="mb-3 border-b pb-2">
+                        <p className="text-sm font-semibold">
+                          {date.toLocaleDateString(
+                            "pt-BR",
+                            {
+                              weekday: "short",
+                              day: "2-digit",
+                              month: "long",
+                            }
+                          )}
+                        </p>
+
+                        <p className="text-xs text-muted-foreground">
+                          {date.toLocaleTimeString(
+                            "pt-BR",
+                            {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            }
+                          )}
+                        </p>
+                      </div>
+
+                      <div className="space-y-2">
+                        {payload.map((entry) => (
+                          <div
+                            key={entry.dataKey}
+                            className="flex items-center justify-between gap-6"
+                          >
+                            <div className="flex items-center gap-2">
+                              <div
+                                className="h-2.5 w-2.5 rounded-full"
+                                style={{
+                                  backgroundColor:
+                                    entry.color,
+                                }}
+                              />
+
+                              <span className="text-sm text-muted-foreground">
+                                {
+                                  chartConfig[
+                                    entry.dataKey
+                                  ]?.label
+                                }
+                              </span>
+                            </div>
+
+                            <span className="font-semibold tabular-nums">
+                              {Number(
+                                entry.value
+                              ).toFixed(1)}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )
+                }}
+              />
+
+              <Area
+                dataKey="temperatura"
+                type="monotone"
+                fill="url(#fillTemperatura)"
+                stroke="var(--chart-1)"
+                strokeWidth={2.5}
+                connectNulls
+                dot={false}
+                activeDot={{
+                  r: 5,
+                  strokeWidth: 0,
+                }}
+              />
+
+              <Area
+                dataKey="vibracao"
+                type="monotone"
+                fill="url(#fillVibracao)"
+                stroke="var(--chart-2)"
+                strokeWidth={2.5}
+                connectNulls
+                dot={false}
+                activeDot={{
+                  r: 5,
+                  strokeWidth: 0,
+                }}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
         </ChartContainer>
       </CardContent>
     </Card>
