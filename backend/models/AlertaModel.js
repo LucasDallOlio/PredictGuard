@@ -67,7 +67,8 @@ class AlertaLeituraModel {
                 }
             }
 
-            const whereSQL = whereParts.length > 0 ? `where ${whereParts.join(' AND ')}` : '';
+            const whereClause = whereParts.join(' AND ');
+            const whereSQL = whereClause ? `where ${whereClause}` : '';
 
             page = Number(page);
             limit = Number(limit);
@@ -94,12 +95,11 @@ class AlertaLeituraModel {
 
             const [alertas] = await connection.execute(sql, whereParams);
 
-            const countSql = `
-                select count(*) as count
-                from alertas
-                ${whereSQL}
-            `;
-            const [totalRows] = await connection.execute(countSql, whereParams);
+            const totalRows = await count({
+                table: 'alertas',
+                where: whereClause || null,
+                whereParams
+            });
 
             const total = Number(totalRows?.[0]?.count ?? 0);
 
