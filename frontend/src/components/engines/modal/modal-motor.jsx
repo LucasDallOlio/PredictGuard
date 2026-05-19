@@ -90,7 +90,7 @@ export function ModalMotorDetalhes({
         try {
             const form = new FormData();
 
-            // remove campos inúteis
+          
             const {
                 data_criacao,
                 data_atualizacao,

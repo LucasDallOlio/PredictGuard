@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Thermometer, Activity, Trash2, Eye } from "lucide-react";
+import { Thermometer, Activity, Trash2, Eye,  AlertTriangle,
+  CheckCircle2, } from "lucide-react";
 import { ModalExcluirMotor } from "../modal/ModalExcluirMotor";
 
 function LinhaMotor({ motor, onClick, onDelete }) {
@@ -15,24 +16,36 @@ function LinhaMotor({ motor, onClick, onDelete }) {
         <td className="p-3 text-muted-foreground">{motor.setor}</td>
         <td className="p-3 text-muted-foreground">{motor.cod_registro}</td>
 
-        <td className="p-3">
-          <div className="flex flex-col sm:flex-row gap-2">
-            <div className="flex items-center gap-1 border rounded-md px-2 py-1 text-xs w-max">
-              <Thermometer size={14} />
-              <span className={motor.temperatura > 85 ? "text-red-500 font-medium" : "text-green-500 font-medium"}>
-                {motor.temperatura}°C
-              </span>
-            </div>
+<td className="p-3">
 
-            <div className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs w-max ${motor.vibracao === "Normal"
-              ? "bg-green-100 text-green-600"
-              : "bg-red-100 text-red-600"
-              }`}>
-              <Activity size={14} />
-              {motor.vibracao}
-            </div>
-          </div>
-        </td>
+  <div
+    className={`
+      flex items-center gap-2
+      px-3 py-1.5 rounded-full
+      text-xs font-medium w-max
+      ${
+        motor.status_saude?.toLowerCase() === "alerta"
+          ? "bg-red-500/10 text-red-500 border border-red-500/20"
+          : "bg-green-500/10 text-green-500 border border-green-500/20"
+      }
+    `}
+  >
+
+    {motor.status_saude?.toLowerCase() === "alerta" ? (
+      <>
+        <AlertTriangle size={14} />
+        <span>Alerta</span>
+      </>
+    ) : (
+      <>
+        <CheckCircle2 size={14} />
+        <span>OK</span>
+      </>
+    )}
+
+  </div>
+
+</td>
 
         <td className="p-3 text-right">
           <div className="flex justify-end gap-2">
