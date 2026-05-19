@@ -15,6 +15,8 @@ import sensorRotas from './routes/sensorRotas.js'
 import leituraRotas from './routes/leituraRotas.js'
 import alertaRotas from './routes/alertaRotas.js'
 
+import { logMiddleware } from './middlewares/logMiddleware.js';
+
 dotenv.config();
 
 const app = express();
@@ -36,6 +38,8 @@ app.use(cors({
 // Body parsers (necessários para req.body em JSON e forms)
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use(logMiddleware);
 
 app.use('/uploads', express.static('uploads'));
 
