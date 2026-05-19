@@ -128,7 +128,7 @@ class ServicoController {
             const servico = req.body;
             const usuario_solicitante_id = Number(req.usuario?.id);
 
-            const servicoComSolicitante = {...servico, usuario_solicitante_id}
+            const servicoComSolicitante = { ...servico, usuario_solicitante_id }
 
             const resultado = await ServicoModel.criar(servicoComSolicitante);
 
@@ -155,22 +155,53 @@ class ServicoController {
             const { id } = req.params;
             const dadosServico = req.body;
 
+            // ✅ NORMALIZA O STATUS ANTES DE SALVAR
+            if (dadosServico.servico_status) {
+                const statusMap = {
+                    'em andamento': 'em_andamento',
+                    'solicitado': 'solicitado',
+                    'concluido': 'concluido',
+                    'concluído': 'concluido',
+                    'cancelado': 'cancelado',
+                    'em_andamento': 'em_andamento',
+                };
+                const statusNormalizado = dadosServico.servico_status
+                    .trim()
+                    .toLowerCase()
+                    .normalize('NFD')
+                    .replace(/[\u0300-\u036f]/g, '');
+
+                const statusValidos = ['solicitado', 'em_andamento', 'concluido', 'cancelado'];
+                const statusFinal = statusMap[dadosServico.servico_status.trim().toLowerCase()]
+                    || statusNormalizado;
+
+                if (!statusValidos.includes(statusFinal)) {
+                    return res.status(400).json({
+                        sucesso: false,
+                        erro: 'Status inválido',
+                        mensagem: `Status deve ser: solicitado, em_andamento, concluido ou cancelado`
+                    });
+                }
+
+                dadosServico.servico_status = statusFinal;
+            }
+
             const servicoExistente = await ServicoModel.buscarPorID(id);
 
             if (!servicoExistente) {
                 return res.status(404).json({
                     sucesso: false,
-                    erro: 'Serviço não encontrada',
+                    erro: 'Serviço não encontrado',
                     mensagem: `Serviço com ID ${id} não foi encontrado`
                 });
             }
 
-            const affectedRows = await ServicoModel.atualizar(id, dadosServico)
+            const affectedRows = await ServicoModel.atualizar(id, dadosServico);
 
             if (affectedRows === 0) {
                 return res.status(404).json({
                     sucesso: false,
-                    erro: 'Serviço não encontrada',
+                    erro: 'Serviço não encontrado',
                     mensagem: `Serviço com ID ${id} não foi encontrado`
                 });
             }
@@ -178,13 +209,11 @@ class ServicoController {
             res.status(200).json({
                 sucesso: true,
                 mensagem: 'Serviço atualizado com sucesso',
-                dados: {
-                    linhasAfetadas: affectedRows
-                }
+                dados: { linhasAfetadas: affectedRows }
             });
         }
         catch (error) {
-            console.error('Erro ao atualziar servico:', error);
+            console.error('Erro ao atualizar servico:', error);
             res.status(500).json({
                 sucesso: false,
                 erro: 'Erro interno do servidor',

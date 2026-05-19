@@ -37,6 +37,7 @@
 #include <Adafruit_MLX90614.h>
 #include <arduinoFFT.h>
 
+
 // ── Rede WiFi — Modo Access Point ─────────────────────────────────────────
 // O ESP32 CRIA esta rede; o notebook conecta nela
 const char* AP_SSID = "ESP32_MotorMonitor";
@@ -45,7 +46,8 @@ const char* AP_PASSWORD = "12345678"; // mínimo 8 caracteres
 // ── MQTT — Broker no notebook ─────────────────────────────────────────────
 // Quando o notebook conecta no AP do ESP32, recebe IP 192.168.4.2 (primeiro cliente) 
 // Se o IP do notebook for diferente, ajuste aqui ou use o monitor serial para verificar 
-const char* MQTT_BROKER  = "192.168.4.2";
+//const char* MQTT_BROKER  = "192.168.4.2";
+const char* MQTT_BROKER  = "192.168.4.200";
 const int MQTT_PORT = 1883;
 const char* MQTT_CLIENT = "esp32_motor_monitor";
 
@@ -102,6 +104,7 @@ void setup() {
   WiFi.mode(WIFI_AP);
   WiFi.softAP(AP_SSID, AP_PASSWORD);
   delay(500);  // aguarda AP estabilizar
+  WiFi.setTxPower(WIFI_POWER_19_5dBm);
   Serial.printf("  Rede   : %s\n", AP_SSID);
   Serial.printf("  Senha  : %s\n", AP_PASSWORD);
   Serial.printf("  IP ESP : %s\n", WiFi.softAPIP().toString().c_str());

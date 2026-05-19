@@ -7,7 +7,7 @@ import { getConnection } from '../config/database.js';
 dotenv.config();
 
 // ── Configuração ──────────────────────────────────────────────────────────
-const BROKER_URL  = process.env.MQTT_BROKER_URL  || 'mqtt://127.0.0.1';
+const BROKER_URL  = process.env.MQTT_BROKER_URL  || 'mqtt://192.168.4.200';
 const PORT        = parseInt(process.env.MQTT_PORT) || 1883;
 const CLIENT_ID   = process.env.MQTT_CLIENT_ID   || 'predictguard_backend';
 

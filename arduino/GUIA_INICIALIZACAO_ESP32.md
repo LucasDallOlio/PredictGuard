@@ -5,7 +5,7 @@
 Abra o CMD como **Administrador** e rode:
 
 ```bash
-netsh interface ip set address "Wi-Fi 2" static 192.168.4.2 255.255.255.0 192.168.4.1
+netsh interface ip set address "Wi-Fi 2" static 192.168.4.200 255.255.255.0 192.168.4.1
 ```
 
 ## Passo 2: Iniciar o Broker Mosquitto
