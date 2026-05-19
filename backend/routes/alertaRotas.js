@@ -129,6 +129,12 @@ const router = express.Router();
  *         name: periodo_dias
  *         schema:
  *           type: integer
+ *       - in: query
+ *         name: ordem
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *           default: asc
  *     responses:
  *       200:
  *         description: Lista de alertas

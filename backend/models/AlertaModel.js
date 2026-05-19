@@ -19,7 +19,7 @@ class AlertaLeituraModel {
         return rows[0] || null;
     }
 
-    static async listarTodos(page = 1, limit = 10, filtro = null) {
+    static async listarTodos(page = 1, limit = 10, filtro = null, ordem = 'asc') {
         const connection = await getConnection();
 
         try {
@@ -98,11 +98,13 @@ class AlertaLeituraModel {
 
             const offset = (page - 1) * limit;
 
+            const ordemSql = ordem === 'desc' ? 'desc' : 'asc';
+
             const sql = `
                 select *
                 from alertas
                 ${whereSQL}
-                order by id asc
+                order by data_alerta ${ordemSql}
                 limit ${limit} offset ${offset}
             `;
 

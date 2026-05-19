@@ -6,6 +6,8 @@ class AlertaController {
 		try {
 			let pagina = parseInt(req.query.pagina, 10) || 1;
 			let limite = parseInt(req.query.limite, 10) || 10;
+			const ordemBruta = String(req.query.ordem || 'asc').trim().toLowerCase();
+			const ordem = ordemBruta === 'desc' ? 'desc' : 'asc';
 
 			const filtroBruto = {
 				tipo_alerta: req.query.tipo_alerta,
@@ -112,7 +114,8 @@ class AlertaController {
 					severidade: filtro.severidade,
 					data_inicio: dataInicio,
 					data_fim: dataFim
-				}
+				},
+				ordem
 			);
 
 			res.status(200).json({
