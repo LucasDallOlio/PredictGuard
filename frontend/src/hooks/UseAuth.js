@@ -13,14 +13,12 @@ export function AuthProvider({ children }) {
   const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
     const usuarioSalvo = localStorage.getItem("usuario");
 
-    if (token && usuarioSalvo) {
+    if (usuarioSalvo) {
       try {
         setUsuario(JSON.parse(usuarioSalvo));
       } catch {
-        localStorage.removeItem("token");
         localStorage.removeItem("usuario");
       }
     }
@@ -32,6 +30,7 @@ export function AuthProvider({ children }) {
     const resposta = await fetch(`${API_URL}/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ email, senha, canal: "web" }),
     });
 
@@ -41,9 +40,8 @@ export function AuthProvider({ children }) {
       throw new Error(dados.mensagem || "Email ou senha incorretos");
     }
 
-    const { token, usuario } = dados.dados;
+    const { usuario } = dados.dados;
 
-    localStorage.setItem("token", token);
     localStorage.setItem("usuario", JSON.stringify(usuario));
     setUsuario(usuario);
 
@@ -51,14 +49,9 @@ export function AuthProvider({ children }) {
   }
 
   function logout() {
-    localStorage.removeItem("token");
     localStorage.removeItem("usuario");
     setUsuario(null);
     router.push("/");
-  }
-
-  function getToken() {
-    return localStorage.getItem("token");
   }
 
   // Atualiza nome e telefone do usuário logado no banco e no estado
@@ -67,8 +60,8 @@ export function AuthProvider({ children }) {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${getToken()}`,
       },
+      credentials: "include",
       body: JSON.stringify(dados),
     });
 
@@ -98,7 +91,6 @@ export function AuthProvider({ children }) {
       user: usuario,       
       login,
       logout,
-      getToken,
       updateUser,
       getFotoUrl,
       carregando,

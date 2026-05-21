@@ -9,16 +9,12 @@ export function useTechnicians() {
   const [pagina, setPagina] = useState(1);
   const [totalPaginas, setTotalPaginas] = useState(1);
 
-  function getToken() {
-    return localStorage.getItem("token");
-  }
-
   async function buscarTecnicos(paginaAtual) {
     setLoading(true);
     setErro(null);
     try {
       const res = await fetch(`${API_URL}?tipo=tecnico&pagina=${paginaAtual}&limite=10`, {
-        headers: { Authorization: `Bearer ${getToken()}` },
+        credentials: "include",
         cache: "no-store",
       });
       if (!res.ok) throw new Error("Erro ao buscar técnicos");
@@ -48,7 +44,7 @@ export function useTechnicians() {
     try {
       const res = await fetch(API_URL, {
         method: "POST",
-        headers: { Authorization: `Bearer ${getToken()}` },
+        credentials: "include",
         body: formData,
       });
       const data = await res.json();
@@ -66,7 +62,7 @@ export function useTechnicians() {
     try {
       const res = await fetch(`${API_URL}/${id}`, {
         method: "DELETE",
-        headers: { Authorization: `Bearer ${getToken()}` },
+        credentials: "include",
       });
       if (!res.ok) throw new Error("Erro ao remover técnico");
       await buscarTecnicos(pagina);
@@ -82,8 +78,8 @@ export function useTechnicians() {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${getToken()}`,
         },
+        credentials: "include",
         body: JSON.stringify(atualizacoes),
       });
       const data = await res.json();

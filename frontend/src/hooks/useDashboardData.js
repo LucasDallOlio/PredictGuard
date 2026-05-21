@@ -50,19 +50,6 @@ export function useDashboardData() {
 
       try {
 
-        const token =
-          localStorage.getItem("token")
-
-        const headers = {
-
-          "Content-Type":
-            "application/json",
-
-          Authorization:
-            `Bearer ${token}`,
-
-        }
-
         const [
 
           maquinasResponse,
@@ -74,22 +61,22 @@ export function useDashboardData() {
 
           fetch(
             `${API_URL}/maquinas/resumo-status`,
-            { headers }
+            { credentials: "include" }
           ),
 
           fetch(
             `${API_URL}/usuarios/resumo-tipos`,
-            { headers }
+            { credentials: "include" }
           ),
 
           fetch(
             `${API_URL}/leituras/serie?limite=2000`,
-            { headers }
+            { credentials: "include" }
           ),
 
           fetch(
             `${API_URL}/maquinas`,
-            { headers }
+            { credentials: "include" }
           ),
 
         ])

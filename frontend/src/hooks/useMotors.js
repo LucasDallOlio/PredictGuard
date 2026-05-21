@@ -11,10 +11,6 @@ export function useMotors() {
   const [pagina, setPagina] = useState(1);
   const [totalPaginas, setTotalPaginas] = useState(1);
 
-  function getToken() {
-    return localStorage.getItem("token");
-  }
-
   const fetchMotores = useCallback(async (page = pagina) => {
 
     setLoading(true);
@@ -27,9 +23,7 @@ export function useMotors() {
       const res = await fetch(
         `${API_URL}?pagina=${page}&limite=10`,
         {
-          headers: {
-            Authorization: `Bearer ${getToken()}`,
-          },
+          credentials: "include",
         }
       );
 
@@ -90,15 +84,9 @@ export function useMotors() {
 
       }
 
-      const token = getToken();
-
-      console.log("Token:", token);
-
       const res = await fetch(API_URL, {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: "include",
         body: novoMotor,
       });
 
@@ -164,9 +152,9 @@ export function useMotors() {
       const res = await fetch(`${API_URL}/${id}`, {
         method: "PUT",
         headers: {
-          Authorization: `Bearer ${getToken()}`,
           ...(isFormData ? {} : { "Content-Type": "application/json" }),
         },
+        credentials: "include",
         body: isFormData
           ? atualizacoes
           : JSON.stringify(atualizacoes),
@@ -207,9 +195,7 @@ export function useMotors() {
 
       const res = await fetch(`${API_URL}/${id}`, {
         method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${getToken()}`,
-        },
+        credentials: "include",
       });
 
       console.log("Status delete:", res.status);

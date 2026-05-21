@@ -14,10 +14,6 @@ export function useService() {
 
   const limite = 5;
 
-  function getToken() {
-    return localStorage.getItem("token");
-  }
-
   async function listarServicos(page = 1) {
     setLoading(true);
     setErro(null);
@@ -26,9 +22,7 @@ export function useService() {
       const res = await fetch(
         `${API_URL}?pagina=${page}&limite=${limite}`,
         {
-          headers: {
-            Authorization: `Bearer ${getToken()}`,
-          },
+          credentials: "include",
         }
       );
 
@@ -81,8 +75,8 @@ export function useService() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${getToken()}`,
         },
+        credentials: "include",
         body: JSON.stringify(dados),
       });
 
@@ -124,8 +118,8 @@ export function useService() {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${getToken()}`,
           },
+          credentials: "include",
           body: JSON.stringify({
             servico_status: statusFormatado,
           }),
