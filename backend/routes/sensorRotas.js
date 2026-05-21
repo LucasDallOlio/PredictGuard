@@ -78,8 +78,6 @@ const router = express.Router();
  *   get:
  *     summary: Lista sensores com paginacao
  *     tags: [Sensores]
- *     security:
- *       - bearerAuth: []
  *     parameters:
  *       - in: query
  *         name: pagina
@@ -139,8 +137,6 @@ router.get('/', authMiddleware, SensorController.listarTodos);
  *   get:
  *     summary: Busca sensor por ID
  *     tags: [Sensores]
- *     security:
- *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -175,8 +171,6 @@ router.get('/:id', authMiddleware, SensorController.buscarPorID);
  *   post:
  *     summary: Cria um sensor
  *     tags: [Sensores]
- *     security:
- *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -201,8 +195,6 @@ router.post('/', authMiddleware, adminMiddleware, SensorController.criar);
  *   put:
  *     summary: Atualiza um sensor por ID
  *     tags: [Sensores]
- *     security:
- *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -235,8 +227,6 @@ router.put('/:id', authMiddleware, adminMiddleware, SensorController.atualizar);
  *   delete:
  *     summary: Exclui um sensor por ID
  *     tags: [Sensores]
- *     security:
- *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id

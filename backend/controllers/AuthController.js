@@ -53,11 +53,17 @@ class AuthController {
 
 			usuario.foto = `${process.env.BASE_URL}${process.env.UPLOAD_PATH.replace(/^\.\//, '/')}/${usuario.foto}`;
 
+			res.cookie('auth_token', token, {
+				httpOnly: true,
+				secure: process.env.NODE_ENV === "production",
+				sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+				maxAge: 1000 * 60 * 60
+			});
+
 			res.status(200).json({
 				sucesso: true,
 				mensagem: 'Login realizado com sucesso',
 				dados: {
-					token,
 					usuario
 				}
 			})

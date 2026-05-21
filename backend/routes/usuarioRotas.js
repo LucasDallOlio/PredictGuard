@@ -10,11 +10,6 @@ import upload from '../middlewares/uploadMiddleware.js';
  *   description: Rotas de usuarios
  *
  * components:
- *   securitySchemes:
- *     bearerAuth:
- *       type: http
- *       scheme: bearer
- *       bearerFormat: JWT
  *   schemas:
  *     Usuario:
  *       type: object
@@ -125,8 +120,6 @@ const router = express.Router();
  *   get:
  *     summary: Retorna resumo de usuarios por tipo
  *     tags: [Usuarios]
- *     security:
- *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Resumo de usuarios retornado com sucesso
@@ -163,8 +156,6 @@ router.get('/resumo-tipos', authMiddleware, UsuarioController.resumoTipos);
  *   get:
  *     summary: Lista usuarios com paginacao e filtro opcional
  *     tags: [Usuarios]
- *     security:
- *       - bearerAuth: []
  *     parameters:
  *       - in: query
  *         name: pagina
@@ -231,8 +222,6 @@ router.get('/', authMiddleware, UsuarioController.listarTodos);
  *   get:
  *     summary: Busca usuario por ID
  *     tags: [Usuarios]
- *     security:
- *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -278,8 +267,6 @@ router.get('/:id', authMiddleware, UsuarioController.buscarPorID);
  *   post:
  *     summary: Cria um novo usuario
  *     tags: [Usuarios]
- *     security:
- *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -341,8 +328,6 @@ router.post('/', authMiddleware, adminMiddleware, upload.single('foto'), Usuario
  *   put:
  *     summary: Atualiza um usuario por ID
  *     tags: [Usuarios]
- *     security:
- *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -416,8 +401,6 @@ router.put('/:id', authMiddleware, adminMiddleware, upload.single('foto'), Usuar
  *   delete:
  *     summary: Exclui um usuario por ID
  *     tags: [Usuarios]
- *     security:
- *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id

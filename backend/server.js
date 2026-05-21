@@ -5,6 +5,7 @@ import helmet from 'helmet';
 import swaggerUi from 'swagger-ui-express';
 import swaggerSpec from './config/swagger.js';
 import iniciarMQTT from './services/mqttService.js';
+import cookieParser from "cookie-parser";
 
 // Importar rotas
 import authRotas from './routes/authRotas.js'
@@ -28,12 +29,15 @@ app.use(helmet({
 }));
 
 app.use(cors({
-    origin: '*',
+    origin: 'http://localhost:3000',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
     preflightContinue: false, // Deixa as rotas OPTIONS específicas serem processadas
     optionsSuccessStatus: 200 // Retorna 200 para OPTIONS em vez de 204
 }));
+
+app.use(cookieParser());
 
 // Body parsers (necessários para req.body em JSON e forms)
 app.use(express.json());

@@ -3,20 +3,13 @@ import { JWT_CONFIG } from '../config/jwt.js';
 
 const authMiddleware = (req, res, next) => {
     try {
-        const authHeader = req.headers.authorization;
-
-        if (!authHeader) {
-            return res.status(401).json({
-                erro: 'Token de acesso não fornecido',
-                mensagem: 'É necessário fornecer um token de autenticação'
-            })
-        }
-        const token = authHeader.split(' ')[1];
+        
+        const token = req.cookies?.auth_token;
 
         if (!token) {
             return res.status(401).json({
-                erro: 'Token de acesso inválido',
-                mensagem: 'Formato do token incorreto'
+                erro: 'Token de acesso não fornecido',
+                mensagem: 'É necessário fornecer um token de autenticação'
             });
         }
 

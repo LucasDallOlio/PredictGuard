@@ -126,8 +126,6 @@ const router = express.Router();
  *   get:
  *     tags: [Serviços]
  *     summary: Lista serviços
- *     security:
- *       - bearerAuth: []
  *     parameters:
  *       - in: query
  *         name: pagina
@@ -167,8 +165,6 @@ router.get('/', authMiddleware, ServicoController.listarTodos);
  *   get:
  *     summary: Retorna resumo por status dos servicos
  *     tags: [Serviços]
- *     security:
- *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Resumo de status retornado com sucesso
@@ -208,8 +204,6 @@ router.get('/resumo-status', authMiddleware, ServicoController.resumoStatus);
  *   get:
  *     tags: [Serviços]
  *     summary: Busca serviço por ID
- *     security:
- *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -235,8 +229,6 @@ router.get('/:id', authMiddleware, ServicoController.buscarPorID);
  *   post:
  *     tags: [Serviços]
  *     summary: Cria um serviço
- *     security:
- *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -270,8 +262,6 @@ router.post('/', authMiddleware, adminMiddleware, ServicoController.criar);
  *   put:
  *     tags: [Serviços]
  *     summary: Atualiza um serviço
- *     security:
- *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id

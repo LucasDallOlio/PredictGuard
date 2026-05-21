@@ -84,8 +84,6 @@ const router = express.Router();
  *   get:
  *     summary: Lista alertas das maquinas
  *     tags: [Alertas]
- *     security:
- *       - bearerAuth: []
  *     parameters:
  *       - in: query
  *         name: pagina
@@ -155,8 +153,6 @@ router.get('/', authMiddleware, AlertaController.listarTodos);
  *   get:
  *     summary: Busca alerta por ID
  *     tags: [Alertas]
- *     security:
- *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id

@@ -13,20 +13,6 @@ const options = {
       version: '1.0.0',
       description: 'Documentação da API com Swagger',
     },
-    components: {
-      securitySchemes: {
-        bearerAuth: {
-          type: 'http',
-          scheme: 'bearer',
-          bearerFormat: 'JWT',
-        },
-      },
-    },
-    security: [
-      {
-        bearerAuth: [],
-      },
-    ],
     servers: [
       {
         url: `http://localhost:${PORT}`,

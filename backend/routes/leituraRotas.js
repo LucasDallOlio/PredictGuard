@@ -44,8 +44,6 @@ const router = express.Router();
  *   get:
  *     summary: Lista leituras para graficos
  *     tags: [Leituras]
- *     security:
- *       - bearerAuth: []
  *     parameters:
  *       - in: query
  *         name: sensor_id

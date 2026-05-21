@@ -10,11 +10,6 @@ import upload from '../middlewares/uploadMiddleware.js';
  *   description: Rotas de maquinas
  *
  * components:
- *   securitySchemes:
- *     bearerAuth:
- *       type: http
- *       scheme: bearer
- *       bearerFormat: JWT
  *   schemas:
  *     Maquina:
  *       type: object
@@ -256,8 +251,6 @@ const router = express.Router();
  *   get:
  *     summary: Lista maquinas com paginacao
  *     tags: [Maquinas]
- *     security:
- *       - bearerAuth: []
  *     parameters:
  *       - in: query
  *         name: pagina
@@ -329,8 +322,6 @@ router.get('/', authMiddleware, MaquinaController.listarTodos);
  *   get:
  *     summary: Retorna resumo por status das maquinas
  *     tags: [Maquinas]
- *     security:
- *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Resumo de status retornado com sucesso
@@ -376,8 +367,6 @@ router.get('/resumo-status', authMiddleware, MaquinaController.resumoStatus);
  *   get:
  *     summary: Busca maquina por ID
  *     tags: [Maquinas]
- *     security:
- *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -424,8 +413,6 @@ router.get('/:id', authMiddleware, MaquinaController.buscarPorID);
  *   post:
  *     summary: Cria uma nova maquina
  *     tags: [Maquinas]
- *     security:
- *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -488,8 +475,6 @@ router.post('/', authMiddleware, adminMiddleware, upload.single('imagem'), Maqui
  *   put:
  *     summary: Atualiza uma maquina por ID
  *     tags: [Maquinas]
- *     security:
- *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -564,8 +549,6 @@ router.put('/:id', authMiddleware, adminMiddleware, upload.single('imagem'), Maq
  *   delete:
  *     summary: Exclui uma maquina por ID
  *     tags: [Maquinas]
- *     security:
- *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
