@@ -1,7 +1,7 @@
 import { create, read, count, getConnection } from '../config/database.js';
 import normalizeDateTime from '../utils/normalizeDateTime.js';
 
-class AlertaLeituraModel {
+class AlertaModel {
     static async criar({ maquina_id, sensor_id = null, tipo_alerta, severidade, valor_detectado = null, limite_configurado = null, unidade = null, mensagem }) {
         return await create('alertas', {
             maquina_id,
@@ -111,4 +111,4 @@ class AlertaLeituraModel {
     }
 }
 
-export default AlertaLeituraModel;
+export default AlertaModel;
