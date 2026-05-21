@@ -140,6 +140,7 @@ const TableComp = () => {
     erro,
     pagina,
     totalPaginas,
+    atualizarStatusServico,
     proximaPagina,
     paginaAnterior,
   } = useService();
@@ -259,47 +260,6 @@ const TableComp = () => {
     setOpenModal(true);
   }
 
-  async function cancelarServico(id) {
-
-    try {
-
-      const res = await fetch(
-        `http://localhost:3001/servicos/${id}`,
-        {
-          method: "PUT",
-
-          headers: {
-            "Content-Type":
-              "application/json",
-
-            Authorization: `Bearer ${localStorage.getItem(
-              "token"
-            )}`,
-          },
-
-          body: JSON.stringify({
-            servico_status: "Cancelado",
-          }),
-        }
-      );
-
-      if (!res.ok) {
-
-        throw new Error(
-          "Erro ao cancelar serviço"
-        );
-      }
-
-      await carregarServicos();
-
-    } catch (error) {
-
-      console.error(
-        "Erro ao cancelar serviço:",
-        error
-      );
-    }
-  }
 
   return (
 
@@ -565,11 +525,19 @@ const TableComp = () => {
                                       "Cancelado" && (
 
                                         <DropdownMenuItem
-                                          onClick={() =>
-                                            cancelarServico(
-                                              item.id
-                                            )
-                                          }
+                                          onClick={async () => {
+                                            try {
+                                              await atualizarStatusServico(
+                                                item.id,
+                                                "cancelado"
+                                              );
+                                            } catch (error) {
+                                              console.error(
+                                                "Erro ao cancelar serviço:",
+                                                error
+                                              );
+                                            }
+                                          }}
                                           className="
                                             flex gap-2
                                             cursor-pointer
