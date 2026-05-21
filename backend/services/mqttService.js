@@ -2,6 +2,7 @@ import mqtt from 'mqtt';
 import dotenv from 'dotenv';
 import LeituraModel from '../models/LeituraModel.js';
 import AlertaModel from '../models/AlertaModel.js';
+import MaquinaModel from '../models/MaquinaModel.js';
 import { getConnection } from '../config/database.js';
 
 dotenv.config();
@@ -124,6 +125,11 @@ async function handleTemperatura(payload, sensorId) {
             unidade:            'celsius',
             mensagem:           `Temperatura ${valor}°C acima do limite de ${limiteUsado}°C na máquina ${maquinaId}.`
         });
+
+        await MaquinaModel.atualizar(maquinaId, {
+            status_saude: "alerta"
+        });
+
         console.warn(`[MQTT] ⚠️  Alerta de temperatura: M${maquinaId} S${sensorId} ${valor}°C (limite: ${limiteUsado}°C)`);
     }
 
@@ -168,6 +174,11 @@ async function handleVibracao(payload, sensorId) {
             unidade:            'mm/s',
             mensagem:           `Vibração ${valor} mm/s acima do limite de ${limiteUsado} mm/s na máquina ${maquinaId}.`
         });
+
+        await MaquinaModel.atualizar(maquinaId, {
+            status_saude: "alerta"
+        });
+        
         console.warn(`[MQTT] ⚠️  Alerta de vibração: M${maquinaId} S${sensorId} ${valor} mm/s (limite: ${limiteUsado} mm/s)`);
     }
 
