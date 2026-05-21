@@ -57,7 +57,6 @@ export function ModalCriarMotor({ open, setOpen, onSave }) {
         imagem: "",
         nivel_criticidade: "",
         status_operacional: "",
-        status_saude: "",
         temperatura_limite_c: "",
         aceleracao_limite_mms: "",
     };
@@ -116,6 +115,7 @@ const validar = () => {
 
        
         Object.entries(formData).forEach(([key, value]) => {
+            if (key === "status_saude") return;
             if (value !== null && value !== undefined) {
                 formDataToSend.append(key, value);
             }
