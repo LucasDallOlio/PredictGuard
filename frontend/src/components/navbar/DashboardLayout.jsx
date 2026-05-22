@@ -6,7 +6,8 @@ import {
   Moon, Sun, Menu, X, LayoutDashboard, Briefcase, Cpu, Users,
   MessageSquare, Bot, Settings, Bell, Search,
   ChevronRight, ChevronLeft, LogOut, ShieldCheck, User, Mail, Phone, Shield,
-  Loader2, Check
+  Loader2, Check,
+  Radio
 } from "lucide-react";
 import { useAuth } from "@/hooks/UseAuth";
 
@@ -38,6 +39,7 @@ export default function PremiumLayout({ children }) {
     { name: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
     { name: "Serviços", icon: Briefcase, href: "/services" },
     { name: "Motores", icon: Cpu, href: "/engines" },
+    { name: "Sensores", icon: Radio, href: "/sensors" },
     { name: "Usuários", icon: Users, href: "/users" },
     { name: "Chat", icon: MessageSquare, href: "/chat" },
   ];

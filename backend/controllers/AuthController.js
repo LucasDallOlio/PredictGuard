@@ -57,7 +57,8 @@ class AuthController {
 				httpOnly: true,
 				secure: process.env.NODE_ENV === "production",
 				sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-				maxAge: 1000 * 60 * 60
+				maxAge: 1000 * 60 * 60,
+				path: '/'
 			});
 
 			res.status(200).json({
@@ -75,6 +76,30 @@ class AuthController {
 				erro: 'Erro interno do servidor',
 				mensagem: 'Não foi possível processar o login'
 			});
+		}
+	}
+
+	static async logout(req, res) {
+		try {
+			res.clearCookie('auth_token', {
+				httpOnly: true,
+				secure: process.env.NODE_ENV === "production",
+				sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+				path: '/'
+			});
+
+			return res.status(200).json({
+				sucesso: true,
+				mensagem: 'Logout realizado com sucesso'
+			})
+		}
+		catch (error) {
+			console.error('Erro ao fazer o logout:', error);
+			res.status(500).json({
+				sucesso: false,
+				erro: 'Erro interno do servidor',
+				mensagem: 'Nao foi possivel processar o logout'
+			})
 		}
 	}
 }

@@ -1,5 +1,6 @@
 import express from 'express';
 import AuthController from '../controllers/AuthController.js';
+import { authMiddleware } from '../middlewares/authMiddleware.js';
 
 /**
  * @swagger
@@ -69,5 +70,42 @@ const router = express.Router();
  *               $ref: '#/components/schemas/ApiResponseErro'
  */
 router.post('/login', AuthController.login);
+
+/**
+ * @swagger
+ * /auth/logout:
+ *   post:
+ *     summary: Encerra a sessao do usuario autenticado
+ *     tags: [Auth]
+ *     security:
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Logout realizado com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 sucesso:
+ *                   type: boolean
+ *                   example: true
+ *                 mensagem:
+ *                   type: string
+ *                   example: Logout realizado com sucesso
+ *       401:
+ *         description: Nao autenticado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponseErro'
+ *       500:
+ *         description: Erro interno
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponseErro'
+ */
+router.post('/logout', authMiddleware, AuthController.logout);
 
 export default router;
