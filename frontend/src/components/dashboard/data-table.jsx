@@ -379,9 +379,11 @@ export function DataTable() {
               {alertaSelecionado.maquina}
             </h2>
 
-            <p className="text-sm text-muted-foreground mt-1">
-              {alertaSelecionado.maquina_setor}
-            </p>
+      <p className="font-medium">
+  {alertaSelecionado.maquina_setor
+    ?.replaceAll("_", " ")
+    ?.replace(/\b\w/g, (l) => l.toUpperCase())}
+</p>
 
           </div>
 
