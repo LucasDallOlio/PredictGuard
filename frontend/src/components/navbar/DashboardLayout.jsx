@@ -7,7 +7,7 @@ import {
   MessageSquare, Bot, Settings, Bell, Search,
   ChevronRight, ChevronLeft, LogOut, ShieldCheck, User, Mail, Phone, Shield,
   Loader2, Check,
-  Radio
+  Radio, Camera
 } from "lucide-react";
 import { useAuth } from "@/hooks/UseAuth";
 
@@ -77,7 +77,7 @@ export default function PremiumLayout({ children }) {
     }, 1000);
   };
 
-  
+
   const [isDark, setIsDark] = useState(false);
 
   // Verifica o tema inicial assim que o componente é montado
@@ -89,10 +89,10 @@ export default function PremiumLayout({ children }) {
   const toggleTheme = () => {
     const root = document.documentElement;
     root.classList.toggle("dark");
-    
+
     const isNowDark = root.classList.contains("dark");
     setIsDark(isNowDark);
-    
+
     // Opcional: Salva a preferência do usuário no navegador
     localStorage.setItem("theme", isNowDark ? "dark" : "light");
   };
@@ -133,16 +133,16 @@ export default function PremiumLayout({ children }) {
             <X className="size-6" />
           </button>
           <button
-      onClick={toggleTheme}
-      className="inline-flex items-center justify-center rounded-md w-10 h-10 border border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring transition-colors"
-      aria-label="Alternar tema"
-    >
-      {isDark ? (
-        <Sun className="h-5 w-5" />
-      ) : (
-        <Moon className="h-5 w-5" />
-      )}
-    </button>
+            onClick={toggleTheme}
+            className="inline-flex items-center justify-center rounded-md w-10 h-10 border border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring transition-colors"
+            aria-label="Alternar tema"
+          >
+            {isDark ? (
+              <Sun className="h-5 w-5" />
+            ) : (
+              <Moon className="h-5 w-5" />
+            )}
+          </button>
         </div>
 
         {/* Menu Superior - AGORA COM ISLAS EM ESTADO COLAPSADO */}
@@ -296,7 +296,25 @@ export default function PremiumLayout({ children }) {
 
               <div className="absolute -bottom-12 left-4 md:left-8 flex items-end gap-4">
                 {/* FOTO DO USUÁRIO */}
-                <div className="size-20 md:size-24 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-2xl md:text-3xl shadow-xl border-4 border-background shrink-0 overflow-hidden">
+                {/* FOTO DO USUÁRIO (AGORA EDITÁVEL) */}
+                <label className="relative size-20 md:size-24 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-2xl md:text-3xl shadow-xl border-4 border-background shrink-0 overflow-hidden cursor-pointer group transition-transform active:scale-95">
+                  {/* Input de arquivo escondido */}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    disabled={isSaving}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        // Chame sua função aqui para tratar a nova imagem
+                        // Ex: handleFotoChange(file);
+                        console.log("Arquivo selecionado:", file);
+                      }
+                    }}
+                  />
+
+                  {/* Renderização da Imagem / Inicial */}
                   {getFotoUrl(user?.foto) ? (
                     <img
                       src={getFotoUrl(user?.foto)}
@@ -306,7 +324,15 @@ export default function PremiumLayout({ children }) {
                   ) : (
                     <span>{user?.nome?.charAt(0).toUpperCase() ?? "?"}</span>
                   )}
-                </div>
+
+                  {/* Overlay que aparece no Hover/Foco */}
+                  <div className="absolute inset-0 bg-black/50 backdrop-blur-[1px] flex flex-col items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                    <Camera className="size-5 text-white" />
+                    <span className="text-[10px] text-white font-semibold tracking-wide uppercase hidden sm:inline">
+                      Alterar
+                    </span>
+                  </div>
+                </label>
 
                 <div className="mb-2">
                   {/* NOME DO BANCO */}

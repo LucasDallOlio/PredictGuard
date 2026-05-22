@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Cpu, ChevronDown, X, Thermometer, Activity } from "lucide-react";
+import { Radio, ChevronDown, X, Thermometer, Activity } from "lucide-react";
 
 export default function ModalEditarSensor({ open, onClose, onEditSensor, sensor, maquinas = [] }) {
   const [modelo, setModelo] = useState("");
@@ -79,7 +79,7 @@ export default function ModalEditarSensor({ open, onClose, onEditSensor, sensor,
               Modelo
             </label>
             <div className="relative">
-              <Cpu className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300 dark:text-zinc-500" />
+              <Radio className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300 dark:text-zinc-500" />
               <input
                 value={modelo}
                 onChange={(e) => setModelo(e.target.value)}

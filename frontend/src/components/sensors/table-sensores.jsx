@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Trash2, Cpu, Pencil, Thermometer, Activity, Link2, Link2Off } from "lucide-react";
+import { Trash2, Radio, Pencil, Thermometer, Activity, Link2, Link2Off } from "lucide-react";
 import ModalAdicionarSensor from "@/components/sensors/modal-sensor";
 import ModalEditarSensor from "@/components/sensors/modal-editar-sensor";
 import { useSensors } from "@/hooks/useSensors";
@@ -137,7 +137,7 @@ export default function SensorsTable() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-sky-500 shadow-md shadow-sky-200 dark:shadow-sky-900">
-              <Cpu className="w-5 h-5 text-white" />
+              <Radio className="w-5 h-5 text-white" />
             </div>
             <div>
               <h1 className="text-2xl font-extrabold tracking-tight text-gray-800 dark:text-zinc-100">
@@ -153,7 +153,7 @@ export default function SensorsTable() {
             onClick={() => setModalOpen(true)}
             className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-600 text-white text-sm font-semibold shadow-md shadow-sky-200 dark:shadow-sky-900 transition"
           >
-            <Cpu size={16} />
+            <Radio size={16} />
             Adicionar Sensor
           </button>
         </div>
@@ -167,7 +167,7 @@ export default function SensorsTable() {
             </div>
           ) : sensores.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 gap-2">
-              <Cpu className="w-10 h-10 text-gray-200 dark:text-zinc-700" />
+              <Radio className="w-10 h-10 text-gray-200 dark:text-zinc-700" />
               <p className="text-sm text-gray-400 dark:text-zinc-500">Nenhum sensor encontrado</p>
             </div>
           ) : (

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Cpu, ChevronDown, X, Thermometer, Activity } from "lucide-react";
+import { Radio, ChevronDown, X, Thermometer, Activity } from "lucide-react";
 
 export default function ModalAdicionarSensor({ open, onClose, onAddSensor, maquinas = [] }) {
   const [modelo, setModelo] = useState("");
@@ -44,7 +44,7 @@ export default function ModalAdicionarSensor({ open, onClose, onAddSensor, maqui
         {/* Header */}
         <div className="bg-gradient-to-r from-sky-500 to-sky-400 px-6 py-5 flex items-center gap-4">
           <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-white/20 flex-shrink-0">
-            <Cpu className="w-5 h-5 text-white" />
+            <Radio className="w-5 h-5 text-white" />
           </div>
           <div className="flex-1">
             <p className="text-white font-bold text-base leading-tight">Adicionar Sensor</p>
@@ -68,7 +68,7 @@ export default function ModalAdicionarSensor({ open, onClose, onAddSensor, maqui
               Modelo
             </label>
             <div className="relative">
-              <Cpu className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300 dark:text-zinc-500" />
+              <Radio className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300 dark:text-zinc-500" />
               <input
                 value={modelo}
                 onChange={(e) => setModelo(e.target.value)}
