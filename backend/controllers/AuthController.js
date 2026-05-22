@@ -77,6 +77,29 @@ class AuthController {
 			});
 		}
 	}
+
+	static async logout(req, res) {
+		try {
+			res.clearCookie('auth_token', {
+				httpOnly: true,
+				secure: process.env.NODE_ENV === "production",
+				sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+			});
+
+			return res.status(200).json({
+				sucesso: true,
+				mensagem: 'Logout realizado com sucesso'
+			})
+		}
+		catch (error) {
+			console.error('Erro ao fazer o logout:', error);
+			res.status(500).json({
+				sucesso: false,
+				erro: 'Erro interno do servidor',
+				mensagem: 'Nao foi possivel processar o logout'
+			})
+		}
+	}
 }
 
 export default AuthController;
