@@ -108,4 +108,46 @@ router.post('/login', AuthController.login);
  */
 router.post('/logout', authMiddleware, AuthController.logout);
 
+/**
+ * @swagger
+ * /auth/usuario:
+ *   get:
+ *     summary: Retorna o usuario autenticado
+ *     tags: [Auth]
+ *     security:
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Usuario retornado com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 sucesso:
+ *                   type: boolean
+ *                   example: true
+ *                 mensagem:
+ *                   type: string
+ *                   example: Usuario retornado com sucesso
+ *                 dados:
+ *                   type: object
+ *                   properties:
+ *                     usuario:
+ *                       $ref: '#/components/schemas/Usuario'
+ *       401:
+ *         description: Nao autenticado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponseErro'
+ *       500:
+ *         description: Erro interno
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponseErro'
+ */
+router.get('/usuario', authMiddleware, AuthController.retornarUsuario);
+
 export default router;

@@ -102,6 +102,30 @@ class AuthController {
 			})
 		}
 	}
+
+	static async retornarUsuario(req, res) {
+		try {
+			const id = req.usuario.id;
+
+			const usuario = await UsuarioModel.buscarPorID(id)
+
+			res.status(200).json({
+				sucesso: true,
+				mensagem: 'Usuario retornado com sucesso',
+				dados: {
+					usuario
+				}
+			})
+		}
+		catch (error) {
+			console.error('Erro ao retornar usuario autenticado:', error);
+			res.status(500).json({
+				sucesso: false,
+				erro: 'Erro interno do servidor',
+				mensagem: 'Nao foi possivel retornar o usuario autenticado'
+			})
+		}
+	}
 }
 
 export default AuthController;
