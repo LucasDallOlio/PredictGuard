@@ -16,9 +16,32 @@ class AlertaModel {
     }
 
     static async buscarPorID(id) {
-        const rows = await read('alertas', `id = ${Number(id)}`);
-        return rows[0] || null;
-    }
+		const connection = await getConnection();
+
+		try {
+			const sql = `
+				select
+					a.*,
+					m.nome as maquina,
+                    m.setor as maquina_setor
+				from alertas a
+				left join maquinas m on m.id = a.maquina_id
+				where a.id = ?
+			`;
+
+			const [rows] = await connection.execute(sql, [Number(id)]);
+
+			if (!rows[0]) return null;
+
+			return rows[0];
+		}
+		catch (error) {
+			throw new Error(`Erro ao buscar alerta por ID: ${error.message}`);
+		}
+		finally {
+			connection.release();
+		}
+	}
 
     static async listarTodos(page = 1, limit = 10, filtro = null, ordem = 'asc') {
         const connection = await getConnection();
@@ -86,8 +109,12 @@ class AlertaModel {
             const ordemSql = ordem === 'desc' ? 'desc' : 'asc';
 
             const sql = `
-                select *
-                from alertas
+                select
+					a.*,
+					m.nome as maquina,
+                    m.setor as maquina_setor
+				from alertas a
+				left join maquinas m on m.id = a.maquina_id
                 ${whereSQL}
                 order by data_alerta ${ordemSql}
                 limit ${limit} offset ${offset}
