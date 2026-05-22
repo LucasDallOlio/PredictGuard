@@ -57,7 +57,8 @@ class AuthController {
 				httpOnly: true,
 				secure: process.env.NODE_ENV === "production",
 				sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-				maxAge: 1000 * 60 * 60
+				maxAge: 1000 * 60 * 60,
+				path: '/'
 			});
 
 			res.status(200).json({
@@ -84,6 +85,7 @@ class AuthController {
 				httpOnly: true,
 				secure: process.env.NODE_ENV === "production",
 				sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+				path: '/'
 			});
 
 			return res.status(200).json({
