@@ -64,27 +64,27 @@ function formatDateLabel(date, timeRange) {
 }
 
 export function ChartAreaInteractive() {
-  // Garantindo fallbacks vazios caso o hook demore a responder
+
   const { chartData = [], maquinas = [], loading } = useDashboardData() || {}
 
   const [timeRange, setTimeRange] = React.useState("7d")
   const [setorFilter, setSetorFilter] = React.useState("todos")
   const [motorFilter, setMotorFilter] = React.useState("")
 
-  // 1. Mapeia os setores sem duplicatas
+
   const setores = React.useMemo(() => {
     if (!maquinas) return []
     return [...new Set(maquinas.map((m) => m.setor))].filter(Boolean)
   }, [maquinas])
 
-  // 2. Filtra as máquinas com base no setor selecionado
+
   const maquinasFiltradas = React.useMemo(() => {
     if (!maquinas) return []
     if (setorFilter === "todos") return maquinas
     return maquinas.filter((m) => m.setor === setorFilter)
   }, [maquinas, setorFilter])
 
-  // 3. Mantém a sincronia do motor selecionado ao mudar de setor
+ 
   React.useEffect(() => {
     if (maquinasFiltradas && maquinasFiltradas.length > 0) {
       const maquinaExiste = maquinasFiltradas.some((m) => m.nome === motorFilter)
@@ -96,13 +96,18 @@ export function ChartAreaInteractive() {
     }
   }, [maquinasFiltradas, motorFilter])
 
-  // 4. Processamento dos dados em tempo real (Loop único otimizado)
+  
+
   const filteredData = React.useMemo(() => {
     if (!chartData || !chartData.length) return []
 
-    const latestDate = new Date()
+    
+    const maxTimestamp = Math.max(...chartData.map(item => new Date(item.date).getTime()))
+    const latestDate = new Date(maxTimestamp)
+    
     let start = new Date(latestDate)
 
+   
     if (timeRange === "1h") {
       start = new Date(latestDate.getTime() - 60 * 60 * 1000)
     } else if (timeRange === "1d") {
@@ -158,7 +163,7 @@ export function ChartAreaInteractive() {
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
   }, [chartData, timeRange, motorFilter])
 
-  // Loading inicial da estrutura do esqueleto
+
   if (loading && (!chartData || !chartData.length)) {
     return (
       <Card>
@@ -231,7 +236,7 @@ export function ChartAreaInteractive() {
       </CardHeader>
 
       <CardContent className="pt-6">
-        {/* Renderização condicional apenas no corpo do gráfico */}
+      
         {!filteredData || filteredData.length === 0 ? (
           <div className="h-[380px] flex items-center justify-center text-center text-muted-foreground border border-dashed rounded-xl">
             Nenhum dado encontrado para esta máquina neste período.
