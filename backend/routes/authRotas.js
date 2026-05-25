@@ -1,6 +1,7 @@
 import express from 'express';
 import AuthController from '../controllers/AuthController.js';
 import { authMiddleware } from '../middlewares/authMiddleware.js';
+import upload from '../middlewares/uploadMiddleware.js';
 
 /**
  * @swagger
@@ -149,5 +150,43 @@ router.post('/logout', authMiddleware, AuthController.logout);
  *               $ref: '#/components/schemas/ApiResponseErro'
  */
 router.get('/usuario', authMiddleware, AuthController.retornarUsuario);
+
+/**
+ * @swagger
+ * /auth/usuario:
+ *   patch:
+ *     summary: Atualiza o usuario autenticado
+ *     tags: [Auth]
+ *     security:
+ *       - cookieAuth: []
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               senha:
+ *                 type: string
+ *                 example: 'novaSenha123'
+ *               telefone:
+ *                 type: string
+ *                 example: '(11) 98765-4321'
+ *               foto:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Usuario atualizado com sucesso
+ *       400:
+ *         description: Dados insuficientes
+ *       401:
+ *         description: Nao autenticado
+ *       404:
+ *         description: Usuario nao encontrado
+ *       500:
+ *         description: Erro interno
+ */
+router.patch('/usuario', authMiddleware, upload.single('foto'), AuthController.atualizar);
 
 export default router;
