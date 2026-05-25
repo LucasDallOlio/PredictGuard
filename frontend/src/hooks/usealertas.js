@@ -1,220 +1,130 @@
-"use client";
+"use client"
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+} from "react"
 
-const API_URL = "http://localhost:3001/alertas";
+const API_URL =
+  "http://localhost:3001/alertas"
 
 export function useAlertas() {
 
-  const [alertas, setAlertas] = useState([]);
+  const [alertas, setAlertas] =
+    useState([])
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] =
+    useState(false)
 
-  const [erro, setErro] = useState(null);
+  const [erro, setErro] =
+    useState(null)
 
-  const [pagina, setPagina] = useState(1);
+  const [pagina, setPagina] =
+    useState(1)
 
-  const [totalPaginas, setTotalPaginas] = useState(1);
+  const [limite] =
+    useState(10)
 
-  const fetchAlertas = useCallback(async (page = pagina) => {
+  const [totalPaginas, setTotalPaginas] =
+    useState(1)
 
-    setLoading(true);
+  const fetchAlertas =
+    useCallback(async (page = 1) => {
 
-    setErro(null);
+      try {
 
-    try {
+        setLoading(true)
 
-      console.log("Buscando alertas...");
+        setErro(null)
 
-      const res = await fetch(
-        `${API_URL}?page=${page}&limit=10`,
-        {
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
+        const res = await fetch(
+          `${API_URL}?pagina=${page}&limite=${limite}&ordem=desc`,
+          {
+            credentials: "include",
+          }
+        )
+
+        if (!res.ok) {
+
+          throw new Error(
+            "Erro ao buscar alertas"
+          )
         }
-      );
 
-      console.log("Status busca:", res.status);
+        const data =
+          await res.json()
 
-      if (!res.ok) {
-        throw new Error("Erro ao buscar alertas");
+        console.log(data)
+
+        setAlertas(
+          data.dados || []
+        )
+
+        setTotalPaginas(
+          data.paginacao?.totalPaginas || 1
+        )
+
+      } catch (err) {
+
+        console.error(err)
+
+        setErro(
+          err.message
+        )
+
+      } finally {
+
+        setLoading(false)
+
       }
 
-      const data = await res.json();
-
-      console.log("Alertas recebidos:", data);
-
-      setAlertas(data.dados || []);
-
-      setTotalPaginas(
-        Math.ceil(
-          (data.total || 0) / (data.limit || 10)
-        ) || 1
-      );
-
-    } catch (err) {
-
-      console.error("Erro fetchAlertas:", err);
-
-      setErro(err.message);
-
-    } finally {
-
-      setLoading(false);
-
-    }
-
-  }, [pagina]);
+    }, [limite])
 
   useEffect(() => {
 
-    fetchAlertas(pagina);
+    fetchAlertas(pagina)
 
-  }, [pagina, fetchAlertas]);
+  }, [pagina, fetchAlertas])
 
   function proximaPagina() {
 
-    setPagina((prev) =>
-      Math.min(prev + 1, totalPaginas)
-    );
+    if (pagina < totalPaginas) {
+
+      setPagina((prev) => prev + 1)
+
+    }
   }
 
   function paginaAnterior() {
 
-    setPagina((prev) =>
-      Math.max(prev - 1, 1)
-    );
-  }
+    if (pagina > 1) {
 
-  async function criarAlerta(novoAlerta) {
-
-    try {
-
-      const res = await fetch(API_URL, {
-        method: "POST",
-
-        headers: {
-          "Content-Type": "application/json",
-        },
-
-        credentials: "include",
-
-        body: JSON.stringify(novoAlerta),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(
-          data.mensagem || "Erro ao criar alerta"
-        );
-      }
-
-      fetchAlertas(pagina);
-
-      return data;
-
-    } catch (err) {
-
-      console.error("Erro criarAlerta:", err);
-
-      throw err;
+      setPagina((prev) => prev - 1)
 
     }
-
   }
 
-  async function atualizarAlerta(id, atualizacoes) {
+  const alertasCriticos =
+    useMemo(() => {
 
-    try {
+      return alertas.filter(
+        (a) =>
+          a.severidade === "critica"
+      )
 
-      const res = await fetch(`${API_URL}/${id}`, {
-        method: "PUT",
+    }, [alertas])
 
-        headers: {
-          "Content-Type": "application/json",
-        },
+  const alertasAlta =
+    useMemo(() => {
 
-        credentials: "include",
+      return alertas.filter(
+        (a) =>
+          a.severidade === "alta"
+      )
 
-        body: JSON.stringify(atualizacoes),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(
-          data.mensagem || "Erro ao atualizar alerta"
-        );
-      }
-
-      fetchAlertas(pagina);
-
-      return data;
-
-    } catch (err) {
-
-      console.error("Erro atualizarAlerta:", err);
-
-      throw err;
-
-    }
-
-  }
-
-  async function excluirAlerta(id) {
-
-    try {
-
-      const res = await fetch(`${API_URL}/${id}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
-
-      if (!res.ok) {
-
-        const data = await res.json();
-
-        throw new Error(
-          data.mensagem || "Erro ao excluir alerta"
-        );
-      }
-
-      fetchAlertas(pagina);
-
-    } catch (err) {
-
-      console.error("Erro excluirAlerta:", err);
-
-      throw err;
-
-    }
-
-  }
-
-  const alertasCriticos = useMemo(() => {
-
-    return alertas.filter(
-      (a) => a.severidade === "critica"
-    );
-
-  }, [alertas]);
-
-  const alertasAlta = useMemo(() => {
-
-    return alertas.filter(
-      (a) => a.severidade === "alta"
-    );
-
-  }, [alertas]);
-
-  const totalAlertas = useMemo(() => {
-
-    return alertas.length;
-
-  }, [alertas]);
+    }, [alertas])
 
   return {
 
@@ -226,6 +136,8 @@ export function useAlertas() {
 
     pagina,
 
+    limite,
+
     totalPaginas,
 
     proximaPagina,
@@ -234,16 +146,8 @@ export function useAlertas() {
 
     fetchAlertas,
 
-    criarAlerta,
-
-    atualizarAlerta,
-
-    excluirAlerta,
-
-    totalAlertas,
-
     alertasCriticos,
 
     alertasAlta,
-  };
+  }
 }

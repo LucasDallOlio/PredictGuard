@@ -52,7 +52,10 @@ export function DataTable() {
     paginaAnterior,
   } = useAlertas()
 
-  const [alertaSelecionado, setAlertaSelecionado] = React.useState(null)
+  const [
+    alertaSelecionado,
+    setAlertaSelecionado
+  ] = React.useState(null)
 
   const columns = [
     {
@@ -61,11 +64,13 @@ export function DataTable() {
 
       cell: ({ row }) => (
         <div className="flex items-center gap-2 font-medium">
+
           <Factory className="w-4 h-4 text-primary" />
 
           <span>
             {row.original.maquina}
           </span>
+
         </div>
       ),
     },
@@ -75,10 +80,13 @@ export function DataTable() {
       header: "Setor",
 
       cell: ({ row }) => (
+
         <Badge variant="outline">
+
           {row.original.maquina_setor
             ?.replaceAll("_", " ")
             ?.replace(/\b\w/g, (l) => l.toUpperCase())}
+
         </Badge>
       ),
     },
@@ -89,9 +97,11 @@ export function DataTable() {
 
       cell: ({ row }) => {
 
-        const tipo = row.original.tipo_alerta
+        const tipo =
+          row.original.tipo_alerta
 
         return (
+
           <div className="flex items-center gap-2">
 
             {tipo === "temperatura" && (
@@ -125,9 +135,11 @@ export function DataTable() {
 
       cell: ({ row }) => {
 
-        const severidade = row.original.severidade
+        const severidade =
+          row.original.severidade
 
         return (
+
           <Badge
             className={
               severidade === "critica"
@@ -164,9 +176,12 @@ export function DataTable() {
       header: "Valor",
 
       cell: ({ row }) => (
+
         <div className="font-semibold">
+
           {row.original.valor_detectado ?? "--"}{" "}
           {row.original.unidade ?? ""}
+
         </div>
       ),
     },
@@ -177,19 +192,29 @@ export function DataTable() {
 
       cell: ({ row }) => {
 
-        const data = new Date(row.original.data_alerta)
+        const data =
+          new Date(
+            row.original.data_alerta
+          )
 
         return (
+
           <div className="flex items-center gap-2 text-sm">
 
             <Calendar className="w-4 h-4 text-muted-foreground" />
 
             <span>
+
               {data.toLocaleDateString("pt-BR")}{" "}
-              {data.toLocaleTimeString("pt-BR", {
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
+
+              {data.toLocaleTimeString(
+                "pt-BR",
+                {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                }
+              )}
+
             </span>
 
           </div>
@@ -206,9 +231,15 @@ export function DataTable() {
         <Button
           size="icon"
           variant="outline"
-          onClick={() => setAlertaSelecionado(row.original)}
+          onClick={() =>
+            setAlertaSelecionado(
+              row.original
+            )
+          }
         >
+
           <Eye className="w-4 h-4" />
+
         </Button>
 
       ),
@@ -218,26 +249,12 @@ export function DataTable() {
   const table = useReactTable({
     data: alertas || [],
     columns,
-    getCoreRowModel: getCoreRowModel(),
+    getCoreRowModel:
+      getCoreRowModel(),
   })
 
-  if (loading) {
-    return (
-      <div className="p-6 text-center text-muted-foreground">
-        Carregando alertas...
-      </div>
-    )
-  }
-
-  if (erro) {
-    return (
-      <div className="p-6 text-center text-red-500">
-        {erro}
-      </div>
-    )
-  }
-
   return (
+
     <>
       <div className="rounded-xl border bg-background mx-4 lg:mx-6 overflow-hidden">
 
@@ -245,53 +262,98 @@ export function DataTable() {
 
           <TableHeader>
 
-            {table.getHeaderGroups().map((headerGroup) => (
+            {table
+              .getHeaderGroups()
+              .map((headerGroup) => (
 
-              <TableRow key={headerGroup.id}>
+                <TableRow
+                  key={headerGroup.id}
+                >
 
-                {headerGroup.headers.map((header) => (
+                  {headerGroup.headers.map(
+                    (header) => (
 
-                  <TableHead key={header.id}>
+                      <TableHead
+                        key={header.id}
+                      >
 
-                    {flexRender(
-                      header.column.columnDef.header,
-                      header.getContext()
-                    )}
+                        {flexRender(
+                          header.column
+                            .columnDef
+                            .header,
+                          header.getContext()
+                        )}
 
-                  </TableHead>
+                      </TableHead>
 
-                ))}
+                    )
+                  )}
 
-              </TableRow>
+                </TableRow>
 
-            ))}
+              ))}
 
           </TableHeader>
 
           <TableBody>
 
-            {table.getRowModel().rows?.length ? (
+            {loading ? (
 
-              table.getRowModel().rows.map((row) => (
+              <TableRow>
 
-                <TableRow key={row.id}>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center text-muted-foreground"
+                >
+                  Carregando alertas...
+                </TableCell>
 
-                  {row.getVisibleCells().map((cell) => (
+              </TableRow>
 
-                    <TableCell key={cell.id}>
+            ) : erro ? (
 
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
+              <TableRow>
 
-                    </TableCell>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center text-red-500"
+                >
+                  {erro}
+                </TableCell>
 
-                  ))}
+              </TableRow>
 
-                </TableRow>
+            ) : table.getRowModel().rows
+                ?.length ? (
 
-              ))
+              table
+                .getRowModel()
+                .rows.map((row) => (
+
+                  <TableRow key={row.id}>
+
+                    {row
+                      .getVisibleCells()
+                      .map((cell) => (
+
+                        <TableCell
+                          key={cell.id}
+                        >
+
+                          {flexRender(
+                            cell.column
+                              .columnDef
+                              .cell,
+                            cell.getContext()
+                          )}
+
+                        </TableCell>
+
+                      ))}
+
+                  </TableRow>
+
+                ))
 
             ) : (
 
@@ -315,7 +377,9 @@ export function DataTable() {
         <div className="flex items-center justify-between p-4 border-t">
 
           <span className="text-sm text-muted-foreground">
+
             Página {pagina} de {totalPaginas}
+
           </span>
 
           <div className="flex gap-2">
@@ -323,7 +387,10 @@ export function DataTable() {
             <Button
               variant="outline"
               onClick={paginaAnterior}
-              disabled={pagina === 1}
+              disabled={
+                pagina <= 1 ||
+                loading
+              }
             >
               Anterior
             </Button>
@@ -331,7 +398,10 @@ export function DataTable() {
             <Button
               variant="outline"
               onClick={proximaPagina}
-              disabled={pagina === totalPaginas}
+              disabled={
+                pagina >= totalPaginas ||
+                loading
+              }
             >
               Próxima
             </Button>
@@ -344,7 +414,9 @@ export function DataTable() {
 
       <Dialog
         open={!!alertaSelecionado}
-        onOpenChange={() => setAlertaSelecionado(null)}
+        onOpenChange={() =>
+          setAlertaSelecionado(null)
+        }
       >
 
         <DialogContent className="max-w-2xl">
@@ -357,160 +429,152 @@ export function DataTable() {
 
           </DialogHeader>
 
-         {alertaSelecionado && (
+          {alertaSelecionado && (
 
-  <div className="space-y-5 py-2">
+            <div className="space-y-5 py-2">
 
-    <div className="flex items-center justify-between rounded-2xl border bg-muted/30 p-5">
+              <div className="flex items-center justify-between rounded-2xl border bg-muted/30 p-5">
 
-      <div className="space-y-2">
+                <div className="space-y-2">
 
-        <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3">
 
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
 
-            <Factory className="w-6 h-6 text-primary" />
+                      <Factory className="w-6 h-6 text-primary" />
 
-          </div>
+                    </div>
 
-          <div>
+                    <div>
 
-            <h2 className="text-xl font-bold leading-none">
-              {alertaSelecionado.maquina}
-            </h2>
+                      <h2 className="text-xl font-bold leading-none">
 
-      <p className="font-medium">
-  {alertaSelecionado.maquina_setor
-    ?.replaceAll("_", " ")
-    ?.replace(/\b\w/g, (l) => l.toUpperCase())}
-</p>
+                        {alertaSelecionado.maquina}
 
-          </div>
+                      </h2>
 
-        </div>
+                      <p className="font-medium">
 
-      </div>
+                        {alertaSelecionado.maquina_setor
+                          ?.replaceAll("_", " ")
+                          ?.replace(/\b\w/g, (l) =>
+                            l.toUpperCase()
+                          )}
 
-      <Badge
-        className={
-          alertaSelecionado.severidade === "critica"
-            ? "bg-red-500 text-white"
-            : alertaSelecionado.severidade === "alta"
-            ? "bg-orange-500 text-white"
-            : alertaSelecionado.severidade === "media"
-            ? "bg-yellow-500 text-black"
-            : "bg-green-500 text-white"
-        }
-      >
-        {alertaSelecionado.severidade}
-      </Badge>
+                      </p>
 
-    </div>
+                    </div>
 
-    <div className="grid grid-cols-2 gap-4">
+                  </div>
 
-      <div className="rounded-xl border p-4 hover:bg-muted/40 transition">
+                </div>
 
-        <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2">
-          Tipo do alerta
-        </p>
+                <Badge
+                  className={
+                    alertaSelecionado.severidade === "critica"
+                      ? "bg-red-500 text-white"
+                      : alertaSelecionado.severidade === "alta"
+                      ? "bg-orange-500 text-white"
+                      : alertaSelecionado.severidade === "media"
+                      ? "bg-yellow-500 text-black"
+                      : "bg-green-500 text-white"
+                  }
+                >
 
-        <div className="flex items-center gap-2">
+                  {alertaSelecionado.severidade}
 
-          {alertaSelecionado.tipo_alerta === "temperatura" && (
-            <Thermometer className="w-5 h-5 text-orange-500" />
+                </Badge>
+
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+
+                <div className="rounded-xl border p-4">
+
+                  <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2">
+                    Tipo do alerta
+                  </p>
+
+                  <span className="font-semibold capitalize">
+
+                    {alertaSelecionado.tipo_alerta}
+
+                  </span>
+
+                </div>
+
+                <div className="rounded-xl border p-4">
+
+                  <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2">
+                    Data do alerta
+                  </p>
+
+                  <span className="font-semibold">
+
+                    {new Date(
+                      alertaSelecionado.data_alerta
+                    ).toLocaleDateString("pt-BR")}{" "}
+
+                    {new Date(
+                      alertaSelecionado.data_alerta
+                    ).toLocaleTimeString("pt-BR", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+
+                  </span>
+
+                </div>
+
+                <div className="rounded-xl border p-4">
+
+                  <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2">
+                    Valor detectado
+                  </p>
+
+                  <span className="text-2xl font-bold">
+
+                    {alertaSelecionado.valor_detectado ?? "--"}{" "}
+                    {alertaSelecionado.unidade ?? ""}
+
+                  </span>
+
+                </div>
+
+                <div className="rounded-xl border p-4">
+
+                  <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2">
+                    Limite configurado
+                  </p>
+
+                  <span className="text-2xl font-bold text-muted-foreground">
+
+                    {alertaSelecionado.limite_configurado ?? "--"}{" "}
+                    {alertaSelecionado.unidade ?? ""}
+
+                  </span>
+
+                </div>
+
+              </div>
+
+              <div className="rounded-2xl border p-5">
+
+                <p className="text-xs uppercase tracking-wide text-muted-foreground mb-3">
+                  Mensagem do sistema
+                </p>
+
+                <div className="rounded-xl bg-muted/40 p-4 leading-relaxed text-sm">
+
+                  {alertaSelecionado.mensagem}
+
+                </div>
+
+              </div>
+
+            </div>
+
           )}
-
-          {alertaSelecionado.tipo_alerta === "vibracao" && (
-            <Activity className="w-5 h-5 text-blue-500" />
-          )}
-
-          {alertaSelecionado.tipo_alerta === "offline" && (
-            <Siren className="w-5 h-5 text-red-500" />
-          )}
-
-          {alertaSelecionado.tipo_alerta === "tendencia" && (
-            <AlertTriangle className="w-5 h-5 text-yellow-500" />
-          )}
-
-          <span className="font-semibold capitalize">
-            {alertaSelecionado.tipo_alerta}
-          </span>
-
-        </div>
-
-      </div>
-
-      <div className="rounded-xl border p-4 hover:bg-muted/40 transition">
-
-        <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2">
-          Data do alerta
-        </p>
-
-        <div className="flex items-center gap-2">
-
-          <Calendar className="w-4 h-4 text-muted-foreground" />
-
-          <span className="font-semibold">
-            {new Date(alertaSelecionado.data_alerta)
-              .toLocaleDateString("pt-BR")}{" "}
-
-            {new Date(alertaSelecionado.data_alerta)
-              .toLocaleTimeString("pt-BR", {
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
-          </span>
-
-        </div>
-
-      </div>
-
-      <div className="rounded-xl border p-4 hover:bg-muted/40 transition">
-
-        <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2">
-          Valor detectado
-        </p>
-
-        <span className="text-2xl font-bold">
-          {alertaSelecionado.valor_detectado ?? "--"}{" "}
-          {alertaSelecionado.unidade ?? ""}
-        </span>
-
-      </div>
-
-      <div className="rounded-xl border p-4 hover:bg-muted/40 transition">
-
-        <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2">
-          Limite configurado
-        </p>
-
-        <span className="text-2xl font-bold text-muted-foreground">
-          {alertaSelecionado.limite_configurado ?? "--"}{" "}
-          {alertaSelecionado.unidade ?? ""}
-        </span>
-
-      </div>
-
-    </div>
-
-    <div className="rounded-2xl border p-5">
-
-      <p className="text-xs uppercase tracking-wide text-muted-foreground mb-3">
-        Mensagem do sistema
-      </p>
-
-      <div className="rounded-xl bg-muted/40 p-4 leading-relaxed text-sm">
-
-        {alertaSelecionado.mensagem}
-
-      </div>
-
-    </div>
-
-  </div>
-
-)}
 
         </DialogContent>
 
