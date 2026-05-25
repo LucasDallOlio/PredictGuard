@@ -82,7 +82,7 @@ class SensorModel {
 				left join maquinas m on m.id = s.maquina_id
 				${whereSQL}
 				order by s.id asc
-				limit ?, ?
+				limit ${limit} offset ${offset}
 			`;
 
 			const [sensores] = await connection.execute(sql, [
