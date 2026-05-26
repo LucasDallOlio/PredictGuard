@@ -71,9 +71,8 @@ function formatDateLabel(date, timeRange) {
 
 export function ChartAreaInteractive() {
 
-  const { chartData = [], maquinas = [], loading } = useDashboardData() || {}
-
   const [timeRange, setTimeRange] = React.useState("7d")
+  const { chartData = [], maquinas = [], loading } = useDashboardData({ timeRange }) || {}
   const [setorFilter, setSetorFilter] = React.useState("todos")
   const [motorFilter, setMotorFilter] = React.useState("")
 
@@ -136,14 +135,22 @@ export function ChartAreaInteractive() {
         grouped.set(key, {
           date: key,
           temperatura: null,
+          temperaturaMin: null,
+          temperaturaMax: null,
           vibracao: null,
+          vibracaoMin: null,
+          vibracaoMax: null,
         })
       }
 
       if (item.tipo_sensor === "temperatura") {
         grouped.get(key).temperatura = item.valor
+        grouped.get(key).temperaturaMin = item.valor_min
+        grouped.get(key).temperaturaMax = item.valor_max
       } else if (item.tipo_sensor === "acelerometro") {
         grouped.get(key).vibracao = item.valor
+        grouped.get(key).vibracaoMin = item.valor_min
+        grouped.get(key).vibracaoMax = item.valor_max
       }
     }
 
@@ -304,9 +311,30 @@ export function ChartAreaInteractive() {
                                   {chartConfig[entry.dataKey]?.label}
                                 </span>
                               </div>
-                              <span className="font-semibold tabular-nums">
-                                {Number(entry.value).toFixed(1)}
-                              </span>
+                              <div className="text-right">
+                                <span className="font-semibold tabular-nums">
+                                  {Number(entry.value).toFixed(1)}
+                                </span>
+                                {(() => {
+                                  const payloadItem = entry.payload || {}
+                                  const minKey = entry.dataKey === "temperatura"
+                                    ? "temperaturaMin"
+                                    : "vibracaoMin"
+                                  const maxKey = entry.dataKey === "temperatura"
+                                    ? "temperaturaMax"
+                                    : "vibracaoMax"
+                                  const minValue = payloadItem[minKey]
+                                  const maxValue = payloadItem[maxKey]
+                                  if (!Number.isFinite(minValue) || !Number.isFinite(maxValue)) {
+                                    return null
+                                  }
+                                  return (
+                                    <div className="text-xs text-muted-foreground tabular-nums">
+                                      min/max: {minValue.toFixed(1)} / {maxValue.toFixed(1)}
+                                    </div>
+                                  )
+                                })()}
+                              </div>
                             </div>
                           ))}
                         </div>

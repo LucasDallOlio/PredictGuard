@@ -4,13 +4,37 @@ class LeituraController {
 
     static async listarSerie(req, res) {
         try {
-            let limite = parseInt(req.query.limite, 10);
+            const bucketMinutosBruto = req.query.bucket_minutos;
+            let bucketMinutos = null;
+
+            if (bucketMinutosBruto !== undefined) {
+                const bucketNormalizado = Number(bucketMinutosBruto);
+
+                if (!Number.isFinite(bucketNormalizado) || bucketNormalizado <= 0) {
+                    return res.status(400).json({
+                        sucesso: false,
+                        erro: 'Filtro inválido',
+                        mensagem: "O filtro 'bucket_minutos' deve ser um número válido"
+                    });
+                }
+
+                bucketMinutos = Math.min(bucketNormalizado, 1440);
+            }
+
+            const agregacaoBruta = String(req.query.agregacao || '').trim().toLowerCase();
+            const agregacoesValidas = ['media', 'media-min-max'];
+            const agregacao = agregacoesValidas.includes(agregacaoBruta) ? agregacaoBruta : null;
+
+            let limite = req.query.limite !== undefined
+                ? parseInt(req.query.limite, 10)
+                : (bucketMinutos ? 5000 : 500);
 
             if (Number.isNaN(limite) || limite <= 0) {
                 limite = 500;
             }
 
-            limite = Math.min(limite, 2000);
+            const limiteMaximo = bucketMinutos ? 10000 : 2000;
+            limite = Math.min(limite, limiteMaximo);
 
             const ordemBruta = String(req.query.ordem || 'asc').trim().toLowerCase();
             const ordem = ordemBruta === 'desc' ? 'desc' : 'asc';
@@ -115,7 +139,9 @@ class LeituraController {
                     maquinaId: filtro.maquina_id,
                     tipo: filtro.tipo,
                     dataInicio,
-                    dataFim
+                    dataFim,
+                    bucketMinutos,
+                    agregacao: agregacao || (bucketMinutos ? 'media-min-max' : null)
                 },
                 limite,
                 ordem

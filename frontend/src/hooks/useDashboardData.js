@@ -8,7 +8,7 @@ import {
 const API_URL =
   "http://localhost:3001"
 
-export function useDashboardData() {
+export function useDashboardData({ timeRange = "7d" } = {}) {
 
   const [loading, setLoading] =
     useState(true)
@@ -50,6 +50,23 @@ export function useDashboardData() {
 
       try {
 
+        const rangeParams = new URLSearchParams()
+
+        if (timeRange === "1h") {
+          rangeParams.set("periodo_horas", "1")
+          rangeParams.set("limite", "2000")
+        } else if (timeRange === "1d") {
+          rangeParams.set("periodo_dias", "1")
+          rangeParams.set("bucket_minutos", "1")
+          rangeParams.set("agregacao", "media-min-max")
+          rangeParams.set("limite", "5000")
+        } else {
+          rangeParams.set("periodo_dias", "7")
+          rangeParams.set("bucket_minutos", "5")
+          rangeParams.set("agregacao", "media-min-max")
+          rangeParams.set("limite", "5000")
+        }
+
         const [
 
           maquinasResponse,
@@ -70,7 +87,7 @@ export function useDashboardData() {
           ),
 
           fetch(
-            `${API_URL}/leituras/serie?limite=2000`,
+            `${API_URL}/leituras/serie?${rangeParams.toString()}`,
             { credentials: "include" }
           ),
 
@@ -178,6 +195,8 @@ export function useDashboardData() {
             setor: mapaMaquinas[item.maquina_id]?.setor || "",
             tipo_sensor: item.tipo_sensor,
             valor: Number(item.valor),
+            valor_min: Number.isFinite(Number(item.valor_min)) ? Number(item.valor_min) : null,
+            valor_max: Number.isFinite(Number(item.valor_max)) ? Number(item.valor_max) : null,
             unidade: item.unidade,
             
           }))
@@ -210,7 +229,7 @@ export function useDashboardData() {
 
     fetchDashboard()
 
-  }, [])
+  }, [timeRange])
 
   return {
 

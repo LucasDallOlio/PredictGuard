@@ -17,6 +17,8 @@ class LeituraModel {
         try {
             const whereParts = [];
             const whereParams = [];
+            const bucketMinutos = filtro?.bucket_minutos ?? filtro?.bucketMinutos;
+            const agregacao = filtro?.agregacao;
 
             if (filtro) {
                 const sensorId = filtro.sensor_id ?? filtro.sensorId;
@@ -57,6 +59,90 @@ class LeituraModel {
             limit = Number(limit);
             if (!Number.isFinite(limit) || limit <= 0) {
                 limit = 500;
+            }
+
+            if (bucketMinutos) {
+                const bucketSegundos = Number(bucketMinutos) * 60;
+                const bucketExpr = 'from_unixtime(floor(unix_timestamp(l.data_leitura) / ?) * ?)';
+                const baseSql = `
+                    select
+                        l.sensor_id as sensor_id,
+                        l.unidade as unidade,
+                        s.tipo as tipo_sensor,
+                        s.maquina_id as maquina_id,
+                        l.valor as valor,
+                        ${bucketExpr} as bucket_data
+                    from leituras l
+                    inner join sensores s on s.id = l.sensor_id
+                    ${whereSQL}
+                `;
+
+                const sql = `
+                    select
+                        t.bucket_data as data_leitura,
+                        min(t.sensor_id) as sensor_id,
+                        min(t.unidade) as unidade,
+                        t.tipo_sensor as tipo_sensor,
+                        t.maquina_id as maquina_id,
+                        avg(t.valor) as valor_media,
+                        min(t.valor) as valor_min,
+                        max(t.valor) as valor_max
+                    from (
+                        ${baseSql}
+                    ) as t
+                    group by t.bucket_data, t.tipo_sensor, t.maquina_id
+                    order by t.bucket_data ${ordem}
+                    limit ${limit}
+                `;
+
+                const [leituras] = await connection.execute(
+                    sql,
+                    [bucketSegundos, bucketSegundos, ...whereParams]
+                );
+
+                const countSql = `
+                    select count(*) as count
+                    from (
+                        select 1
+                        from (
+                            ${baseSql}
+                        ) as t
+                        group by t.bucket_data, t.tipo_sensor, t.maquina_id
+                    ) as totalizador
+                `;
+                const [totalRows] = await connection.execute(
+                    countSql,
+                    [bucketSegundos, bucketSegundos, ...whereParams]
+                );
+                const total = Number(totalRows?.[0]?.count ?? 0);
+
+                const leiturasNormalizadas = leituras.map((leitura) => {
+                    const valorMedia = Number(leitura.valor_media);
+                    return {
+                        ...leitura,
+                        valor: Number.isFinite(valorMedia) ? valorMedia : leitura.valor_media,
+                        valor_min: leitura.valor_min,
+                        valor_max: leitura.valor_max
+                    };
+                });
+
+                if (agregacao === 'media') {
+                    return {
+                        leituras: leiturasNormalizadas.map((leitura) => ({
+                            ...leitura,
+                            valor_min: undefined,
+                            valor_max: undefined
+                        })),
+                        total,
+                        limit
+                    };
+                }
+
+                return {
+                    leituras: leiturasNormalizadas,
+                    total,
+                    limit
+                };
             }
 
             const sql = `

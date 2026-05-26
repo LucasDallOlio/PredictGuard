@@ -82,6 +82,17 @@ const router = express.Router();
  *           type: integer
  *           default: 500
  *       - in: query
+ *         name: bucket_minutos
+ *         schema:
+ *           type: integer
+ *           example: 5
+ *       - in: query
+ *         name: agregacao
+ *         schema:
+ *           type: string
+ *           enum: [media, media-min-max]
+ *           default: media-min-max
+ *       - in: query
  *         name: ordem
  *         schema:
  *           type: string
