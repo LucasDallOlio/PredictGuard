@@ -8,7 +8,7 @@ import {
 const API_URL =
   "http://localhost:3001"
 
-export function useDashboardData({ timeRange = "7d" } = {}) {
+export function useDashboardData({ timeRange = "7d", maquinaId = null } = {}) {
 
   const [loading, setLoading] =
     useState(true)
@@ -65,6 +65,10 @@ export function useDashboardData({ timeRange = "7d" } = {}) {
           rangeParams.set("bucket_minutos", "5")
           rangeParams.set("agregacao", "media-min-max")
           rangeParams.set("limite", "5000")
+        }
+
+        if (maquinaId) {
+          rangeParams.set("maquina_id", String(maquinaId))
         }
 
         const [
@@ -229,7 +233,7 @@ export function useDashboardData({ timeRange = "7d" } = {}) {
 
     fetchDashboard()
 
-  }, [timeRange])
+  }, [timeRange, maquinaId])
 
   return {
 

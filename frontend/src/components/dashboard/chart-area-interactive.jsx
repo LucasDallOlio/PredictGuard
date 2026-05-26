@@ -72,7 +72,8 @@ function formatDateLabel(date, timeRange) {
 export function ChartAreaInteractive() {
 
   const [timeRange, setTimeRange] = React.useState("7d")
-  const { chartData = [], maquinas = [], loading } = useDashboardData({ timeRange }) || {}
+  const [maquinaId, setMaquinaId] = React.useState(null)
+  const { chartData = [], maquinas = [], loading } = useDashboardData({ timeRange, maquinaId }) || {}
   const [setorFilter, setSetorFilter] = React.useState("todos")
   const [motorFilter, setMotorFilter] = React.useState("")
 
@@ -101,6 +102,16 @@ export function ChartAreaInteractive() {
     }
   }, [maquinasFiltradas, motorFilter])
 
+  React.useEffect(() => {
+    if (!motorFilter) {
+      setMaquinaId(null)
+      return
+    }
+
+    const selecionada = maquinasFiltradas.find((m) => m.nome === motorFilter)
+    setMaquinaId(selecionada?.id || null)
+  }, [maquinasFiltradas, motorFilter])
+
   
 
   const filteredData = React.useMemo(() => {
@@ -126,7 +137,6 @@ export function ChartAreaInteractive() {
       const itemDate = new Date(item.date)
 
       if (itemDate < start) continue
-      if (motorFilter && item.maquina !== motorFilter) continue
 
       const key = item.date
       const existing = grouped.get(key)
@@ -158,7 +168,7 @@ export function ChartAreaInteractive() {
 
     return Array.from(grouped.values())
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-  }, [chartData, timeRange, motorFilter])
+  }, [chartData, timeRange])
 
 
   if (loading && (!chartData || !chartData.length)) {
