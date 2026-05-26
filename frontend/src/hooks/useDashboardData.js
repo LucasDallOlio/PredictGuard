@@ -54,7 +54,7 @@ export function useDashboardData({ timeRange = "7d", maquinaId = null } = {}) {
 
         if (timeRange === "1h") {
           rangeParams.set("periodo_horas", "1")
-          rangeParams.set("limite", "2000")
+          rangeParams.set("limite", "4000")
         } else if (timeRange === "1d") {
           rangeParams.set("periodo_dias", "1")
           rangeParams.set("bucket_minutos", "1")
