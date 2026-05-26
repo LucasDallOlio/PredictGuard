@@ -169,73 +169,18 @@ export function useDashboardData() {
 
         })
 
-        const agrupado = {}
-
-        leituras.forEach((item) => {
-
-          const data =
-            new Date(item.data_leitura)
-
-          const minuto =
-            `${data.getFullYear()}-${data.getMonth()}-${data.getDate()}-${data.getHours()}-${data.getMinutes()}`
-
-          const key =
-            `${item.maquina_id}_${minuto}`
-
-          if (!agrupado[key]) {
-
-            agrupado[key] = {
-
-              date:
-                item.data_leitura,
-
-              maquinaId:
-                item.maquina_id,
-
-              maquina:
-                mapaMaquinas[item.maquina_id]
-                  ?.nome || "Máquina",
-
-              setor:
-                mapaMaquinas[item.maquina_id]
-                  ?.setor || "",
-
-              temperatura: null,
-              vibracao: null,
-
-            }
-
-          }
-
-          if (
-            item.tipo_sensor ===
-            "temperatura"
-          ) {
-
-            agrupado[key].temperatura =
-              Number(item.valor)
-
-          }
-
-          if (
-            item.tipo_sensor ===
-            "acelerometro"
-          ) {
-
-            agrupado[key].vibracao =
-              Number(item.valor)
-
-          }
-
-        })
-
         const formatado =
-          Object.values(agrupado)
-            .filter(
-              (item) =>
-                item.temperatura !== null ||
-                item.vibracao !== null
-            )
+          leituras.map((item) => ({
+            
+            date: item.data_leitura,
+            maquinaId: item.maquina_id,
+            maquina: mapaMaquinas[item.maquina_id]?.nome || "Máquina",
+            setor: mapaMaquinas[item.maquina_id]?.setor || "",
+            tipo_sensor: item.tipo_sensor,
+            valor: Number(item.valor),
+            unidade: item.unidade,
+            
+          }))
             .sort(
               (a, b) =>
                 new Date(a.date) -

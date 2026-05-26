@@ -56,10 +56,16 @@ function formatDateLabel(date, timeRange) {
       day: "2-digit",
       month: "2-digit",
     })
+  } else if (timeRange === "1d") {
+    return date.toLocaleTimeString("pt-BR", {
+      hour: "2-digit",
+      minute: "2-digit",
+    })
   }
   return date.toLocaleTimeString("pt-BR", {
     hour: "2-digit",
     minute: "2-digit",
+    second: "2-digit",
   })
 }
 
@@ -101,13 +107,10 @@ export function ChartAreaInteractive() {
   const filteredData = React.useMemo(() => {
     if (!chartData || !chartData.length) return []
 
-    
     const maxTimestamp = Math.max(...chartData.map(item => new Date(item.date).getTime()))
     const latestDate = new Date(maxTimestamp)
-    
     let start = new Date(latestDate)
 
-   
     if (timeRange === "1h") {
       start = new Date(latestDate.getTime() - 60 * 60 * 1000)
     } else if (timeRange === "1d") {
@@ -126,40 +129,27 @@ export function ChartAreaInteractive() {
       if (itemDate < start) continue
       if (motorFilter && item.maquina !== motorFilter) continue
 
-      if (timeRange === "1h") {
-        itemDate.setSeconds(0, 0)
-        itemDate.setMinutes(Math.floor(itemDate.getMinutes() / 5) * 5)
-      } else if (timeRange === "1d") {
-        itemDate.setMinutes(0, 0, 0)
-      } else if (timeRange === "7d") {
-        itemDate.setHours(0, 0, 0, 0)
-      }
-
-      const key = itemDate.toLocaleString("sv-SE").replace(" ", "T")
+      const key = item.date
       const existing = grouped.get(key)
 
       if (!existing) {
         grouped.set(key, {
           date: key,
-          temperatura: item.temperatura ?? 0,
-          vibracao: item.vibracao ?? 0,
-          count: 1,
+          temperatura: null,
+          vibracao: null,
         })
-      } else {
-        existing.temperatura += item.temperatura ?? 0
-        existing.vibracao += item.vibracao ?? 0
-        existing.count += 1
+      }
+
+      if (item.tipo_sensor === "temperatura") {
+        grouped.get(key).temperatura = item.valor
+      } else if (item.tipo_sensor === "acelerometro") {
+        grouped.get(key).vibracao = item.valor
       }
     }
 
     if (grouped.size === 0) return []
 
     return Array.from(grouped.values())
-      .map((item) => ({
-        ...item,
-        temperatura: item.temperatura / item.count,
-        vibracao: item.vibracao / item.count,
-      }))
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
   }, [chartData, timeRange, motorFilter])
 
