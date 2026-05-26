@@ -78,20 +78,28 @@ export function AuthProvider({ children }) {
     return usuarioAtualizado;
   }
 
+  async function setUserLocal(dados) {
+  const usuarioAtualizado = { ...usuario, ...dados };
+  setUsuario({ ...usuarioAtualizado }); // spread extra força novo objeto
+  localStorage.setItem("usuario", JSON.stringify(usuarioAtualizado));
+  return usuarioAtualizado;
+}
+
   // Monta a URL completa da foto do usuário
   function getFotoUrl(foto) {
     if (!foto) return null;
-    if (foto.startsWith("http")) return foto;
+    if (foto.startsWith("http") || foto.startsWith("blob:")) return foto;
     return `http://localhost:3001/uploads/${foto}`;
   }
 
   return (
     <AuthContext.Provider value={{
       usuario,
-      user: usuario,       
+      user: usuario,
       login,
       logout,
       updateUser,
+      setUserLocal,
       getFotoUrl,
       carregando,
     }}>

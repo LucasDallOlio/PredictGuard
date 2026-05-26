@@ -1,39 +1,145 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import {
   Moon, Sun, Menu, X, LayoutDashboard, Briefcase, Cpu, Users,
-  MessageSquare, Bot, Settings, Bell, Search,
+  MessageSquare, Bot, Settings,
   ChevronRight, ChevronLeft, LogOut, ShieldCheck, User, Mail, Phone, Shield,
-  Loader2, Check,
+  Loader2, Check, Lock,
   Radio, Camera
 } from "lucide-react";
 import { useAuth } from "@/hooks/UseAuth";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 
-
-export default function PremiumLayout({ children }) {
+export default function DashboardLayout({ children }) {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const { user, updateUser, logout, getFotoUrl } = useAuth();
+  const [isDark, setIsDark] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
+  const { user, setUserLocal, logout, getFotoUrl } = useAuth();
+
+  // ── Edição de perfil ──────────────────────────────────────────────────────
+  const [telefoneEdit, setTelefoneEdit] = useState("");
+  const [senhaEdit, setSenhaEdit] = useState("");
+  const [fotoFile, setFotoFile] = useState(null);
+  const [fotoPreview, setFotoPreview] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [erroModal, setErroModal] = useState(null);
+  const previewUrlRef = useRef(null);
 
-
-  const [nomeEdit, setNomeEdit] = useState("");
-  const [telefoneEdit, setTelefoneEdit] = useState("");
   useEffect(() => {
     if (user) {
-      setNomeEdit(user.nome || "");
       setTelefoneEdit(user.telefone || "");
     }
   }, [user]);
+
+  useEffect(() => {
+    setIsDark(document.documentElement.classList.contains("dark"));
+  }, []);
+
+  const fecharModal = useCallback(() => {
+    if (isSaving) return;
+    setTelefoneEdit(user?.telefone ?? "");
+    setSenhaEdit("");
+    setFotoFile(null);
+    setFotoPreview(null);
+    setErroModal(null);
+    setIsSaved(false);
+    if (previewUrlRef.current) {
+      URL.revokeObjectURL(previewUrlRef.current);
+      previewUrlRef.current = null;
+    }
+    setIsProfileModalOpen(false);
+  }, [isSaving, user]);
+
+  const handleFotoChange = useCallback((file) => {
+    if (!file) return;
+    if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
+    const url = URL.createObjectURL(file);
+    previewUrlRef.current = url;
+    setFotoFile(file);
+    setFotoPreview(url);
+  }, []);
+
+  const handleSaveProfile = useCallback(async () => {
+    setErroModal(null);
+
+    const formData = new FormData();
+    let temAlteracao = false;
+
+    if (telefoneEdit.trim() !== (user?.telefone ?? "")) {
+      formData.append("telefone", telefoneEdit.trim());
+      temAlteracao = true;
+    }
+    if (senhaEdit.trim()) {
+      formData.append("senha", senhaEdit.trim());
+      temAlteracao = true;
+    }
+    if (fotoFile) {
+      formData.append("foto", fotoFile);
+      temAlteracao = true;
+    }
+
+    if (!temAlteracao) {
+      setErroModal("Nenhuma alteração detectada.");
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const response = await fetch(`${API_URL}/auth/usuario`, {
+        method: "PATCH",
+        credentials: "include",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data?.mensagem ?? "Erro ao salvar perfil.");
+      }
+
+      // Atualiza estado global imediatamente
+      setUserLocal({
+        ...(telefoneEdit.trim() !== user?.telefone ? { telefone: telefoneEdit.trim() } : {}),
+        ...(fotoPreview ? { foto: fotoPreview } : {}),
+      });
+
+      setSenhaEdit("");
+      setFotoFile(null);
+      setIsSaved(true);
+      setTimeout(() => fecharModal(), 1200);
+    } catch (err) {
+      setErroModal(err.message);
+    } finally {
+      setIsSaving(false);
+    }
+  }, [telefoneEdit, senhaEdit, fotoFile, fotoPreview, user, setUserLocal, fecharModal]);
+  // ─────────────────────────────────────────────────────────────────────────
+
+  const toggleTheme = () => {
+    const root = document.documentElement;
+    root.classList.toggle("dark");
+    const isNowDark = root.classList.contains("dark");
+    setIsDark(isNowDark);
+    localStorage.setItem("theme", isNowDark ? "dark" : "light");
+  };
+
+  const handleLogout = (e) => {
+    e.stopPropagation();
+    setIsLoggingOut(true);
+    setTimeout(() => {
+      logout();
+      window.location.href = "/";
+    }, 1000);
+  };
+
   const pathname = usePathname();
-  const currentPath = pathname;
 
   const topNavItems = [
     { name: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
@@ -49,58 +155,11 @@ export default function PremiumLayout({ children }) {
     { name: "Configuração", icon: Settings, href: "/configuracao" },
   ];
 
-  const handleSaveProfile = () => {
-    setIsSaving(true);
-
-    setTimeout(() => {
-      updateUser({
-        nome: nomeEdit,
-        telefone: telefoneEdit,
-      });
-
-      setIsSaving(false);
-      setIsSaved(true);
-
-      setTimeout(() => {
-        setIsProfileModalOpen(false);
-        setTimeout(() => setIsSaved(false), 300);
-      }, 1000);
-    }, 1500);
-  };
-  const handleLogout = (e) => {
-    e.stopPropagation();
-    setIsLoggingOut(true);
-
-    setTimeout(() => {
-      logout();
-      window.location.href = "/";
-    }, 1000);
-  };
-
-
-  const [isDark, setIsDark] = useState(false);
-
-  // Verifica o tema inicial assim que o componente é montado
-  useEffect(() => {
-    const isDarkMode = document.documentElement.classList.contains("dark");
-    setIsDark(isDarkMode);
-  }, []);
-
-  const toggleTheme = () => {
-    const root = document.documentElement;
-    root.classList.toggle("dark");
-
-    const isNowDark = root.classList.contains("dark");
-    setIsDark(isNowDark);
-
-    // Opcional: Salva a preferência do usuário no navegador
-    localStorage.setItem("theme", isNowDark ? "dark" : "light");
-  };
+  const fotoExibida = fotoPreview ?? getFotoUrl(user?.foto);
 
   return (
     <div className="flex h-screen w-full bg-sidebar overflow-hidden font-sans">
 
-      {/* OVERLAY MOBILE */}
       {isMobileOpen && (
         <div
           className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm transition-opacity md:hidden"
@@ -115,14 +174,11 @@ export default function PremiumLayout({ children }) {
           ${isCollapsed ? "md:w-20" : "md:w-72"}
         `}
       >
-        {/* LOGO E NOME DO SISTEMA */}
         <div className={`flex h-20 items-center justify-between px-6 ${isCollapsed ? "justify-center px-0" : ""}`}>
           <div className="flex items-center gap-3">
-            {/* Ícone Premium */}
             <div className="flex items-center justify-center shrink-0 size-10 rounded-xl bg-linear-to-br from-sidebar-primary to-blue-600 text-sidebar-primary-foreground shadow-lg shadow-sidebar-primary/30 ring-1 ring-white/10">
               <ShieldCheck className="size-5" strokeWidth={2.5} />
             </div>
-
             {!isCollapsed && (
               <span className="text-xl font-extrabold tracking-tight bg-clip-text text-transparent bg-linear-to-r from-sidebar-foreground to-sidebar-foreground/70 transition-opacity duration-300">
                 PredictGuard
@@ -137,23 +193,18 @@ export default function PremiumLayout({ children }) {
             className="inline-flex items-center justify-center rounded-md w-10 h-10 border border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring transition-colors"
             aria-label="Alternar tema"
           >
-            {isDark ? (
-              <Sun className="h-5 w-5" />
-            ) : (
-              <Moon className="h-5 w-5" />
-            )}
+            {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
           </button>
         </div>
 
-        {/* Menu Superior - AGORA COM ISLAS EM ESTADO COLAPSADO */}
         <nav className={`space-y-3 px-4 py-4 mt-2 overflow-y-auto overflow-x-hidden ${isCollapsed ? "flex flex-col items-center" : "space-y-1.5"}`}>
           {topNavItems.map((item) => {
             const Icon = item.icon;
-            const isActive = currentPath === item.href;
+            const isActive = pathname === item.href;
             return (
               <Link key={item.name} href={item.href}
-                onClick={() => setIsMobileOpen(false)} // Fecha menu no mobile ao clicar
-                className={`group flex items-center transition-all duration-200 
+                onClick={() => setIsMobileOpen(false)}
+                className={`group flex items-center transition-all duration-200
                   ${isCollapsed ? "size-12 justify-center rounded-xl border border-sidebar-border" : "gap-3 rounded-xl px-3 py-3 w-full"}
                   ${isActive
                     ? `bg-sidebar-primary text-sidebar-primary-foreground shadow-md shadow-sidebar-primary/15 ${isCollapsed ? "" : "font-semibold"}`
@@ -169,16 +220,15 @@ export default function PremiumLayout({ children }) {
 
         <div className="flex-1" />
 
-        {/* Menu Inferior - AGORA COM ISLAS EM ESTADO COLAPSADO */}
         <nav className={`space-y-3 px-4 py-2 ${isCollapsed ? "flex flex-col items-center" : "space-y-1.5"}`}>
           {bottomNavItems.map((item) => {
             const Icon = item.icon;
-            const isActive = currentPath === item.href;
+            const isActive = pathname === item.href;
             return (
               <Link key={item.name} href={item.href}
-                onClick={() => setIsMobileOpen(false)} // Fecha menu no mobile ao clicar
+                onClick={() => setIsMobileOpen(false)}
                 className={`group flex items-center transition-all duration-200
-                   ${isCollapsed ? "size-12 justify-center rounded-xl border border-sidebar-border" : "gap-3 rounded-xl px-3 py-3 w-full"}
+                  ${isCollapsed ? "size-12 justify-center rounded-xl border border-sidebar-border" : "gap-3 rounded-xl px-3 py-3 w-full"}
                   ${isActive
                     ? `bg-sidebar-primary text-sidebar-primary-foreground shadow-md shadow-sidebar-primary/15 ${isCollapsed ? "" : "font-semibold"}`
                     : `text-sidebar-foreground/70 ${isCollapsed ? "bg-sidebar-accent/50" : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground font-medium"}`
@@ -191,48 +241,35 @@ export default function PremiumLayout({ children }) {
           })}
         </nav>
 
-        {/* Rodapé da Sidebar */}
         <div className={`p-4 mt-2 mb-2 ${isCollapsed ? "flex flex-col items-center gap-4" : ""}`}>
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className={`hidden md:flex items-center justify-center gap-2 text-sidebar-foreground/50 hover:text-sidebar-accent-foreground hover:bg-sidebar-accent transition-colors 
+            className={`hidden md:flex items-center justify-center gap-2 text-sidebar-foreground/50 hover:text-sidebar-accent-foreground hover:bg-sidebar-accent transition-colors
               ${isCollapsed ? "size-12 rounded-xl" : "p-2 w-full rounded-lg"}`}
           >
             {isCollapsed ? <ChevronRight className="size-5" /> : <ChevronLeft className="size-5" />}
           </button>
 
-          {/* Card de Perfil - AGORA SIMPLIFICADO E CENTRALIZADO NO MODO COLAPSADO */}
           <div
             onClick={() => setIsProfileModalOpen(true)}
             className={`flex items-center transition-all cursor-pointer shadow-sm ${isCollapsed ? "justify-center size-12" : "gap-3 p-3 bg-sidebar-accent/50 border border-sidebar-border rounded-xl hover:bg-sidebar-accent"}`}
             title="Ver Perfil"
           >
-            {/* FOTO OU INICIAL */}
             <div className={`flex items-center justify-center rounded-full shrink-0 overflow-hidden ${isCollapsed ? "size-12 bg-sidebar-primary text-sidebar-primary-foreground font-bold text-lg" : "size-9 bg-sidebar-primary border-2 border-background text-sidebar-primary-foreground font-bold text-xs"}`}>
-              {getFotoUrl(user?.foto) ? (
-                <img
-                  src={getFotoUrl(user?.foto)}
-                  alt={user?.nome}
-                  className="size-full object-cover"
-                />
+              {fotoExibida ? (
+                <img src={fotoExibida} alt={user?.nome} className="size-full object-cover" />
               ) : (
                 <span>{user?.nome?.charAt(0).toUpperCase() ?? "?"}</span>
               )}
             </div>
-
-            {/* NOME E CARGO */}
             {!isCollapsed && (
               <div className="flex flex-col flex-1 overflow-hidden">
-                <span className="text-sm font-semibold text-sidebar-foreground truncate">
-                  {user?.nome ?? "—"}
-                </span>
+                <span className="text-sm font-semibold text-sidebar-foreground truncate">{user?.nome ?? "—"}</span>
                 <span className="text-xs text-sidebar-foreground/60 truncate capitalize">
                   {user?.tipo === "admin" ? "Administrador" : user?.tipo ?? "—"}
                 </span>
               </div>
             )}
-
-            {/* BOTÃO DE LOGOUT */}
             {!isCollapsed && (
               <button
                 onClick={handleLogout}
@@ -250,8 +287,6 @@ export default function PremiumLayout({ children }) {
       {/* ÁREA PRINCIPAL */}
       <main className="flex-1 flex flex-col h-screen p-0 md:py-3 md:pr-3 md:pl-0 w-full min-w-0 transition-all">
         <div className="flex flex-1 flex-col bg-background text-foreground md:rounded-[2rem] shadow-xl overflow-hidden relative border border-border">
-
-          {/* CABEÇALHO MOBILE (Adicionado para abrir o menu) */}
           <div className="flex items-center justify-between p-4 border-b border-border md:hidden bg-background">
             <div className="flex items-center gap-2">
               <div className="flex items-center justify-center shrink-0 size-8 rounded-lg bg-linear-to-br from-sidebar-primary to-blue-600 text-sidebar-primary-foreground shadow-sm">
@@ -266,11 +301,9 @@ export default function PremiumLayout({ children }) {
               <Menu className="size-6" />
             </button>
           </div>
-
           <div className="flex-1 overflow-auto p-4 md:p-8">
             {children}
           </div>
-
         </div>
       </main>
 
@@ -279,7 +312,7 @@ export default function PremiumLayout({ children }) {
         <div className="fixed inset-0 z-100 flex items-center justify-center p-4 sm:p-6">
           <div
             className="absolute inset-0 bg-black/80 backdrop-blur-md transition-opacity"
-            onClick={() => !isSaving && setIsProfileModalOpen(false)}
+            onClick={fecharModal}
           />
 
           <div className="relative w-full max-w-3xl max-h-[90vh] bg-background rounded-3xl shadow-2xl border border-border overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-200">
@@ -287,7 +320,7 @@ export default function PremiumLayout({ children }) {
             {/* Capa e Foto */}
             <div className="h-32 w-full bg-gradient-to-br from-primary/30 to-primary/5 relative">
               <button
-                onClick={() => setIsProfileModalOpen(false)}
+                onClick={fecharModal}
                 disabled={isSaving}
                 className="absolute top-4 right-4 p-2 rounded-full bg-black/20 text-white hover:bg-black/60 backdrop-blur-md transition-colors disabled:opacity-50"
               >
@@ -295,10 +328,7 @@ export default function PremiumLayout({ children }) {
               </button>
 
               <div className="absolute -bottom-12 left-4 md:left-8 flex items-end gap-4">
-                {/* FOTO DO USUÁRIO */}
-                {/* FOTO DO USUÁRIO (AGORA EDITÁVEL) */}
                 <label className="relative size-20 md:size-24 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-2xl md:text-3xl shadow-xl border-4 border-background shrink-0 overflow-hidden cursor-pointer group transition-transform active:scale-95">
-                  {/* Input de arquivo escondido */}
                   <input
                     type="file"
                     accept="image/*"
@@ -306,39 +336,22 @@ export default function PremiumLayout({ children }) {
                     disabled={isSaving}
                     onChange={(e) => {
                       const file = e.target.files?.[0];
-                      if (file) {
-                        // Chame sua função aqui para tratar a nova imagem
-                        // Ex: handleFotoChange(file);
-                        console.log("Arquivo selecionado:", file);
-                      }
+                      if (file) handleFotoChange(file);
                     }}
                   />
-
-                  {/* Renderização da Imagem / Inicial */}
-                  {getFotoUrl(user?.foto) ? (
-                    <img
-                      src={getFotoUrl(user?.foto)}
-                      alt={user?.nome}
-                      className="size-full object-cover"
-                    />
+                  {fotoExibida ? (
+                    <img src={fotoExibida} alt={user?.nome} className="size-full object-cover" />
                   ) : (
                     <span>{user?.nome?.charAt(0).toUpperCase() ?? "?"}</span>
                   )}
-
-                  {/* Overlay que aparece no Hover/Foco */}
                   <div className="absolute inset-0 bg-black/50 backdrop-blur-[1px] flex flex-col items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                     <Camera className="size-5 text-white" />
-                    <span className="text-[10px] text-white font-semibold tracking-wide uppercase hidden sm:inline">
-                      Alterar
-                    </span>
+                    <span className="text-[10px] text-white font-semibold tracking-wide uppercase hidden sm:inline">Alterar</span>
                   </div>
                 </label>
 
                 <div className="mb-2">
-                  {/* NOME DO BANCO */}
-                  <h2 className="text-xl md:text-2xl font-bold text-foreground">
-                    {user?.nome ?? "—"}
-                  </h2>
+                  <h2 className="text-xl md:text-2xl font-bold text-foreground">{user?.nome ?? "—"}</h2>
                   <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-secondary text-secondary-foreground text-xs font-semibold capitalize">
                     <Shield className="size-3" />
                     {user?.tipo === "admin" ? "Administrador" : user?.tipo ?? "—"}
@@ -350,31 +363,21 @@ export default function PremiumLayout({ children }) {
             <div className="h-16 w-full" />
 
             <div className="p-4 md:p-8 pt-0 overflow-y-auto">
+              {erroModal && (
+                <div className="mb-4 px-4 py-3 rounded-xl bg-destructive/10 border border-destructive/30 text-destructive text-sm">
+                  {erroModal}
+                </div>
+              )}
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
 
-                {/* --- COLUNA ESQUERDA (Pode Editar) --- */}
+                {/* COLUNA ESQUERDA — editável */}
                 <div className="space-y-6">
                   <div>
-                    <h3 className="text-lg font-semibold text-foreground mb-4 border-b border-border pb-2">
-                      Informações Pessoais
-                    </h3>
+                    <h3 className="text-lg font-semibold text-foreground mb-4 border-b border-border pb-2">Informações Pessoais</h3>
                     <div className="space-y-4">
 
-                      {/* NOME EDITÁVEL */}
-                      <div className="space-y-1.5">
-                        <label className="text-sm font-medium text-foreground flex items-center gap-2">
-                          <User className="size-4 text-muted-foreground" /> Nome Completo
-                        </label>
-                        <input
-                          type="text"
-                          value={nomeEdit}
-                          onChange={(e) => setNomeEdit(e.target.value)}
-                          disabled={isSaving}
-                          className="w-full bg-transparent border border-input rounded-xl px-4 py-3 text-sm text-foreground focus:ring-2 focus:ring-ring focus:border-ring outline-none transition-all disabled:opacity-50"
-                        />
-                      </div>
-
-                      {/* TELEFONE EDITÁVEL */}
+                      {/* TELEFONE editável */}
                       <div className="space-y-1.5">
                         <label className="text-sm font-medium text-foreground flex items-center gap-2">
                           <Phone className="size-4 text-muted-foreground" /> Telefone / WhatsApp
@@ -388,27 +391,56 @@ export default function PremiumLayout({ children }) {
                         />
                       </div>
 
+                      {/* SENHA editável */}
+                      <div className="space-y-1.5">
+                        <label className="text-sm font-medium text-foreground flex items-center gap-2">
+                          <Lock className="size-4 text-muted-foreground" /> Nova Senha
+                          <span className="text-[10px] text-muted-foreground font-normal">(deixe em branco para manter)</span>
+                        </label>
+                        <input
+                          type="password"
+                          value={senhaEdit}
+                          onChange={(e) => setSenhaEdit(e.target.value)}
+                          disabled={isSaving}
+                          placeholder="••••••••"
+                          className="w-full bg-transparent border border-input rounded-xl px-4 py-3 text-sm text-foreground focus:ring-2 focus:ring-ring focus:border-ring outline-none transition-all disabled:opacity-50"
+                        />
+                      </div>
+
                     </div>
                   </div>
                 </div>
 
-                {/* --- COLUNA DIREITA (Bloqueado) --- */}
+                {/* COLUNA DIREITA — bloqueado */}
                 <div className="space-y-6">
                   <div>
-                    <h3 className="text-lg font-semibold text-foreground mb-4 border-b border-border pb-2">
-                      Credenciais do Sistema
-                    </h3>
+                    <h3 className="text-lg font-semibold text-foreground mb-4 border-b border-border pb-2">Credenciais do Sistema</h3>
                     <div className="space-y-4">
 
-                      {/* E-MAIL BLOQUEADO */}
+                      {/* NOME bloqueado */}
+                      <div className="space-y-1.5">
+                        <label className="text-sm font-medium text-foreground flex items-center justify-between">
+                          <span className="flex items-center gap-2">
+                            <User className="size-4 text-muted-foreground" /> Nome Completo
+                          </span>
+                          <span className="text-[10px] uppercase tracking-wider bg-secondary text-secondary-foreground px-2 py-0.5 rounded-md font-bold">Bloqueado</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={user?.nome ?? ""}
+                          disabled
+                          readOnly
+                          className="w-full bg-secondary/30 border border-border rounded-xl px-4 py-3 text-sm text-muted-foreground cursor-not-allowed opacity-80"
+                        />
+                      </div>
+
+                      {/* E-MAIL bloqueado */}
                       <div className="space-y-1.5">
                         <label className="text-sm font-medium text-foreground flex items-center justify-between">
                           <span className="flex items-center gap-2">
                             <Mail className="size-4 text-muted-foreground" /> E-mail de Trabalho
                           </span>
-                          <span className="text-[10px] uppercase tracking-wider bg-secondary text-secondary-foreground px-2 py-0.5 rounded-md font-bold">
-                            Bloqueado
-                          </span>
+                          <span className="text-[10px] uppercase tracking-wider bg-secondary text-secondary-foreground px-2 py-0.5 rounded-md font-bold">Bloqueado</span>
                         </label>
                         <input
                           type="email"
@@ -419,15 +451,13 @@ export default function PremiumLayout({ children }) {
                         />
                       </div>
 
-                      {/* PRIVILÉGIO BLOQUEADO */}
+                      {/* PRIVILÉGIO bloqueado */}
                       <div className="space-y-1.5">
                         <label className="text-sm font-medium text-foreground flex items-center justify-between">
                           <span className="flex items-center gap-2">
                             <Shield className="size-4 text-muted-foreground" /> Privilégio / Cargo
                           </span>
-                          <span className="text-[10px] uppercase tracking-wider bg-secondary text-secondary-foreground px-2 py-0.5 rounded-md font-bold">
-                            Bloqueado
-                          </span>
+                          <span className="text-[10px] uppercase tracking-wider bg-secondary text-secondary-foreground px-2 py-0.5 rounded-md font-bold">Bloqueado</span>
                         </label>
                         <input
                           type="text"
@@ -445,10 +475,10 @@ export default function PremiumLayout({ children }) {
               </div>
             </div>
 
-            {/* Rodapé Animado */}
+            {/* Rodapé */}
             <div className="flex items-center justify-end gap-3 p-4 md:p-6 pt-4 border-t border-border bg-background mt-auto flex-wrap">
               <button
-                onClick={() => setIsProfileModalOpen(false)}
+                onClick={fecharModal}
                 disabled={isSaving}
                 className="w-full sm:w-auto px-6 py-2.5 rounded-xl text-sm font-semibold text-foreground hover:bg-secondary hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
@@ -458,23 +488,13 @@ export default function PremiumLayout({ children }) {
                 onClick={handleSaveProfile}
                 disabled={isSaving || isSaved}
                 className={`w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold text-primary-foreground shadow-lg transition-all
-                  ${isSaved
-                    ? "bg-green-600 shadow-green-600/25"
-                    : "bg-primary shadow-primary/25 hover:opacity-90 hover:scale-[1.02] active:scale-95"
-                  }
-                  disabled:opacity-80 disabled:scale-100 disabled:cursor-not-allowed
-                `}
+                  ${isSaved ? "bg-green-600 shadow-green-600/25" : "bg-primary shadow-primary/25 hover:opacity-90 hover:scale-[1.02] active:scale-95"}
+                  disabled:opacity-80 disabled:scale-100 disabled:cursor-not-allowed`}
               >
                 {isSaving ? (
-                  <>
-                    <Loader2 className="size-4 animate-spin" />
-                    Salvando...
-                  </>
+                  <><Loader2 className="size-4 animate-spin" /> Salvando...</>
                 ) : isSaved ? (
-                  <>
-                    <Check className="size-4" />
-                    Salvo!
-                  </>
+                  <><Check className="size-4" /> Salvo!</>
                 ) : (
                   "Salvar Alterações"
                 )}
@@ -486,6 +506,5 @@ export default function PremiumLayout({ children }) {
       )}
 
     </div>
-
   );
 }
