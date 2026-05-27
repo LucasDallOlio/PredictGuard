@@ -8,9 +8,9 @@ import { getConnection } from '../config/database.js';
 dotenv.config();
 
 // ── Configuração ──────────────────────────────────────────────────────────
-const BROKER_URL  = process.env.MQTT_BROKER_URL  || 'mqtt://192.168.4.200';
-const PORT        = parseInt(process.env.MQTT_PORT) || 1883;
-const CLIENT_ID   = process.env.MQTT_CLIENT_ID   || 'predictguard_backend';
+const BROKER_URL = process.env.MQTT_BROKER_URL || 'mqtt://192.168.4.200';
+const PORT = parseInt(process.env.MQTT_PORT) || 1883;
+const CLIENT_ID = process.env.MQTT_CLIENT_ID || 'predictguard_backend';
 
 // Tópicos com wildcards para subscrever a múltiplos sensores
 const TOPIC_TEMP_PATTERN = 'motor/temperatura/+';
@@ -114,16 +114,32 @@ async function handleTemperatura(payload, sensorId) {
         unidade: 'celsius'
     });
 
+
     if (valor >= limiteUsado) {
+
+        const resultado = await AlertaModel.listarTodos(
+            1,
+            1,
+            {
+                maquina_id: maquinaId,
+            },
+            'desc'
+        );
+
+        if (resultado && resultado.alertas && resultado.alertas.length > 0 && (Date.now() - new Date(resultado.alertas[0].data_criacao).getTime()) < 60 * 60 * 1000) {
+            console.log(`[MQTT] Alerta recente já existe para máquina ${maquinaId}, pulando criação de novo alerta.`);
+            return;
+        }
+
         await AlertaModel.criar({
-            maquina_id:         maquinaId,
-            sensor_id:          sensorId,
-            tipo_alerta:        'temperatura',
-            severidade:         valor >= limiteUsado * 1.1 ? 'critica' : 'alta',
-            valor_detectado:    valor,
+            maquina_id: maquinaId,
+            sensor_id: sensorId,
+            tipo_alerta: 'temperatura',
+            severidade: valor >= limiteUsado * 1.1 ? 'critica' : 'alta',
+            valor_detectado: valor,
             limite_configurado: limiteUsado,
-            unidade:            'celsius',
-            mensagem:           `Temperatura ${valor}°C acima do limite de ${limiteUsado}°C na máquina ${maquinaId}.`
+            unidade: 'celsius',
+            mensagem: `Temperatura ${valor}°C acima do limite de ${limiteUsado}°C na máquina ${maquinaId}.`
         });
 
         await MaquinaModel.atualizar(maquinaId, {
@@ -160,25 +176,40 @@ async function handleVibracao(payload, sensorId) {
     await LeituraModel.registrar({
         sensor_id: sensorId,
         valor,
-        unidade: 'mm/s' 
+        unidade: 'mm/s'
     });
 
     if (valor >= limiteUsado) {
+
+        const resultado = await AlertaModel.listarTodos(
+            1,
+            1,
+            {
+                maquina_id: maquinaId,
+            },
+            'desc'
+        );
+
+        if (resultado && resultado.alertas && resultado.alertas.length > 0 && (Date.now() - new Date(resultado.alertas[0].data_criacao).getTime()) < 60 * 60 * 1000) {
+            console.log(`[MQTT] Alerta recente já existe para máquina ${maquinaId}, pulando criação de novo alerta.`);
+            return;
+        }
+        
         await AlertaModel.criar({
-            maquina_id:         maquinaId,
-            sensor_id:          sensorId,
-            tipo_alerta:        'vibracao',
-            severidade:         valor >= limiteUsado * 1.1 ? 'critica' : 'alta',
-            valor_detectado:    valor,
+            maquina_id: maquinaId,
+            sensor_id: sensorId,
+            tipo_alerta: 'vibracao',
+            severidade: valor >= limiteUsado * 1.1 ? 'critica' : 'alta',
+            valor_detectado: valor,
             limite_configurado: limiteUsado,
-            unidade:            'mm/s',
-            mensagem:           `Vibração ${valor} mm/s acima do limite de ${limiteUsado} mm/s na máquina ${maquinaId}.`
+            unidade: 'mm/s',
+            mensagem: `Vibração ${valor} mm/s acima do limite de ${limiteUsado} mm/s na máquina ${maquinaId}.`
         });
 
         await MaquinaModel.atualizar(maquinaId, {
             status_saude: "alerta"
         });
-        
+
         console.warn(`[MQTT] ⚠️  Alerta de vibração: M${maquinaId} S${sensorId} ${valor} mm/s (limite: ${limiteUsado} mm/s)`);
     }
 
@@ -203,12 +234,12 @@ async function iniciarMQTT() {
     }
 
     const client = mqtt.connect(BROKER_URL, {
-        port:               PORT,
-        clientId:           CLIENT_ID,
-        clean:              true,
-        reconnectPeriod:    5000,
-        connectTimeout:     10000,
-        keepalive:          60,
+        port: PORT,
+        clientId: CLIENT_ID,
+        clean: true,
+        reconnectPeriod: 5000,
+        connectTimeout: 10000,
+        keepalive: 60,
     });
 
     client.on('connect', () => {
