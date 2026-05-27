@@ -10,6 +10,7 @@
     "start": "node --watch server.js",
     "dev": "node --watch server.js",
     "simulate:esp32": "node scripts/esp32-simulator.js",
+    "simulate:esp32:db": "node scripts/esp32-simulator-db.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
