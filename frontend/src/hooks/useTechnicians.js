@@ -8,17 +8,27 @@ export function useTechnicians() {
   const [erro, setErro] = useState(null);
   const [pagina, setPagina] = useState(1);
   const [totalPaginas, setTotalPaginas] = useState(1);
+  const [filtroTipo, setFiltroTipo] = useState("");
 
-  async function buscarTecnicos(paginaAtual) {
+  async function buscarTecnicos(paginaAtual, tipo = filtroTipo) {
     setLoading(true);
     setErro(null);
+
     try {
-      const res = await fetch(`${API_URL}?tipo=tecnico&pagina=${paginaAtual}&limite=10`, {
-        credentials: "include",
-        cache: "no-store",
-      });
-      if (!res.ok) throw new Error("Erro ao buscar técnicos");
+      const queryTipo = tipo ? `&tipo=${tipo}` : "";
+
+      const res = await fetch(
+        `${API_URL}?pagina=${paginaAtual}&limite=10${queryTipo}`,
+        {
+          credentials: "include",
+          cache: "no-store",
+        }
+      );
+
+      if (!res.ok) throw new Error("Erro ao buscar usuários");
+
       const data = await res.json();
+
       setTecnicos(data.dados);
       setTotalPaginas(data.paginacao?.totalPaginas || 1);
     } catch (err) {
@@ -29,8 +39,8 @@ export function useTechnicians() {
   }
 
   useEffect(() => {
-    buscarTecnicos(pagina);
-  }, [pagina]);
+    buscarTecnicos(pagina, filtroTipo);
+  }, [pagina, filtroTipo]);
 
   function proximaPagina() {
     setPagina((prev) => Math.min(prev + 1, totalPaginas));
@@ -40,6 +50,11 @@ export function useTechnicians() {
     setPagina((prev) => Math.max(prev - 1, 1));
   }
 
+  function alterarFiltro(tipo) {
+    setPagina(1);
+    setFiltroTipo(tipo);
+  }
+
   async function adicionarTecnico(formData) {
     try {
       const res = await fetch(API_URL, {
@@ -47,10 +62,15 @@ export function useTechnicians() {
         credentials: "include",
         body: formData,
       });
+
       const data = await res.json();
-      if (!res.ok) throw new Error(data.mensagem || "Erro ao adicionar técnico");
+
+      if (!res.ok)
+        throw new Error(data.mensagem || "Erro ao adicionar técnico");
+
       setPagina(1);
       await buscarTecnicos(1);
+
       return data.dados;
     } catch (err) {
       console.error("🚨 ERRO:", err);
@@ -64,7 +84,9 @@ export function useTechnicians() {
         method: "DELETE",
         credentials: "include",
       });
+
       if (!res.ok) throw new Error("Erro ao remover técnico");
+
       await buscarTecnicos(pagina);
     } catch (err) {
       console.error(err);
@@ -82,9 +104,14 @@ export function useTechnicians() {
         credentials: "include",
         body: JSON.stringify(atualizacoes),
       });
+
       const data = await res.json();
-      if (!res.ok) throw new Error(data.mensagem || "Erro ao atualizar técnico");
+
+      if (!res.ok)
+        throw new Error(data.mensagem || "Erro ao atualizar técnico");
+
       await buscarTecnicos(pagina);
+
       return data.dados;
     } catch (err) {
       console.error(err);
@@ -103,5 +130,7 @@ export function useTechnicians() {
     totalPaginas,
     proximaPagina,
     paginaAnterior,
+    filtroTipo,
+    alterarFiltro,
   };
 }
