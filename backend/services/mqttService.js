@@ -19,6 +19,7 @@ const TOPIC_VIBRA_PATTERN = 'motor/vibracao/+';
 // Limites de alerta
 const TEMP_LIMITE = parseFloat(process.env.MQTT_TEMP_LIMITE) || 85.0;
 const VIBRA_LIMITE = parseFloat(process.env.MQTT_VIBRA_LIMITE) || 7.1;
+const ALERTA_INTERVALO_MINIMO_MS = 60 * 60 * 1000; // 1 hora
 
 const sensorCache = new Map();
 const maquinaLimitesCache = new Map();
@@ -126,8 +127,8 @@ async function handleTemperatura(payload, sensorId) {
             'desc'
         );
 
-        if (resultado && resultado.alertas && resultado.alertas.length > 0 && (Date.now() - new Date(resultado.alertas[0].data_criacao).getTime()) < 60 * 60 * 1000) {
-            console.log(`[MQTT] Alerta recente já existe para máquina ${maquinaId}, pulando criação de novo alerta.`);
+        if (resultado && resultado.alertas && resultado.alertas.length > 0 && (Date.now() - new Date(resultado.alertas[0].data_alerta).getTime()) < ALERTA_INTERVALO_MINIMO_MS) {
+            console.log(`[MQTT] ⏭️  Alerta recente já existe para máquina ${maquinaId}, pulando criação de novo alerta.`);
             return;
         }
 
@@ -190,8 +191,8 @@ async function handleVibracao(payload, sensorId) {
             'desc'
         );
 
-        if (resultado && resultado.alertas && resultado.alertas.length > 0 && (Date.now() - new Date(resultado.alertas[0].data_criacao).getTime()) < 60 * 60 * 1000) {
-            console.log(`[MQTT] Alerta recente já existe para máquina ${maquinaId}, pulando criação de novo alerta.`);
+        if (resultado && resultado.alertas && resultado.alertas.length > 0 && (Date.now() - new Date(resultado.alertas[0].data_alerta).getTime()) < ALERTA_INTERVALO_MINIMO_MS) {
+            console.log(`[MQTT] ⏭️  Alerta recente já existe para máquina ${maquinaId}, pulando criação de novo alerta.`);
             return;
         }
         
