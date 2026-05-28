@@ -61,8 +61,8 @@ const operacionalStyle = {
   manutencao: "bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-800",
 };
 
-export function ModalMotorDetalhes({ open, setOpen, motor, onUpdate, onDelete }) {
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+export function ModalMotorDetalhes({ open, setOpen, motor, onUpdate }) {
+
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({});
   const [loading, setLoading] = useState(false);
@@ -111,27 +111,16 @@ export function ModalMotorDetalhes({ open, setOpen, motor, onUpdate, onDelete })
     }
   };
 
-  const handleConfirmDelete = async () => {
-    try {
-      await onDelete(motor.id);
-      setIsDeleteDialogOpen(false);
-      setOpen(false);
-    } catch (err) {
-      console.error(err);
-      alert("Erro ao excluir motor");
-    }
-  };
 
   return (
     <>
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
         <div className="w-full max-w-6xl rounded-2xl bg-white dark:bg-zinc-900 shadow-2xl border border-gray-100 dark:border-zinc-700 flex flex-col lg:flex-row max-h-[90vh] overflow-hidden">
 
-          {/* Painel esquerdo */}
           <div className="w-full lg:w-[30%] flex flex-col border-b lg:border-b-0 lg:border-r border-gray-100 dark:border-zinc-800 flex-shrink-0">
 
             {/* Header com gradiente */}
-            <div className="bg-gradient-to-r from-sky-500 to-sky-400 px-5 py-4 flex items-center gap-3 flex-shrink-0">
+            <div className="bg-gradient-to-right from-sky-500 to-sky-400 px-5 py-4 flex items-center gap-3 flex-shrink-0">
               <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-white/20 flex-shrink-0">
                 <Factory className="w-5 h-5 text-white" />
               </div>
@@ -147,7 +136,7 @@ export function ModalMotorDetalhes({ open, setOpen, motor, onUpdate, onDelete })
               </button>
             </div>
 
-            {/* Imagem */}
+        
             <div className="h-48 bg-white dark:bg-zinc-800 border-b border-gray-100 dark:border-zinc-800 flex items-center justify-center p-4 flex-shrink-0 relative overflow-hidden">
               <img
                 src={formData.imagem}
@@ -163,7 +152,6 @@ export function ModalMotorDetalhes({ open, setOpen, motor, onUpdate, onDelete })
               )}
             </div>
 
-            {/* Badges de status */}
             <div className="p-5 space-y-3 flex-1 overflow-y-auto">
               <div className="space-y-2">
                 <span className="block text-xs font-semibold text-gray-400 dark:text-zinc-500 uppercase tracking-wider">Status</span>
@@ -213,7 +201,7 @@ export function ModalMotorDetalhes({ open, setOpen, motor, onUpdate, onDelete })
                 </div>
               </div>
 
-              {/* Leituras */}
+              
               <div className="grid grid-cols-2 gap-3 pt-1">
                 <div className="rounded-xl border border-gray-100 dark:border-zinc-800 bg-gray-50 dark:bg-zinc-800/50 p-3 flex flex-col items-center text-center">
                   <Thermometer className="w-5 h-5 text-orange-500 mb-1" />
@@ -229,7 +217,7 @@ export function ModalMotorDetalhes({ open, setOpen, motor, onUpdate, onDelete })
             </div>
           </div>
 
-          {/* Painel direito */}
+
           <div className="flex-1 flex flex-col overflow-hidden">
             <div className="flex-1 overflow-y-auto p-5 lg:p-6 space-y-4">
 
@@ -299,12 +287,7 @@ export function ModalMotorDetalhes({ open, setOpen, motor, onUpdate, onDelete })
                   >
                     <Pencil size={14} /> Editar
                   </button>
-                  <button
-                    onClick={() => setIsDeleteDialogOpen(true)}
-                    className="flex items-center gap-2 px-5 py-2.5 rounded-lg border border-red-200 dark:border-red-800 text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 text-sm font-medium transition"
-                  >
-                    <Trash2 size={14} /> Excluir
-                  </button>
+                 
                 </>
               )}
             </div>
@@ -313,12 +296,7 @@ export function ModalMotorDetalhes({ open, setOpen, motor, onUpdate, onDelete })
         </div>
       </div>
 
-      <ModalExcluirMotor
-        open={isDeleteDialogOpen}
-        setOpen={setIsDeleteDialogOpen}
-        motor={motor}
-        onConfirm={handleConfirmDelete}
-      />
+ 
     </>
   );
 }
