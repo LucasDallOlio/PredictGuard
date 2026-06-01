@@ -1,5 +1,5 @@
 import { create, getConnection } from '../config/database.js';
-import normalizeDateTime from '../utils/normalizeDateTime.js';
+import { normalizeDateTime } from '../utils/normalizeDateTime.js';
 
 class LeituraModel {
     static async registrar({ sensor_id, valor, unidade }) {

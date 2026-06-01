@@ -1,5 +1,5 @@
 import { create, read, count, getConnection } from '../config/database.js';
-import normalizeDateTime from '../utils/normalizeDateTime.js';
+import { normalizeDateTime } from '../utils/normalizeDateTime.js';
 
 class AlertaModel {
     static async criar({ maquina_id, sensor_id = null, tipo_alerta, severidade, valor_detectado = null, limite_configurado = null, unidade = null, mensagem }) {
@@ -16,10 +16,10 @@ class AlertaModel {
     }
 
     static async buscarPorID(id) {
-		const connection = await getConnection();
+        const connection = await getConnection();
 
-		try {
-			const sql = `
+        try {
+            const sql = `
 				select
 					a.*,
 					m.nome as maquina,
@@ -29,19 +29,19 @@ class AlertaModel {
 				where a.id = ?
 			`;
 
-			const [rows] = await connection.execute(sql, [Number(id)]);
+            const [rows] = await connection.execute(sql, [Number(id)]);
 
-			if (!rows[0]) return null;
+            if (!rows[0]) return null;
 
-			return rows[0];
-		}
-		catch (error) {
-			throw new Error(`Erro ao buscar alerta por ID: ${error.message}`);
-		}
-		finally {
-			connection.release();
-		}
-	}
+            return rows[0];
+        }
+        catch (error) {
+            throw new Error(`Erro ao buscar alerta por ID: ${error.message}`);
+        }
+        finally {
+            connection.release();
+        }
+    }
 
     static async listarTodos(page = 1, limit = 10, filtro = null, ordem = 'asc') {
         const connection = await getConnection();

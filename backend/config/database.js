@@ -1,31 +1,8 @@
 import mysql from 'mysql2/promise';
 import dotenv from 'dotenv';
+import { normalizeTimezone } from '../utils/normalizeDateTime.js';
 
 dotenv.config();
-
-function normalizeTimezone(value) {
-    const raw = String(value || '').trim();
-
-    if (!raw) {
-        return 'local';
-    }
-
-    if (raw === 'local' || raw === 'Z') {
-        return raw;
-    }
-
-    const match = raw.match(/^([+-]?)(\d{1,2}):(\d{2})$/);
-
-    if (!match) {
-        return 'local';
-    }
-
-    const sign = match[1] === '+' ? '+' : '-';
-    const hours = match[2].padStart(2, '0');
-    const minutes = match[3];
-
-    return `${sign}${hours}:${minutes}`;
-}
 
 const dbTimezone = normalizeTimezone(process.env.DB_TIMEZONE);
 
