@@ -10,6 +10,9 @@ export function useMotors() {
 
   const [pagina, setPagina] = useState(1);
   const [totalPaginas, setTotalPaginas] = useState(1);
+  const [filtroSetor, setFiltroSetor] = useState("");
+  const [filtroStatusOperacional, setFiltroStatusOperacional] = useState("");
+  const [filtroStatusSaude, setFiltroStatusSaude] = useState("");
 
   const fetchMotores = useCallback(async (page = pagina) => {
 
@@ -20,12 +23,20 @@ export function useMotors() {
 
       console.log("Buscando motores...");
 
-      const res = await fetch(
-        `${API_URL}?pagina=${page}&limite=10`,
-        {
-          credentials: "include",
-        }
-      );
+      const params = new URLSearchParams({
+        pagina: String(page),
+        limite: "10",
+      });
+
+      if (filtroSetor) params.set("setor", filtroSetor);
+      if (filtroStatusOperacional) {
+        params.set("status_operacional", filtroStatusOperacional);
+      }
+      if (filtroStatusSaude) params.set("status_saude", filtroStatusSaude);
+
+      const res = await fetch(`${API_URL}?${params.toString()}`, {
+        credentials: "include",
+      });
 
       console.log("Status busca:", res.status);
 
@@ -52,7 +63,7 @@ export function useMotors() {
 
     }
 
-  }, [pagina]);
+  }, [pagina, filtroSetor, filtroStatusOperacional, filtroStatusSaude]);
 
   useEffect(() => {
 
@@ -66,6 +77,28 @@ export function useMotors() {
 
   function paginaAnterior() {
     setPagina((prev) => Math.max(prev - 1, 1));
+  }
+
+  function alterarFiltroSetor(valor) {
+    setFiltroSetor(valor);
+    setPagina(1);
+  }
+
+  function alterarFiltroStatusOperacional(valor) {
+    setFiltroStatusOperacional(valor);
+    setPagina(1);
+  }
+
+  function alterarFiltroStatusSaude(valor) {
+    setFiltroStatusSaude(valor);
+    setPagina(1);
+  }
+
+  function limparFiltros() {
+    setFiltroSetor("");
+    setFiltroStatusOperacional("");
+    setFiltroStatusSaude("");
+    setPagina(1);
   }
 
   async function addMotor(novoMotor) {
@@ -242,6 +275,14 @@ export function useMotors() {
 
     proximaPagina,
     paginaAnterior,
+
+    filtroSetor,
+    filtroStatusOperacional,
+    filtroStatusSaude,
+    alterarFiltroSetor,
+    alterarFiltroStatusOperacional,
+    alterarFiltroStatusSaude,
+    limparFiltros,
 
     fetchMotores,
   };
