@@ -11,14 +11,24 @@ export function useSensors() {
   const [loading, setLoading] = useState(true);
   const [pagina, setPagina] = useState(1);
   const [totalPaginas, setTotalPaginas] = useState(1);
+  const [filtroTipo, setFiltroTipo] = useState("");
+  const [filtroMaquina, setFiltroMaquina] = useState("");
 
   // ─── LEITURA ────────────────────────────────────────────────────────────────
 
   const fetchSensores = useCallback(async () => {
     setLoading(true);
     try {
+      const params = new URLSearchParams({
+        pagina: String(pagina),
+        limite: String(POR_PAGINA),
+      });
+
+      if (filtroTipo) params.set("tipo", filtroTipo);
+      if (filtroMaquina) params.set("maquina_id", filtroMaquina);
+
       const res = await fetch(
-        `${API}/sensores?pagina=${pagina}&limite=${POR_PAGINA}`,
+        `${API}/sensores?${params.toString()}`,
         { credentials: "include" }
       );
       const data = await res.json();
@@ -32,7 +42,7 @@ export function useSensors() {
     } finally {
       setLoading(false);
     }
-  }, [pagina]);
+  }, [pagina, filtroTipo, filtroMaquina]);
 
   const fetchMaquinas = useCallback(async () => {
     try {
@@ -96,6 +106,16 @@ export function useSensors() {
     if (pagina > 1) setPagina((p) => p - 1);
   };
 
+  const alterarFiltroTipo = (valor) => {
+    setFiltroTipo(valor);
+    setPagina(1);
+  };
+
+  const alterarFiltroMaquina = (valor) => {
+    setFiltroMaquina(valor);
+    setPagina(1);
+  };
+
   return {
     sensores,
     maquinas,
@@ -107,5 +127,9 @@ export function useSensors() {
     totalPaginas,
     proximaPagina,
     paginaAnterior,
+    filtroTipo,
+    filtroMaquina,
+    alterarFiltroTipo,
+    alterarFiltroMaquina,
   };
 }

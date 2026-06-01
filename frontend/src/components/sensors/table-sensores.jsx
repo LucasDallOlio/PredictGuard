@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Trash2, Radio, Pencil, Thermometer, Activity, Link2, Link2Off } from "lucide-react";
+import { Trash2, Radio, Pencil, Thermometer, Activity, Link2, Link2Off, ChevronDown } from "lucide-react";
 import ModalAdicionarSensor from "@/components/sensors/modal-sensor";
 import ModalEditarSensor from "@/components/sensors/modal-editar-sensor";
 import { useSensors } from "@/hooks/useSensors";
@@ -25,6 +25,10 @@ export default function SensorsTable() {
     totalPaginas,
     proximaPagina,
     paginaAnterior,
+    filtroTipo,
+    filtroMaquina,
+    alterarFiltroTipo,
+    alterarFiltroMaquina,
   } = useSensors();
 
   const handleAddSensor = async (novoSensor) => {
@@ -73,6 +77,33 @@ export default function SensorsTable() {
     if (!maquinaId) return null;
     return maquinas.find((m) => m.id === maquinaId)?.nome || `Máquina #${maquinaId}`;
   };
+
+  const SelectField = ({ value, onChange, placeholder, options }) => (
+    <div className="relative">
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="
+          h-10 w-[190px] appearance-none rounded-xl
+          border border-gray-200 dark:border-zinc-700
+          bg-white dark:bg-zinc-900
+          px-3 pr-10 text-sm
+          text-gray-700 dark:text-zinc-200
+          outline-none
+        "
+      >
+        <option value="">{placeholder}</option>
+
+        {options.map((o) => (
+          <option key={o.value} value={o.value}>
+            {o.label}
+          </option>
+        ))}
+      </select>
+
+      <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-zinc-500 pointer-events-none" />
+    </div>
+  );
 
   return (
     <div className="min-h-screen dark:bg-zinc-950 transition-colors duration-300">
@@ -149,13 +180,35 @@ export default function SensorsTable() {
             </div>
           </div>
 
-          <button
-            onClick={() => setModalOpen(true)}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-600 text-white text-sm font-semibold shadow-md shadow-sky-200 dark:shadow-sky-900 transition"
-          >
-            <Radio size={16} />
-            Adicionar Sensor
-          </button>
+          <div className="flex items-center gap-2">
+            <SelectField
+              value={filtroTipo}
+              onChange={alterarFiltroTipo}
+              placeholder="Filtrar tipo"
+              options={[
+                { value: "temperatura", label: "Temperatura" },
+                { value: "acelerometro", label: "Acelerômetro" },
+              ]}
+            />
+
+            <SelectField
+              value={filtroMaquina}
+              onChange={alterarFiltroMaquina}
+              placeholder="Filtrar máquina"
+              options={maquinas.map((m) => ({
+                value: String(m.id),
+                label: m.nome,
+              }))}
+            />
+
+            <button
+              onClick={() => setModalOpen(true)}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-600 text-white text-sm font-semibold shadow-md shadow-sky-200 dark:shadow-sky-900 transition"
+            >
+              <Radio size={16} />
+              Adicionar Sensor
+            </button>
+          </div>
         </div>
 
         {/* Tabela */}
