@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Trash2, Radio, Pencil, Thermometer, Activity, Link2, Link2Off, ChevronDown } from "lucide-react";
+import { Trash2, Radio, Pencil, Thermometer, Activity, Link2, Link2Off, ChevronDown, FilterX } from "lucide-react";
 import ModalAdicionarSensor from "@/components/sensors/modal-sensor";
 import ModalEditarSensor from "@/components/sensors/modal-editar-sensor";
 import { useSensors } from "@/hooks/useSensors";
@@ -29,6 +29,7 @@ export default function SensorsTable() {
     filtroMaquina,
     alterarFiltroTipo,
     alterarFiltroMaquina,
+    limparFiltros,
   } = useSensors();
 
   const handleAddSensor = async (novoSensor) => {
@@ -200,6 +201,23 @@ export default function SensorsTable() {
                 label: m.nome,
               }))}
             />
+
+            <button
+              type="button"
+              onClick={limparFiltros}
+              className="
+                h-10 w-10 flex items-center justify-center rounded-xl
+                border border-gray-200 dark:border-zinc-700
+                bg-white dark:bg-zinc-900
+                text-gray-700 dark:text-zinc-200
+                hover:bg-gray-50 dark:hover:bg-zinc-800
+                transition
+              "
+              title="Limpar filtros"
+              aria-label="Limpar filtros"
+            >
+              <FilterX className="w-5 h-5" />
+            </button>
 
             <button
               onClick={() => setModalOpen(true)}

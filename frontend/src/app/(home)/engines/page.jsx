@@ -141,7 +141,7 @@ export default function MotoresPage() {
               title="Limpar filtros"
               aria-label="Limpar filtros"
             >
-              <FunnelX />
+              <FunnelX className="w-5 h-5" />
             </button>
 
             <Button onClick={() => setOpenCreateModal(true)}>

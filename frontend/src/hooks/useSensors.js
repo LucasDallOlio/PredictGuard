@@ -116,6 +116,12 @@ export function useSensors() {
     setPagina(1);
   };
 
+  const limparFiltros = () => {
+    setFiltroTipo("");
+    setFiltroMaquina("");
+    setPagina(1);
+  };
+
   return {
     sensores,
     maquinas,
@@ -131,5 +137,6 @@ export function useSensors() {
     filtroMaquina,
     alterarFiltroTipo,
     alterarFiltroMaquina,
+    limparFiltros,
   };
 }
