@@ -86,9 +86,7 @@ class SensorModel {
 			`;
 
 			const [sensores] = await connection.execute(sql, [
-				...whereParams,
-				Number(offset),
-				Number(limit)
+				...whereParams
 			]);
 
 			const countSql = `select count(*) as count from sensores s ${whereSQL}`;
