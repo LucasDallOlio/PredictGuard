@@ -48,9 +48,20 @@ export function AuthProvider({ children }) {
     router.push("/dashboard");
   }
 
-  function logout() {
-    localStorage.removeItem("usuario");
+  async function logout() {
+    const resposta = await fetch(`${API_URL}/logout`, {
+      method: "POST",
+      credentials: "include"
+    });
+
+    const dados = await resposta.json();
+
+    if (!resposta.ok || !dados.sucesso) {
+      throw new Error(dados.mensagem);
+    }
+
     setUsuario(null);
+
     router.push("/");
   }
 
